@@ -11,6 +11,13 @@ from __future__ import annotations
 
 import pytest
 
+from llm_assert.assertions.semantic import (
+    DoesNotDiscuss,
+    IsFactuallyConsistentWith,
+    SemanticIntentMatches,
+    UsesLanguageAtGradeLevel,
+)
+from llm_assert.core.config import LLMAssertConfig
 from tests.fixtures.semantic_pairs import (
     FACTUAL_CONSISTENCY_BAD_PAIRS,
     FACTUAL_CONSISTENCY_GOOD_PAIRS,
@@ -20,13 +27,6 @@ from tests.fixtures.semantic_pairs import (
     TOPIC_AVOIDANCE_BAD_PAIRS,
     TOPIC_AVOIDANCE_GOOD_PAIRS,
 )
-from llm_assert.assertions.semantic import (
-    DoesNotDiscuss,
-    IsFactuallyConsistentWith,
-    SemanticIntentMatches,
-    UsesLanguageAtGradeLevel,
-)
-from llm_assert.core.config import LLMAssertConfig
 
 CONFIG = LLMAssertConfig()
 

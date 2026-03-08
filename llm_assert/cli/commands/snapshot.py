@@ -56,11 +56,17 @@ def snapshot_create(key: str, prompt: str, provider: str | None, snapshot_dir: s
     manager = SnapshotManager(snapshot_dir=Path(snapshot_dir))
 
     try:
-        with console.status("[llm_assert.muted]Calling provider...[/llm_assert.muted]", spinner="dots"):
+        with console.status(
+            "[llm_assert.muted]Calling provider...[/llm_assert.muted]",
+            spinner="dots",
+        ):
             response = resolved_provider.call(prompt)
     except Exception as call_err:
         from rich.markup import escape
-        console.print(f"[llm_assert.fail]Provider call failed:[/llm_assert.fail] {escape(str(call_err))}")
+        console.print(
+            "[llm_assert.fail]Provider call failed:[/llm_assert.fail] "
+            f"{escape(str(call_err))}"
+        )
         sys.exit(1)
 
     try:
@@ -103,11 +109,17 @@ def snapshot_update(key: str, prompt: str, provider: str | None, snapshot_dir: s
     manager = SnapshotManager(snapshot_dir=Path(snapshot_dir))
 
     try:
-        with console.status("[llm_assert.muted]Calling provider...[/llm_assert.muted]", spinner="dots"):
+        with console.status(
+            "[llm_assert.muted]Calling provider...[/llm_assert.muted]",
+            spinner="dots",
+        ):
             response = resolved_provider.call(prompt)
     except Exception as call_err:
         from rich.markup import escape
-        console.print(f"[llm_assert.fail]Provider call failed:[/llm_assert.fail] {escape(str(call_err))}")
+        console.print(
+            "[llm_assert.fail]Provider call failed:[/llm_assert.fail] "
+            f"{escape(str(call_err))}"
+        )
         sys.exit(1)
 
     entry = manager.update_entry(
@@ -157,7 +169,8 @@ def snapshot_diff(key: str, snapshot_dir: str, prompt: str | None, provider: str
     effective_prompt = prompt or baseline_entry.prompt
     if not effective_prompt:
         console.print(
-            "[llm_assert.fail]No prompt specified and snapshot has no stored prompt.[/llm_assert.fail] "
+            "[llm_assert.fail]No prompt specified and snapshot "
+            "has no stored prompt.[/llm_assert.fail] "
             "Provide --prompt to generate fresh output.",
         )
         sys.exit(1)
@@ -167,10 +180,16 @@ def snapshot_diff(key: str, snapshot_dir: str, prompt: str | None, provider: str
         sys.exit(1)
 
     try:
-        with console.status("[llm_assert.muted]Calling provider...[/llm_assert.muted]", spinner="dots"):
+        with console.status(
+            "[llm_assert.muted]Calling provider...[/llm_assert.muted]",
+            spinner="dots",
+        ):
             response = resolved_provider.call(effective_prompt)
     except Exception as call_err:
-        console.print(f"[llm_assert.fail]Provider call failed:[/llm_assert.fail] {escape(str(call_err))}")
+        console.print(
+            "[llm_assert.fail]Provider call failed:[/llm_assert.fail] "
+            f"{escape(str(call_err))}"
+        )
         sys.exit(1)
 
     # Structural comparison table

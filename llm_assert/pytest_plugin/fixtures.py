@@ -85,7 +85,10 @@ def llm_assert_provider() -> BaseProvider:
 
 
 @pytest.fixture(scope="function")
-def llm_assert_runner(llm_assert_provider: BaseProvider, llm_assert_config: LLMAssertConfig) -> LLMAssert:
+def llm_assert_runner(
+    llm_assert_provider: BaseProvider,
+    llm_assert_config: LLMAssertConfig,
+) -> LLMAssert:
     """Function-scoped LLMAssert instance.
 
     Fresh per test to prevent cross-test state leakage.

@@ -13,9 +13,9 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from tests.fixtures.recorded_responses import LITELLM_COMPLETION_RESPONSE
 from llm_assert.core.types import ProviderResponse
 from llm_assert.providers.litellm import LiteLLMProvider
+from tests.fixtures.recorded_responses import LITELLM_COMPLETION_RESPONSE
 
 # ---- Mock objects mirroring LiteLLM's OpenAI-compatible response shape ----
 

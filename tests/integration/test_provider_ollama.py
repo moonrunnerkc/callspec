@@ -12,9 +12,9 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from tests.fixtures.recorded_responses import OLLAMA_CHAT_RESPONSE
 from llm_assert.core.types import ProviderResponse
 from llm_assert.providers.ollama import OllamaProvider
+from tests.fixtures.recorded_responses import OLLAMA_CHAT_RESPONSE
 
 
 class TestOllamaProviderOffline:

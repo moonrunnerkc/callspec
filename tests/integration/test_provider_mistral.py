@@ -13,9 +13,9 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from tests.fixtures.recorded_responses import MISTRAL_CHAT_RESPONSE
 from llm_assert.core.types import ProviderResponse
 from llm_assert.providers.mistral import MistralProvider
+from tests.fixtures.recorded_responses import MISTRAL_CHAT_RESPONSE
 
 # ---- Mock objects mirroring Mistral SDK response shape ----
 

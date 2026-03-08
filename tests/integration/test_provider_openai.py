@@ -17,9 +17,9 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from tests.fixtures.recorded_responses import OPENAI_CHAT_RESPONSE
 from llm_assert.core.types import ProviderResponse
 from llm_assert.providers.openai import OpenAIProvider
+from tests.fixtures.recorded_responses import OPENAI_CHAT_RESPONSE
 
 # ---- Mock objects that mirror the OpenAI SDK response shape ----
 

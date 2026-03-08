@@ -51,7 +51,8 @@ def check(provider: str | None) -> None:
         targets = _detect_installed_providers()
         if not targets:
             console.print(
-                "[llm_assert.fail]No provider extras installed.[/llm_assert.fail] Install one with:\n"
+                "[llm_assert.fail]No provider extras installed.[/llm_assert.fail] "
+                "Install one with:\n"
                 "  pip install llm-assert[openai]\n"
                 "  pip install llm-assert[anthropic]\n"
                 "  pip install llm-assert[ollama]\n"
@@ -70,7 +71,8 @@ def check(provider: str | None) -> None:
     console.print()
     if failures:
         console.print(
-            f"[llm_assert.fail]{len(failures)} provider(s) failed connectivity check.[/llm_assert.fail]"
+            f"[llm_assert.fail]{len(failures)} provider(s) failed "
+            "connectivity check.[/llm_assert.fail]"
         )
         sys.exit(1)
     else:
@@ -130,7 +132,8 @@ def _check_single_provider(name: str, failures: list[str]) -> None:
     # Phase 3: make a minimal call with a spinner
     start_ms = time.monotonic()
     try:
-        with console.status(f"  [llm_assert.muted]Calling {name}...[/llm_assert.muted]", spinner="dots"):
+        status_msg = f"  [llm_assert.muted]Calling {name}...[/llm_assert.muted]"
+        with console.status(status_msg, spinner="dots"):
             response = provider_instance.call(MINIMAL_PROMPT)
         elapsed_ms = int((time.monotonic() - start_ms) * 1000)
     except Exception as call_err:

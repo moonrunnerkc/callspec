@@ -244,9 +244,10 @@ def _render_rich_case(case_name: str, result: AssertionResult) -> None:
     )
 
     marker = PASS_MARKER if result.passed else FAIL_MARKER
+    timing = f"{result.execution_time_ms}ms, {escape(result.model)}"
     tree = Tree(
         f"{marker} [llm_assert.key]{escape(case_name)}[/llm_assert.key]"
-        f"  [llm_assert.muted]({result.execution_time_ms}ms, {escape(result.model)})[/llm_assert.muted]"
+        f"  [llm_assert.muted]({timing})[/llm_assert.muted]"
     )
 
     for individual in result.assertions:

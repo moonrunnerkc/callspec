@@ -48,7 +48,7 @@ def run(
     from llm_assert.cli.console import console
     from llm_assert.core.report import ReportFormatter, render_rich_report
     from llm_assert.core.yaml_suite import load_yaml_suite
-    from llm_assert.errors import SuiteParseError, LLMAssertError
+    from llm_assert.errors import LLMAssertError, SuiteParseError
 
     try:
         suite = load_yaml_suite(suite_file)
@@ -63,7 +63,8 @@ def run(
     resolved_provider = _resolve_provider(provider, suite)
     if resolved_provider is None:
         console.print(
-            "[llm_assert.fail]Error:[/llm_assert.fail] No provider specified. Use --provider flag or set "
+            "[llm_assert.fail]Error:[/llm_assert.fail] "
+            "No provider specified. Use --provider flag or set "
             "'provider' in the suite file.",
             highlight=False,
         )
@@ -74,7 +75,10 @@ def run(
     runner = AssertionRunner(provider=resolved_provider, config=suite.config)
 
     try:
-        with console.status("[llm_assert.muted]Running suite...[/llm_assert.muted]", spinner="dots"):
+        with console.status(
+            "[llm_assert.muted]Running suite...[/llm_assert.muted]",
+            spinner="dots",
+        ):
             suite_result = runner.run_suite(suite)
     except LLMAssertError as llm_assert_error:
         console.print(
@@ -156,7 +160,8 @@ def _resolve_provider(provider_name: str | None, suite):
         return provider_class()
     except ImportError:
         console.print(
-            f"[llm_assert.fail]Provider '{name}' requires additional dependencies.[/llm_assert.fail] "
+            f"[llm_assert.fail]Provider '{name}' requires "
+            f"additional dependencies.[/llm_assert.fail] "
             f"Install with: pip install llm-assert[{name}]",
         )
         return None

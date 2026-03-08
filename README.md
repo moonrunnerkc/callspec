@@ -1,6 +1,38 @@
+<div align="center">
+
+<br>
+
 # Verdict
 
-Behavioral assertion testing for LLM applications.
+**Behavioral assertion testing for LLM applications.**
+
+<br>
+
+[![PyPI](https://img.shields.io/pypi/v/verdict)](https://pypi.org/project/verdict/)
+&nbsp;&nbsp;
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+&nbsp;&nbsp;
+[![Python](https://img.shields.io/pypi/pyversions/verdict)](https://pypi.org/project/verdict/)
+&nbsp;&nbsp;
+![Tests](https://img.shields.io/badge/tests-458%20passing-brightgreen.svg)
+
+<br>
+
+[Quick Start](#quick-start) · [What Is This](#what-is-this) · [Features](#features) · [Installation](#installation) · [Usage](#usage) · [Benchmarks](#benchmarks) · [Docs](#documentation)
+
+<br>
+
+</div>
+
+---
+
+<br>
+
+## Quick Start
+
+```bash
+pip install "verdict[anthropic]"
+```
 
 ```python
 from verdict import Verdict
@@ -24,35 +56,70 @@ assert result.passed
 
 Works with any provider. Swap `AnthropicProvider` for `OpenAIProvider`, `OllamaProvider`, or any other adapter and the assertions stay the same.
 
-[![PyPI](https://img.shields.io/pypi/v/verdict)](https://pypi.org/project/verdict/)
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-[![Python](https://img.shields.io/pypi/pyversions/verdict)](https://pypi.org/project/verdict/)
+<br>
 
-## Install
+---
 
-```bash
-pip install verdict
-```
+<br>
 
-With provider and semantic extras:
-
-```bash
-pip install "verdict[anthropic,semantic]"
-```
-
-Available extras: `openai`, `anthropic`, `google`, `mistral`, `ollama`, `litellm`, `semantic`.
-
-## What Verdict Does
+## What Is This
 
 Verdict is a composable assertion library for verifying LLM output. It drops into your existing pytest suite and gives you a clean pass/fail on whether your AI system behaves correctly.
 
 It is not a tracing platform, an observability tool, or a dashboard. Those tools monitor what happened. Verdict defines what *should* happen and fails your build if it does not.
 
-## Assertion Types
+Structural assertions (JSON validity, schema compliance, key presence, length bounds, regex) are deterministic, zero cost, and require no LLM calls. Semantic assertions (intent matching, topic avoidance, factual consistency) run locally via sentence-transformers with no API key and no external calls. Behavioral assertions run the model N times and assess the distribution. Regression assertions detect semantic drift and format shifts across model versions.
 
-### Structural
+<br>
 
-Verify the form of the output. JSON validity, schema compliance, key presence, length bounds, regex patterns. Deterministic, zero cost, no LLM calls.
+## Features
+
+- **Structural assertions** verifying JSON, schema, keys, length, regex, and string patterns. Deterministic, no LLM calls.
+- **Semantic assertions** using local embeddings (22MB model, CPU, no API key) for intent matching, topic avoidance, factual consistency, and reading level
+- **Behavioral assertions** running N samples with Wilson confidence intervals for pass rate, refusal rate, and consistency checks
+- **Regression and drift detection** comparing against versioned JSON baselines to catch silent model updates and format shifts
+- **Composite logic** chaining assertions with AND, OR, NOT, and `satisfies()` for arbitrary assertion instances
+- **Provider-agnostic** with adapters for OpenAI, Anthropic, Google, Mistral, Ollama, LiteLLM, and a MockProvider for zero-cost testing
+- **pytest plugin** registering automatically with fixtures, marks, CLI flags, and JSON report hooks
+- **YAML assertion suites** defined as configuration and runnable from CLI with non-zero exit on failure
+- **GitHub Action** (`moonrunnerkc/verdict@v1`) annotating PRs inline with assertion details on failure
+- **Deterministic semantic scoring** via local embeddings, producing identical scores across runs (zero flakiness)
+- **No telemetry, no analytics, no background network traffic.** Verdict makes exactly the LLM calls you ask for.
+
+<br>
+
+---
+
+<br>
+
+## Installation
+
+```bash
+pip install verdict                            # structural assertions only (3s install)
+pip install "verdict[anthropic]"               # add Anthropic provider (~5s)
+pip install "verdict[anthropic,semantic]"       # add local semantic scoring (~85s, includes PyTorch)
+```
+
+The base install covers structural assertions with any provider. Adding `[semantic]` pulls in sentence-transformers and PyTorch, which is a heavy install but eliminates all runtime API costs for semantic scoring.
+
+Available extras: `openai`, `anthropic`, `google`, `mistral`, `ollama`, `litellm`, `semantic`.
+
+<br>
+
+---
+
+<br>
+
+## Usage
+
+### Assertion Types
+
+<br>
+
+<details>
+<summary><strong>Structural:</strong> verify form (deterministic, zero cost)</summary>
+
+<br>
 
 ```python
 result = (
@@ -71,9 +138,14 @@ result = (
 
 All 8 structural assertions verified against Claude Sonnet 4 with a single API call.
 
-### Semantic
+</details>
 
-Verify meaning, not form. Does the response address the user's intent? Does it avoid prohibited topics? Is it consistent with reference material? Uses embedding similarity via sentence-transformers (22MB model, runs locally on CPU, no API key required).
+<details>
+<summary><strong>Semantic:</strong> verify meaning (local embeddings, no API key)</summary>
+
+<br>
+
+Uses embedding similarity via sentence-transformers (22MB model, runs locally on CPU).
 
 ```python
 result = (
@@ -88,9 +160,14 @@ result = (
 
 Tested against live Claude output: `semantic_intent_matches` scored 0.77, `does_not_discuss` correctly scored 0.10 (well below 0.6 rejection threshold), `is_factually_consistent_with` scored 0.81, and `uses_language_at_grade_level` correctly measured Flesch-Kincaid grade 5.0 for a simple-language prompt.
 
-### Behavioral
+</details>
 
-Verify patterns across multiple outputs. Does the model always refuse dangerous inputs? Is it consistent across runs? Runs the model N times and assesses the distribution with Wilson confidence intervals.
+<details>
+<summary><strong>Behavioral:</strong> verify patterns across multiple outputs</summary>
+
+<br>
+
+Runs the model N times and assesses the distribution with Wilson confidence intervals.
 
 ```python
 from verdict.assertions.structural import IsValidJson
@@ -107,7 +184,12 @@ result = (
 
 Tested with `FixedSetSampler` and `TemplateSampler` against Claude: 5/5 pass rate on structural checks, 4/5 refusal rate on adversarial inputs (meeting 0.80 threshold), and 1.000 consistency score across repeated calls.
 
-### Regression
+</details>
+
+<details>
+<summary><strong>Regression:</strong> detect drift and format shifts</summary>
+
+<br>
 
 Compare against recorded baselines. Detect semantic drift, format shifts, and silent model updates. Baselines live in your repo as versioned JSON.
 
@@ -125,9 +207,12 @@ result = (
 
 Also available: `.semantic_drift_is_below()` for drift-only checks, and `.format_matches_baseline()` for structural-only comparison. Drift detection verified: a marine biology response against a Python baseline correctly triggered failure with 0.89 semantic drift.
 
-### Composite
+</details>
 
-Chain assertions with boolean logic.
+<details>
+<summary><strong>Composite:</strong> chain assertions with boolean logic</summary>
+
+<br>
 
 ```python
 from verdict.assertions.structural import IsValidJson, StartsWith
@@ -145,7 +230,11 @@ result = v.assert_that(prompt).not_(IsValidJson()).run()
 result = v.assert_that(prompt).satisfies(IsValidJson()).run()
 ```
 
-## Providers
+</details>
+
+<br>
+
+### Providers
 
 Verdict works with any LLM provider. The provider layer is a thin adapter; assertions are provider-agnostic.
 
@@ -168,7 +257,9 @@ v = Verdict(mock)
 
 Every provider returns a `NormalizedResponse` with consistent fields: `content`, `model` (exact identifier, not the alias), `provider`, `latency_ms`, `prompt_tokens`, `completion_tokens`, `finish_reason`, `request_id`, and `raw` (original provider response). Verified against live Anthropic output.
 
-## pytest Integration
+<br>
+
+### pytest Integration
 
 Verdict registers as a pytest plugin. No new CLI or workflow to learn.
 
@@ -185,23 +276,21 @@ def test_summarizer(verdict_runner):
     assert result.passed
 ```
 
-Set the provider via environment variable:
-
 ```bash
 VERDICT_PROVIDER=anthropic pytest tests/ -v
 ```
 
-Flags:
-
-```bash
-pytest --verdict-report json --verdict-report-path report.json
-pytest --verdict-skip-behavioral    # skip expensive multi-sample tests
-pytest --verdict-strict             # borderline passes become failures
-```
+| Flag | Effect |
+|------|--------|
+| `--verdict-report json --verdict-report-path report.json` | Save JSON report |
+| `--verdict-skip-behavioral` | Skip expensive multi-sample tests |
+| `--verdict-strict` | Borderline passes become failures |
 
 The `--verdict-skip-behavioral` flag skips any test marked with `@pytest.mark.verdict_behavioral`, keeping commit-level runs fast while full behavioral suites run on a longer schedule.
 
-## YAML Suites
+<br>
+
+### YAML Suites
 
 Define assertion suites as configuration, committed alongside your model config:
 
@@ -239,7 +328,9 @@ VERDICT_PROVIDER=anthropic verdict run suite.yml
 
 Exits with non-zero on any failure. Supports `--format json` for CI report ingestion. A 7-case, 30-assertion YAML suite ran against Claude Sonnet 4 in 47 seconds with all cases passing.
 
-## CLI
+<br>
+
+### CLI
 
 ```bash
 verdict check                                  # verify provider connectivity
@@ -252,7 +343,9 @@ verdict providers                              # list installed providers
 verdict report result.json                     # pretty-print a saved report
 ```
 
-## GitHub Actions
+<br>
+
+### GitHub Actions
 
 ```yaml
 - uses: moonrunnerkc/verdict@v1
@@ -265,7 +358,9 @@ verdict report result.json                     # pretty-print a saved report
 
 Failures annotate the PR inline with assertion details: which assertion failed, the actual score, the threshold, and the model version. Step summaries appear in the workflow run UI.
 
-## Failure Output
+<br>
+
+### Failure Output
 
 When an assertion fails, the message tells you what went wrong, not just that something failed:
 
@@ -287,27 +382,22 @@ SemanticDrift failed for 'python_summary': drift 0.8863 exceeds max 0.1000
   Review the prompt or lower max_drift if the change is intentional.
 ```
 
-## Test Results
+<br>
 
-Every assertion type has been verified against live Claude Sonnet 4 (`claude-sonnet-4-20250514`) via the Anthropic API, plus 458 unit tests passing:
+---
 
-| Category | Assertions Tested | Result |
-|---|---|---|
-| Structural | 8 (is_valid_json, matches_schema, contains_keys, length_between, matches_pattern, does_not_contain, starts_with, ends_with) | All passed |
-| Semantic | 4 (semantic_intent_matches, does_not_discuss, is_factually_consistent_with, uses_language_at_grade_level) | All passed |
-| Behavioral | 4 (passes_rate with FixedSetSampler, passes_rate with TemplateSampler, refusal_rate_is_above, is_consistent_across_samples) | All passed |
-| Regression | 4 (matches_baseline, semantic_drift_is_below, format_matches_baseline, intentional drift detection) | All passed |
-| Composite | 5 (chained AND, or_, not_, satisfies, mixed structural+semantic) | All passed |
-| YAML Suite via CLI | 7 cases, 30 assertions | All passed |
-| pytest Plugin | 3 live tests + 1 correctly skipped behavioral | All passed |
-| Error handling | 6 (MockProvider, NormalizedResponse fields, failure messages, schema violations, connectivity, result metadata) | All passed |
-| Unit test suite | 458 tests | 458 passed, 6 skipped |
+<br>
 
-## Benchmark Results
+## Benchmarks
 
-Measured against real LLM providers, not synthetic data. Every number is produced by a runnable script in [verdict-benchmark/](verdict-benchmark/) and backed by a JSON result file.
+Every number below is produced by a runnable script in [verdict-benchmark/](verdict-benchmark/) and backed by a JSON result file. Full methodology and reproduction instructions: [verdict-benchmark/README.md](verdict-benchmark/README.md).
 
-### Comparison with Existing Tools
+<br>
+
+<details>
+<summary><strong>Comparison with existing tools</strong></summary>
+
+<br>
 
 | Metric | Verdict | DeepEval | Promptfoo | LangSmith | Braintrust |
 |--------|---------|----------|-----------|-----------|------------|
@@ -320,7 +410,12 @@ Measured against real LLM providers, not synthetic data. Every number is produce
 
 Source: [verdict-benchmark/results/cost.json](verdict-benchmark/results/cost.json), [verdict-benchmark/results/loc.json](verdict-benchmark/results/loc.json)
 
-### Measured API Calls and Telemetry
+</details>
+
+<details>
+<summary><strong>API calls and telemetry</strong> (measured via request interception)</summary>
+
+<br>
 
 Actual HTTPS requests intercepted during a 3-case suite run via `urllib3` and `httpx` patching:
 
@@ -333,9 +428,14 @@ Verdict makes exactly the LLM calls you ask for. No analytics, no IP lookups, no
 
 Source: [verdict-benchmark/results/api_call_counts.json](verdict-benchmark/results/api_call_counts.json)
 
-### Flakiness
+</details>
 
-Identical input, same model, repeated runs. Verdict's embedding-based scoring is deterministic. DeepEval's LLM-as-judge scoring is not.
+<details>
+<summary><strong>Flakiness</strong> (identical input, repeated runs)</summary>
+
+<br>
+
+Verdict's embedding-based scoring is deterministic. LLM-as-judge scoring is not.
 
 | Metric | Verdict (100 runs) | DeepEval (20 runs) |
 |--------|--------------------|--------------------|
@@ -345,7 +445,12 @@ Identical input, same model, repeated runs. Verdict's embedding-based scoring is
 
 Source: [verdict-benchmark/results/flakiness.json](verdict-benchmark/results/flakiness.json)
 
-### Drift Detection: Real Model Versions
+</details>
+
+<details>
+<summary><strong>Drift detection</strong> across real model versions</summary>
+
+<br>
 
 Drift measured as `1 - cosine_similarity` between recorded baselines and live model responses using sentence-transformers/all-MiniLM-L6-v2. Threshold: 0.15.
 
@@ -377,7 +482,12 @@ The OpenAI pair catches silent version drift within the same model family. The A
 
 Source: [verdict-benchmark/results/drift_detection.json](verdict-benchmark/results/drift_detection.json)
 
-### Setup Time
+</details>
+
+<details>
+<summary><strong>Setup time</strong></summary>
+
+<br>
 
 Verdict's install footprint depends on which extras you need. Measured in fresh venvs with warm pip cache:
 
@@ -392,9 +502,12 @@ The base install (structural assertions, any provider) is 3.1 seconds. Adding `[
 
 Source: [verdict-benchmark/results/setup_time.json](verdict-benchmark/results/setup_time.json)
 
-### CI Exit Codes
+</details>
 
-Verdict exits with non-zero on assertion failure, making it safe for CI gates:
+<details>
+<summary><strong>CI exit codes</strong></summary>
+
+<br>
 
 | Interface | Exit Code on Failure |
 |-----------|---------------------|
@@ -403,7 +516,44 @@ Verdict exits with non-zero on assertion failure, making it safe for CI gates:
 
 Source: [verdict-benchmark/results/exit_codes.json](verdict-benchmark/results/exit_codes.json)
 
-Full benchmark methodology and reproduction instructions: [verdict-benchmark/README.md](verdict-benchmark/README.md)
+</details>
+
+<details>
+<summary><strong>Test results</strong> (458 unit tests + live integration)</summary>
+
+<br>
+
+Every assertion type has been verified against live Claude Sonnet 4 (`claude-sonnet-4-20250514`) via the Anthropic API:
+
+| Category | Assertions Tested | Result |
+|---|---|---|
+| Structural | 8 (is_valid_json, matches_schema, contains_keys, length_between, matches_pattern, does_not_contain, starts_with, ends_with) | All passed |
+| Semantic | 4 (semantic_intent_matches, does_not_discuss, is_factually_consistent_with, uses_language_at_grade_level) | All passed |
+| Behavioral | 4 (passes_rate with FixedSetSampler, passes_rate with TemplateSampler, refusal_rate_is_above, is_consistent_across_samples) | All passed |
+| Regression | 4 (matches_baseline, semantic_drift_is_below, format_matches_baseline, intentional drift detection) | All passed |
+| Composite | 5 (chained AND, or_, not_, satisfies, mixed structural+semantic) | All passed |
+| YAML Suite via CLI | 7 cases, 30 assertions | All passed |
+| pytest Plugin | 3 live tests + 1 correctly skipped behavioral | All passed |
+| Error handling | 6 (MockProvider, NormalizedResponse fields, failure messages, schema violations, connectivity, result metadata) | All passed |
+| Unit test suite | 458 tests | 458 passed, 6 skipped |
+
+</details>
+
+<br>
+
+---
+
+<br>
+
+## Status
+
+Actively maintained. 458 unit tests plus live integration tests against Claude Sonnet 4. Development is ongoing.
+
+<br>
+
+---
+
+<br>
 
 ## Documentation
 
@@ -420,6 +570,27 @@ Full benchmark methodology and reproduction instructions: [verdict-benchmark/REA
 - [Contributing](docs/contributing.md) -- contributor guide
 - [Architecture](docs/architecture.md) -- design decisions and rationale
 
+<br>
+
+---
+
+<br>
+
+## Contributing
+
+Contributions are welcome. See the [contributor guide](docs/contributing.md) for setup, standards, and process.
+
+```bash
+pip install -e ".[dev,semantic]"
+pytest
+```
+
+<br>
+
+---
+
+<br>
+
 ## License
 
-Apache 2.0. See [LICENSE](LICENSE) for details.
+[Apache 2.0](LICENSE)

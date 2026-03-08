@@ -6,6 +6,8 @@
 
 **Behavioral assertion testing for LLM applications.**
 
+Created by [Bradley R. Kinnard](https://github.com/moonrunnerkc)
+
 <br>
 
 [![PyPI](https://img.shields.io/pypi/v/verdict)](https://pypi.org/project/verdict/)
@@ -593,4 +595,4 @@ pytest
 
 ## License
 
-[Apache 2.0](LICENSE)
+Copyright 2025-2026 Bradley R. Kinnard. Licensed under [Apache 2.0](LICENSE).

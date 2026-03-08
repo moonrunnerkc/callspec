@@ -12,7 +12,6 @@ from pathlib import Path
 
 import click
 
-
 DEFAULT_SNAPSHOT_DIR = "verdict_snapshots"
 
 
@@ -57,7 +56,7 @@ def snapshot_create(key: str, prompt: str, provider: str | None, snapshot_dir: s
     manager = SnapshotManager(snapshot_dir=Path(snapshot_dir))
 
     try:
-        with console.status(f"[verdict.muted]Calling provider...[/verdict.muted]", spinner="dots"):
+        with console.status("[verdict.muted]Calling provider...[/verdict.muted]", spinner="dots"):
             response = resolved_provider.call(prompt)
     except Exception as call_err:
         from rich.markup import escape
@@ -104,7 +103,7 @@ def snapshot_update(key: str, prompt: str, provider: str | None, snapshot_dir: s
     manager = SnapshotManager(snapshot_dir=Path(snapshot_dir))
 
     try:
-        with console.status(f"[verdict.muted]Calling provider...[/verdict.muted]", spinner="dots"):
+        with console.status("[verdict.muted]Calling provider...[/verdict.muted]", spinner="dots"):
             response = resolved_provider.call(prompt)
     except Exception as call_err:
         from rich.markup import escape
@@ -223,7 +222,8 @@ def snapshot_diff(key: str, snapshot_dir: str, prompt: str | None, provider: str
         )
     except ImportError:
         console.print(
-            "\n[verdict.muted]Semantic comparison unavailable (install verdict[semantic])[/verdict.muted]"
+            "\n[verdict.muted]Semantic comparison unavailable "
+            "(install verdict[semantic])[/verdict.muted]"
         )
 
 
@@ -268,7 +268,11 @@ def snapshot_list(snapshot_dir: str) -> None:
         console.print("[verdict.muted]No snapshots found.[/verdict.muted]")
         return
 
-    table = Table(title=f"Snapshots ({len(keys)})", border_style="dim", title_style="verdict.header")
+    table = Table(
+        title=f"Snapshots ({len(keys)})",
+        border_style="dim",
+        title_style="verdict.header",
+    )
     table.add_column("Key", style="verdict.key")
     table.add_column("Model", style="verdict.muted")
     table.add_column("Length", justify="right")
@@ -335,5 +339,9 @@ def _get_provider(provider_name: str | None):
         )
         return None
     except Exception as init_err:
-        console.print(f"[verdict.fail]Failed to initialize '{escape(name)}':[/verdict.fail] {escape(str(init_err))}")
+        console.print(
+            f"[verdict.fail]Failed to initialize "
+            f"'{escape(name)}':[/verdict.fail] "
+            f"{escape(str(init_err))}"
+        )
         return None

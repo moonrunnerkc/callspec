@@ -13,16 +13,13 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
-from typing import Any, List, Optional
 from unittest.mock import MagicMock, patch
 
 import pytest
 
+from tests.fixtures.recorded_responses import OPENAI_CHAT_RESPONSE
 from verdict.core.types import ProviderResponse
 from verdict.providers.openai import OpenAIProvider
-
-from tests.fixtures.recorded_responses import OPENAI_CHAT_RESPONSE
-
 
 # ---- Mock objects that mirror the OpenAI SDK response shape ----
 
@@ -52,7 +49,7 @@ class MockCompletion:
     object: str
     created: int
     model: str
-    choices: List[MockChoice]
+    choices: list[MockChoice]
     usage: MockUsage
 
     def model_dump(self) -> dict:

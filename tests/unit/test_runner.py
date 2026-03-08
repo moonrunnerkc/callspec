@@ -6,7 +6,7 @@ import json
 
 import pytest
 
-from verdict.assertions.structural import IsValidJson, LengthBetween, ContainsKeys
+from verdict.assertions.structural import ContainsKeys, IsValidJson, LengthBetween
 from verdict.core.config import VerdictConfig
 from verdict.core.runner import AssertionRunner
 from verdict.core.suite import AssertionCase, AssertionSuite

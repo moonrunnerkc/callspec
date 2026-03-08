@@ -7,7 +7,6 @@ Tests verify correct output, exit codes, and error handling for each command.
 from __future__ import annotations
 
 import json
-import os
 import textwrap
 from pathlib import Path
 
@@ -259,7 +258,9 @@ class TestSnapshotCommand:
         assert result.exit_code == 0
         assert "test_key" in result.output
 
-    def test_snapshot_create_duplicate_fails(self, runner: CliRunner, mock_env, tmp_path: Path) -> None:
+    def test_snapshot_create_duplicate_fails(
+        self, runner: CliRunner, mock_env, tmp_path: Path,
+    ) -> None:
         snap_dir = tmp_path / "snaps"
 
         # Create first

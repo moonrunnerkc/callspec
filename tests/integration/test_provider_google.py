@@ -9,14 +9,12 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
-from typing import Any, List, Optional
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 from verdict.core.types import ProviderResponse
 from verdict.providers.google import GoogleProvider
-
 
 # ---- Mock objects mirroring google-generativeai response shape ----
 
@@ -27,7 +25,7 @@ class MockPart:
 
 @dataclass
 class MockContent:
-    parts: List[MockPart] = field(default_factory=lambda: [MockPart()])
+    parts: list[MockPart] = field(default_factory=lambda: [MockPart()])
     role: str = "model"
 
 
@@ -48,7 +46,7 @@ class MockUsageMetadata:
 @dataclass
 class MockGenerateResponse:
     text: str = "The capital of France is Paris."
-    candidates: List[MockCandidate] = field(default_factory=lambda: [MockCandidate()])
+    candidates: list[MockCandidate] = field(default_factory=lambda: [MockCandidate()])
     usage_metadata: MockUsageMetadata = field(default_factory=MockUsageMetadata)
 
 

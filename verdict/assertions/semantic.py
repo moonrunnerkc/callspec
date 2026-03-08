@@ -42,7 +42,10 @@ class SemanticIntentMatches(BaseAssertion):
         self._threshold = threshold
 
     def evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult:
-        threshold = self._threshold if self._threshold is not None else config.semantic_similarity_threshold
+        threshold = (
+            self._threshold if self._threshold is not None
+            else config.semantic_similarity_threshold
+        )
 
         similarity = score_similarity(content, self._reference_intent, config.embedding_model)
 
@@ -60,7 +63,8 @@ class SemanticIntentMatches(BaseAssertion):
                 f"using {config.embedding_model}, "
                 f"input {len(content)} chars, "
                 f"reference intent: '{self._reference_intent[:80]}'. "
-                f"Check embedding model version or lower threshold if intent ambiguity is acceptable."
+                f"Check embedding model version or lower threshold "
+                f"if intent ambiguity is acceptable."
             )
 
         return IndividualAssertionResult(
@@ -97,7 +101,10 @@ class DoesNotDiscuss(BaseAssertion):
         self._threshold = threshold
 
     def evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult:
-        threshold = self._threshold if self._threshold is not None else config.topic_avoidance_threshold
+        threshold = (
+            self._threshold if self._threshold is not None
+            else config.topic_avoidance_threshold
+        )
 
         similarity = score_similarity(content, self._topic, config.embedding_model)
 
@@ -106,7 +113,8 @@ class DoesNotDiscuss(BaseAssertion):
 
         if passed:
             message = (
-                f"Topic avoidance check passed: similarity {similarity:.4f} < threshold {threshold:.4f}. "
+                f"Topic avoidance check passed: "
+                f"similarity {similarity:.4f} < threshold {threshold:.4f}. "
                 f"Response does not discuss: '{self._topic[:80]}'"
             )
         else:
@@ -157,7 +165,10 @@ class IsFactuallyConsistentWith(BaseAssertion):
         self._threshold = threshold
 
     def evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult:
-        threshold = self._threshold if self._threshold is not None else config.factual_consistency_threshold
+        threshold = (
+            self._threshold if self._threshold is not None
+            else config.factual_consistency_threshold
+        )
 
         similarity = score_similarity(content, self._reference_text, config.embedding_model)
 
@@ -168,7 +179,8 @@ class IsFactuallyConsistentWith(BaseAssertion):
 
         if passed:
             message = (
-                f"Factual consistency check passed: score {similarity:.4f} >= threshold {threshold:.4f}. "
+                f"Factual consistency check passed: "
+                f"score {similarity:.4f} >= threshold {threshold:.4f}. "
                 f"Response is consistent with reference: '{reference_preview}...'"
             )
         else:
@@ -176,7 +188,8 @@ class IsFactuallyConsistentWith(BaseAssertion):
                 f"SemanticAssertion failed: factual consistency score {similarity:.4f} "
                 f"below threshold {threshold:.4f} using {config.embedding_model}. "
                 f"Response diverges from reference: '{reference_preview}...'. "
-                f"Check that the model is using the provided context rather than generating from training data."
+                f"Check that the model is using the provided context "
+                f"rather than generating from training data."
             )
 
         return IndividualAssertionResult(
@@ -229,7 +242,9 @@ class UsesLanguageAtGradeLevel(BaseAssertion):
                 f"SemanticAssertion failed: Flesch-Kincaid grade {actual_grade:.1f} "
                 f"is {direction} the target range [{lower_bound}, {upper_bound}]. "
                 f"Target: grade {self._target_grade} +/- {self._tolerance}. "
-                f"Adjust prompt instructions for {'simpler' if direction == 'above' else 'more complex'} language."
+                f"Adjust prompt instructions for "
+                f"{'simpler' if direction == 'above' else 'more complex'} "
+                f"language."
             )
 
         return IndividualAssertionResult(

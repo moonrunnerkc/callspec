@@ -11,7 +11,6 @@ from __future__ import annotations
 from rich.console import Console
 from rich.theme import Theme
 
-
 # Verdict-specific semantic styles. Every color choice in the CLI
 # traces back to this theme, so rebranding is a single-file edit.
 VERDICT_THEME = Theme({

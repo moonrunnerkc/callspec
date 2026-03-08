@@ -13,7 +13,6 @@ own randomness). The SeedManager controls Verdict's sampling randomness.
 from __future__ import annotations
 
 import random
-from typing import Optional
 
 
 class SeedManager:
@@ -24,12 +23,12 @@ class SeedManager:
     so behavioral test runs are reproducible regardless of execution order.
     """
 
-    def __init__(self, root_seed: Optional[int] = 42) -> None:
+    def __init__(self, root_seed: int | None = 42) -> None:
         self._root_seed = root_seed
         self._rng = random.Random(root_seed)
 
     @property
-    def root_seed(self) -> Optional[int]:
+    def root_seed(self) -> int | None:
         return self._root_seed
 
     def next_seed(self) -> int:

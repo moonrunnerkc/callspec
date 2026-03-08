@@ -8,9 +8,9 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-from verdict.core.types import AssertionResult, IndividualAssertionResult, SuiteResult
+from verdict.core.types import AssertionResult, SuiteResult
 from verdict.version import __version__
 
 
@@ -19,12 +19,12 @@ class ReportFormatter:
 
     @staticmethod
     def to_json(
-        suite_result: Optional[SuiteResult] = None,
-        assertion_results: Optional[Dict[str, AssertionResult]] = None,
+        suite_result: SuiteResult | None = None,
+        assertion_results: dict[str, AssertionResult] | None = None,
         suite_name: str = "default",
     ) -> str:
         """Serialize results to JSON for verdict.run ingestion or file storage."""
-        report: Dict[str, Any] = {
+        report: dict[str, Any] = {
             "verdict_version": __version__,
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "suite_name": suite_name,
@@ -52,12 +52,12 @@ class ReportFormatter:
 
     @staticmethod
     def to_plaintext(
-        suite_result: Optional[SuiteResult] = None,
-        assertion_results: Optional[Dict[str, AssertionResult]] = None,
+        suite_result: SuiteResult | None = None,
+        assertion_results: dict[str, AssertionResult] | None = None,
         suite_name: str = "default",
     ) -> str:
         """Format results as human-readable plaintext for terminal output."""
-        lines: List[str] = []
+        lines: list[str] = []
         lines.append(f"Verdict Report: {suite_name}")
         lines.append("=" * 60)
         lines.append("")
@@ -82,14 +82,14 @@ class ReportFormatter:
 
     @staticmethod
     def to_junit(
-        suite_result: Optional[SuiteResult] = None,
-        assertion_results: Optional[Dict[str, AssertionResult]] = None,
+        suite_result: SuiteResult | None = None,
+        assertion_results: dict[str, AssertionResult] | None = None,
         suite_name: str = "default",
     ) -> str:
         """Format results as JUnit XML for CI integration."""
         lines = ['<?xml version="1.0" encoding="UTF-8"?>']
 
-        cases: Dict[str, AssertionResult] = {}
+        cases: dict[str, AssertionResult] = {}
         if suite_result:
             cases = suite_result.case_results
         elif assertion_results:
@@ -130,7 +130,7 @@ class ReportFormatter:
         return "\n".join(lines)
 
 
-def _serialize_assertion_result(result: AssertionResult) -> Dict[str, Any]:
+def _serialize_assertion_result(result: AssertionResult) -> dict[str, Any]:
     """Convert an AssertionResult to a JSON-serializable dict."""
     return {
         "passed": result.passed,
@@ -153,9 +153,9 @@ def _serialize_assertion_result(result: AssertionResult) -> Dict[str, Any]:
     }
 
 
-def _format_case_plaintext(case_name: str, result: AssertionResult) -> List[str]:
+def _format_case_plaintext(case_name: str, result: AssertionResult) -> list[str]:
     """Format a single case result as plaintext lines."""
-    lines: List[str] = []
+    lines: list[str] = []
     status = "PASS" if result.passed else "FAIL"
     lines.append(f"  [{status}] {case_name} ({result.execution_time_ms}ms)")
     lines.append(f"         model: {result.model}")
@@ -181,8 +181,8 @@ def _format_case_plaintext(case_name: str, result: AssertionResult) -> List[str]
 
 
 def render_rich_report(
-    suite_result: Optional[SuiteResult] = None,
-    assertion_results: Optional[Dict[str, AssertionResult]] = None,
+    suite_result: SuiteResult | None = None,
+    assertion_results: dict[str, AssertionResult] | None = None,
     suite_name: str = "default",
 ) -> None:
     """Render results directly to the Rich console with styled output.
@@ -193,13 +193,9 @@ def render_rich_report(
     from rich.panel import Panel
     from rich.table import Table
     from rich.text import Text
-    from rich.tree import Tree
 
     from verdict.cli.console import (
-        FAIL_MARKER,
-        PASS_MARKER,
         console,
-        format_score,
     )
 
     if suite_result:
@@ -219,7 +215,12 @@ def render_rich_report(
         )
         summary.add_row("Duration", f"{suite_result.execution_time_ms}ms")
 
-        console.print(Panel(summary, title=f"[verdict.header]{suite_name}[/verdict.header]", border_style="verdict.header", padding=(0, 1)))
+        console.print(Panel(
+            summary,
+            title=f"[verdict.header]{suite_name}[/verdict.header]",
+            border_style="verdict.header",
+            padding=(0, 1),
+        ))
         console.print()
 
         for case_name, case_result in suite_result.case_results.items():
@@ -233,7 +234,6 @@ def render_rich_report(
 def _render_rich_case(case_name: str, result: AssertionResult) -> None:
     """Render a single case with a tree of assertion results."""
     from rich.markup import escape
-    from rich.text import Text
     from rich.tree import Tree
 
     from verdict.cli.console import (

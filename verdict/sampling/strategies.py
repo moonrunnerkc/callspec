@@ -11,9 +11,9 @@ import hashlib
 import itertools
 import json
 import logging
-import os
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any
 
 from verdict.sampling.sampler import BaseSampler, InputItem
 from verdict.sampling.seed import SeedManager
@@ -30,14 +30,14 @@ class FixedSetSampler(BaseSampler):
 
     def __init__(
         self,
-        inputs: Sequence[str | InputItem | Dict[str, Any]],
+        inputs: Sequence[str | InputItem | dict[str, Any]],
         shuffle: bool = False,
     ) -> None:
         self._inputs = self._normalize_inputs(inputs)
         self._shuffle = shuffle
 
     @staticmethod
-    def _normalize_inputs(raw: Sequence[str | InputItem | Dict[str, Any]]) -> List[InputItem]:
+    def _normalize_inputs(raw: Sequence[str | InputItem | dict[str, Any]]) -> list[InputItem]:
         """Coerce string, dict, or InputItem inputs into a uniform InputItem list."""
         normalized = []
         for entry in raw:
@@ -52,11 +52,12 @@ class FixedSetSampler(BaseSampler):
                 ))
             else:
                 raise TypeError(
-                    f"FixedSetSampler expects str, InputItem, or dict entries, got {type(entry).__name__}"
+                    f"FixedSetSampler expects str, InputItem, "
+                    f"or dict entries, got {type(entry).__name__}"
                 )
         return normalized
 
-    def sample(self, n: int, seed_manager: Optional[SeedManager] = None) -> List[InputItem]:
+    def sample(self, n: int, seed_manager: SeedManager | None = None) -> list[InputItem]:
         if not self._inputs:
             raise ValueError("FixedSetSampler has no inputs to sample from")
 
@@ -91,7 +92,7 @@ class TemplateSampler(BaseSampler):
     def __init__(
         self,
         template: str,
-        variables: Dict[str, List[str]],
+        variables: dict[str, list[str]],
         exhaustive: bool = True,
     ) -> None:
         self._template = template
@@ -108,7 +109,7 @@ class TemplateSampler(BaseSampler):
                 f"Available variables: {set(variables.keys())}"
             )
 
-    def _generate_all_combinations(self) -> List[str]:
+    def _generate_all_combinations(self) -> list[str]:
         """Produce all possible template expansions from the variable lists."""
         slot_names = sorted(self._variables.keys())
         value_lists = [self._variables[name] for name in slot_names]
@@ -120,7 +121,7 @@ class TemplateSampler(BaseSampler):
 
         return expanded
 
-    def sample(self, n: int, seed_manager: Optional[SeedManager] = None) -> List[InputItem]:
+    def sample(self, n: int, seed_manager: SeedManager | None = None) -> list[InputItem]:
         all_expansions = self._generate_all_combinations()
 
         if not all_expansions:
@@ -165,7 +166,7 @@ class SemanticVariantSampler(BaseSampler):
         seed_input: str,
         n_variants: int = 20,
         provider: Any = None,
-        cache_dir: Optional[str] = None,
+        cache_dir: str | None = None,
     ) -> None:
         self._seed_input = seed_input
         self._n_variants = n_variants
@@ -182,14 +183,14 @@ class SemanticVariantSampler(BaseSampler):
     def _cache_path(self) -> Path:
         return self._cache_dir / f"{self._cache_key()}.json"
 
-    def _load_cached_variants(self) -> Optional[List[str]]:
+    def _load_cached_variants(self) -> list[str] | None:
         """Load previously generated variants from disk cache."""
         cache_file = self._cache_path()
         if not cache_file.exists():
             return None
 
         try:
-            with open(cache_file, "r") as fh:
+            with open(cache_file) as fh:
                 cached = json.load(fh)
             variants = cached.get("variants", [])
             if len(variants) >= self._n_variants:
@@ -200,7 +201,7 @@ class SemanticVariantSampler(BaseSampler):
 
         return None
 
-    def _save_variants_to_cache(self, variants: List[str]) -> None:
+    def _save_variants_to_cache(self, variants: list[str]) -> None:
         """Persist generated variants to disk for reuse."""
         self._cache_dir.mkdir(parents=True, exist_ok=True)
         cache_file = self._cache_path()
@@ -216,7 +217,7 @@ class SemanticVariantSampler(BaseSampler):
 
         logger.info("Cached %d semantic variants to %s", len(variants), cache_file)
 
-    def _generate_variants(self) -> List[str]:
+    def _generate_variants(self) -> list[str]:
         """Generate phrasing variants using the configured provider.
 
         Each variant is a rephrasing of the seed input that preserves
@@ -258,7 +259,7 @@ class SemanticVariantSampler(BaseSampler):
 
         return variants[:self._n_variants]
 
-    def sample(self, n: int, seed_manager: Optional[SeedManager] = None) -> List[InputItem]:
+    def sample(self, n: int, seed_manager: SeedManager | None = None) -> list[InputItem]:
         # Try loading from cache first
         variants = self._load_cached_variants()
 

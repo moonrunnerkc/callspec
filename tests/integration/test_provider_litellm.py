@@ -9,16 +9,13 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
-from typing import Any, List, Optional
 from unittest.mock import MagicMock, patch
 
 import pytest
 
+from tests.fixtures.recorded_responses import LITELLM_COMPLETION_RESPONSE
 from verdict.core.types import ProviderResponse
 from verdict.providers.litellm import LiteLLMProvider
-
-from tests.fixtures.recorded_responses import LITELLM_COMPLETION_RESPONSE
-
 
 # ---- Mock objects mirroring LiteLLM's OpenAI-compatible response shape ----
 
@@ -48,7 +45,7 @@ class MockLiteLLMResponse:
     object: str = "chat.completion"
     created: int = 1700000000
     model: str = "gpt-4o-2024-11-20"
-    choices: List[MockLiteLLMChoice] = field(default_factory=lambda: [MockLiteLLMChoice()])
+    choices: list[MockLiteLLMChoice] = field(default_factory=lambda: [MockLiteLLMChoice()])
     usage: MockLiteLLMUsage = field(default_factory=MockLiteLLMUsage)
 
     def model_dump(self) -> dict:

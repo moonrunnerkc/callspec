@@ -16,13 +16,15 @@ import sys
 import textwrap
 from pathlib import Path
 
-import pytest
-
 PYTHON = sys.executable
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
 
-def _run_pytest(test_content: str, tmp_path: Path, extra_args: list[str] | None = None) -> subprocess.CompletedProcess:
+def _run_pytest(
+    test_content: str,
+    tmp_path: Path,
+    extra_args: list[str] | None = None,
+) -> subprocess.CompletedProcess:
     """Write a test file to tmp_path and run pytest against it."""
     test_file = tmp_path / "test_verdict_plugin.py"
     test_file.write_text(test_content)

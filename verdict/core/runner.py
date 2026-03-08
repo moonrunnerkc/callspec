@@ -9,11 +9,10 @@ lives here, not in individual assertions.
 from __future__ import annotations
 
 import time
-from typing import Any, Dict, List, Optional
 
 from verdict.assertions.base import BaseAssertion
 from verdict.core.config import VerdictConfig
-from verdict.core.suite import AssertionCase, AssertionSuite
+from verdict.core.suite import AssertionSuite
 from verdict.core.types import (
     AssertionResult,
     IndividualAssertionResult,
@@ -33,7 +32,7 @@ class AssertionRunner:
     report.
     """
 
-    def __init__(self, provider: BaseProvider, config: Optional[VerdictConfig] = None) -> None:
+    def __init__(self, provider: BaseProvider, config: VerdictConfig | None = None) -> None:
         self._provider = provider
         self._config = config or VerdictConfig()
 
@@ -48,8 +47,8 @@ class AssertionRunner:
     def run_assertions(
         self,
         prompt: str,
-        assertions: List[BaseAssertion],
-        messages: Optional[List[Dict[str, str]]] = None,
+        assertions: list[BaseAssertion],
+        messages: list[dict[str, str]] | None = None,
     ) -> AssertionResult:
         """Run a list of assertions against a single prompt.
 
@@ -61,7 +60,7 @@ class AssertionRunner:
         provider_response = self._call_provider_with_retries(prompt, messages)
         content = provider_response.content
 
-        individual_results: List[IndividualAssertionResult] = []
+        individual_results: list[IndividualAssertionResult] = []
         all_passed = True
 
         for assertion in assertions:
@@ -88,12 +87,11 @@ class AssertionRunner:
     def run_suite(self, suite: AssertionSuite) -> SuiteResult:
         """Run a full assertion suite: multiple cases, each with their own assertions."""
         start_time = time.monotonic()
-        case_results: Dict[str, AssertionResult] = {}
+        case_results: dict[str, AssertionResult] = {}
         passed_count = 0
         failed_count = 0
 
         # Use suite-level config if provided, falling back to runner config
-        active_config = suite.config or self._config
 
         for case in suite.cases:
             case_result = self.run_assertions(
@@ -124,14 +122,14 @@ class AssertionRunner:
     def _call_provider_with_retries(
         self,
         prompt: str,
-        messages: Optional[List[Dict[str, str]]] = None,
+        messages: list[dict[str, str]] | None = None,
     ) -> ProviderResponse:
         """Call the provider with exponential backoff on transient errors.
 
         Retries on provider/network errors only. Assertion failures are never retried
         because they indicate a behavioral problem, not an infrastructure problem.
         """
-        last_error: Optional[Exception] = None
+        last_error: Exception | None = None
 
         for attempt in range(1, self._config.max_retries + 1):
             try:

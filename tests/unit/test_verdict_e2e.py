@@ -161,7 +161,7 @@ class TestVerdictEndToEnd:
         assert assertion_result.passed is True
 
     def test_or_assertion_via_builder(self) -> None:
-        from verdict.assertions.structural import StartsWith, EndsWith
+        from verdict.assertions.structural import StartsWith
 
         provider = _static_provider("Hello world")
         v = Verdict(provider)

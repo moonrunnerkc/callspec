@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from verdict.core.types import ProviderResponse
 from verdict.providers.base import BaseProvider
@@ -36,10 +36,10 @@ class OllamaProvider(BaseProvider):
     def __init__(
         self,
         model: str = "llama3",
-        host: Optional[str] = None,
+        host: str | None = None,
         temperature: float = 0.0,
-        seed: Optional[int] = 42,
-        num_predict: Optional[int] = None,
+        seed: int | None = 42,
+        num_predict: int | None = None,
         **client_kwargs: Any,
     ) -> None:
         self._model = model
@@ -96,15 +96,15 @@ class OllamaProvider(BaseProvider):
     def _build_messages(
         self,
         prompt: str,
-        messages: Optional[List[Dict[str, str]]] = None,
-    ) -> List[Dict[str, str]]:
+        messages: list[dict[str, str]] | None = None,
+    ) -> list[dict[str, str]]:
         if messages is not None:
             return list(messages)
         return [{"role": "user", "content": prompt}]
 
-    def _build_options(self, **kwargs) -> Dict[str, Any]:
+    def _build_options(self, **kwargs) -> dict[str, Any]:
         """Build Ollama options dict for temperature, seed, and num_predict."""
-        options: Dict[str, Any] = {
+        options: dict[str, Any] = {
             "temperature": self._temperature,
         }
 
@@ -120,7 +120,7 @@ class OllamaProvider(BaseProvider):
     def call(
         self,
         prompt: str,
-        messages: Optional[List[Dict[str, str]]] = None,
+        messages: list[dict[str, str]] | None = None,
         **kwargs: Any,
     ) -> ProviderResponse:
         client = self._get_client()
@@ -160,7 +160,7 @@ class OllamaProvider(BaseProvider):
     async def call_async(
         self,
         prompt: str,
-        messages: Optional[List[Dict[str, str]]] = None,
+        messages: list[dict[str, str]] | None = None,
         **kwargs: Any,
     ) -> ProviderResponse:
         """Native async using Ollama's AsyncClient."""

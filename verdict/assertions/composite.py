@@ -7,8 +7,6 @@ behavioral contracts expressed as single chains.
 
 from __future__ import annotations
 
-from typing import List
-
 from verdict.assertions.base import BaseAssertion
 from verdict.core.config import VerdictConfig
 from verdict.core.types import IndividualAssertionResult
@@ -48,12 +46,12 @@ class AndAssertion(BaseAssertion):
     assertion_type = "composite"
     assertion_name = "and"
 
-    def __init__(self, assertions: List[BaseAssertion]) -> None:
+    def __init__(self, assertions: list[BaseAssertion]) -> None:
         self._assertions = assertions
 
     def evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult:
-        failures: List[str] = []
-        all_details: List[dict] = []
+        failures: list[str] = []
+        all_details: list[dict] = []
 
         for assertion in self._assertions:
             individual = assertion.evaluate(content, config)
@@ -90,11 +88,11 @@ class OrAssertion(BaseAssertion):
     assertion_type = "composite"
     assertion_name = "or"
 
-    def __init__(self, assertions: List[BaseAssertion]) -> None:
+    def __init__(self, assertions: list[BaseAssertion]) -> None:
         self._assertions = assertions
 
     def evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult:
-        all_details: List[dict] = []
+        all_details: list[dict] = []
         any_passed = False
 
         for assertion in self._assertions:

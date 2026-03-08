@@ -9,7 +9,8 @@ from __future__ import annotations
 
 import asyncio
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Sequence
+from collections.abc import Sequence
+from typing import Any
 
 from verdict.core.types import ProviderResponse
 
@@ -32,7 +33,7 @@ class BaseProvider(ABC):
     def call(
         self,
         prompt: str,
-        messages: Optional[List[Dict[str, str]]] = None,
+        messages: list[dict[str, str]] | None = None,
         **kwargs: Any,
     ) -> ProviderResponse:
         """Synchronous provider call. Returns a normalized response."""
@@ -41,7 +42,7 @@ class BaseProvider(ABC):
     async def call_async(
         self,
         prompt: str,
-        messages: Optional[List[Dict[str, str]]] = None,
+        messages: list[dict[str, str]] | None = None,
         **kwargs: Any,
     ) -> ProviderResponse:
         """Async provider call.
@@ -58,9 +59,9 @@ class BaseProvider(ABC):
     async def batch_call(
         self,
         prompts: Sequence[str],
-        messages_list: Optional[Sequence[Optional[List[Dict[str, str]]]]] = None,
+        messages_list: Sequence[list[dict[str, str]] | None] | None = None,
         **kwargs: Any,
-    ) -> List[ProviderResponse]:
+    ) -> list[ProviderResponse]:
         """Batched provider call for behavioral assertions.
 
         Default implementation uses asyncio.gather over call_async.

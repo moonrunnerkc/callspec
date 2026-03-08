@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from verdict.core.types import ProviderResponse
 from verdict.providers.base import BaseProvider
@@ -37,7 +37,7 @@ class AnthropicProvider(BaseProvider):
     def __init__(
         self,
         model: str = "claude-sonnet-4-20250514",
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
         temperature: float = 0.0,
         max_tokens: int = 1024,
         **client_kwargs: Any,
@@ -96,7 +96,7 @@ class AnthropicProvider(BaseProvider):
     def _extract_system_and_messages(
         self,
         prompt: str,
-        messages: Optional[List[Dict[str, str]]] = None,
+        messages: list[dict[str, str]] | None = None,
     ) -> tuple:
         """Split system message from conversation messages.
 
@@ -127,7 +127,7 @@ class AnthropicProvider(BaseProvider):
         # TypeError from the Anthropic SDK.
         kwargs.pop("seed", None)
 
-        params: Dict[str, Any] = {
+        params: dict[str, Any] = {
             "model": self._model,
             "messages": user_messages,
             "max_tokens": self._max_tokens,
@@ -143,7 +143,7 @@ class AnthropicProvider(BaseProvider):
     def call(
         self,
         prompt: str,
-        messages: Optional[List[Dict[str, str]]] = None,
+        messages: list[dict[str, str]] | None = None,
         **kwargs: Any,
     ) -> ProviderResponse:
         client = self._get_client()
@@ -175,7 +175,7 @@ class AnthropicProvider(BaseProvider):
     async def call_async(
         self,
         prompt: str,
-        messages: Optional[List[Dict[str, str]]] = None,
+        messages: list[dict[str, str]] | None = None,
         **kwargs: Any,
     ) -> ProviderResponse:
         """Native async using Anthropic's AsyncAnthropic client."""

@@ -9,18 +9,15 @@ produced by --verdict-report.
 from __future__ import annotations
 
 import json
-import os
-from dataclasses import asdict
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import pytest
 
-from verdict.core.types import AssertionResult, IndividualAssertionResult
-
+from verdict.core.types import AssertionResult
 
 # Stored per-test Verdict results, keyed by node ID
-_verdict_results: Dict[str, List[AssertionResult]] = {}
+_verdict_results: dict[str, list[AssertionResult]] = {}
 
 
 def record_verdict_result(node_id: str, result: AssertionResult) -> None:
@@ -35,7 +32,7 @@ def record_verdict_result(node_id: str, result: AssertionResult) -> None:
     _verdict_results[node_id].append(result)
 
 
-def get_verdict_results(node_id: str) -> List[AssertionResult]:
+def get_verdict_results(node_id: str) -> list[AssertionResult]:
     """Retrieve recorded Verdict results for a test node."""
     return _verdict_results.get(node_id, [])
 
@@ -45,9 +42,9 @@ def clear_verdict_results() -> None:
     _verdict_results.clear()
 
 
-def _serialize_assertion_result(result: AssertionResult) -> Dict[str, Any]:
+def _serialize_assertion_result(result: AssertionResult) -> dict[str, Any]:
     """Convert an AssertionResult to a JSON-serializable dict."""
-    serialized: Dict[str, Any] = {
+    serialized: dict[str, Any] = {
         "passed": result.passed,
         "execution_time_ms": result.execution_time_ms,
         "model": result.model,
@@ -78,7 +75,7 @@ class VerdictReportPlugin:
     verdict.run for historical tracking.
     """
 
-    def __init__(self, report_format: str, report_path: Optional[str] = None) -> None:
+    def __init__(self, report_format: str, report_path: str | None = None) -> None:
         self._format = report_format
         self._report_path = report_path
 
@@ -95,7 +92,7 @@ class VerdictReportPlugin:
 
     def _write_json_report(self, session: pytest.Session) -> None:
         """Produce a JSON report with all Verdict assertion results."""
-        report: Dict[str, Any] = {
+        report: dict[str, Any] = {
             "verdict_version": "0.1.0",
             "total_tests": len(_verdict_results),
             "tests": {},
@@ -130,7 +127,6 @@ class VerdictReportPlugin:
 
         for node_id, results in _verdict_results.items():
             for result in results:
-                status = "pass" if result.passed else "fail"
                 lines.append(
                     f'    <testcase name="{_xml_escape(node_id)}" '
                     f'time="{result.execution_time_ms / 1000:.3f}">'
@@ -138,7 +134,10 @@ class VerdictReportPlugin:
 
                 # Verdict metadata as properties
                 lines.append("      <properties>")
-                lines.append(f'        <property name="model" value="{_xml_escape(result.model)}" />')
+                lines.append(
+                    f'        <property name="model" '
+                    f'value="{_xml_escape(result.model)}" />'
+                )
                 for individual in result.assertions:
                     lines.append(
                         f'        <property name="{individual.assertion_name}" '

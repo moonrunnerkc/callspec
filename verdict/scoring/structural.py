@@ -9,10 +9,10 @@ from __future__ import annotations
 
 import json
 import re
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 
-def validate_json(content: str) -> Tuple[bool, Optional[str], Optional[int]]:
+def validate_json(content: str) -> tuple[bool, str | None, int | None]:
     """Attempt to parse content as JSON.
 
     Returns (success, error_message, error_position).
@@ -24,7 +24,7 @@ def validate_json(content: str) -> Tuple[bool, Optional[str], Optional[int]]:
         return (False, parse_error.msg, parse_error.pos)
 
 
-def validate_schema(content: str, schema: Dict[str, Any]) -> Tuple[bool, List[Dict[str, Any]]]:
+def validate_schema(content: str, schema: dict[str, Any]) -> tuple[bool, list[dict[str, Any]]]:
     """Validate parsed JSON against a JSON Schema.
 
     Returns (valid, list_of_violations). Each violation is a dict with

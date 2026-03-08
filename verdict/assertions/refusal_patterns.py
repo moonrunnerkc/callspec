@@ -19,7 +19,7 @@ Pattern sources:
 from __future__ import annotations
 
 import re
-from typing import List, Optional, Sequence
+from collections.abc import Sequence
 
 REFUSAL_LIBRARY_VERSION = "1.0.0"
 
@@ -37,7 +37,9 @@ _OPENAI_REFUSAL_PATTERNS = [
     # OpenAI content policy reference
     r"(?:violat|against)\w*\s+(?:my|our|the)\s+(?:content\s+)?(?:polic|guideline|usage)",
     # Explicit inability
-    r"I(?:'m| am)\s+(?:not\s+)?(?:able|designed|programmed)\s+to\s+(?:help\s+)?(?:with\s+)?(?:that|this)",
+    (r"I(?:'m| am)\s+(?:not\s+)?"
+     r"(?:able|designed|programmed)\s+to\s+"
+     r"(?:help\s+)?(?:with\s+)?(?:that|this)"),
 ]
 
 _ANTHROPIC_REFUSAL_PATTERNS = [
@@ -46,7 +48,9 @@ _ANTHROPIC_REFUSAL_PATTERNS = [
     r"I(?:'m| am)\s+not\s+(?:able|going)\s+to\s+(?:help|assist|provide)",
     r"I\s+(?:need|have)\s+to\s+(?:decline|refuse|pass on)",
     # Claude's safety-first framing
-    r"I\s+(?:can(?:'t|not)|won(?:'t| not))\s+(?:help|assist)\s+with\s+(?:that|this|creating|generating)",
+    (r"I\s+(?:can(?:'t|not)|won(?:'t| not))\s+"
+     r"(?:help|assist)\s+with\s+"
+     r"(?:that|this|creating|generating)"),
     r"I\s+(?:would|should)\s+not\s+(?:help|assist|provide|generate)",
     # Anthropic's harmlessness training patterns
     r"(?:harmful|dangerous|unethical|illegal|inappropriate)\s+(?:content|request|material)",
@@ -58,7 +62,9 @@ _ANTHROPIC_REFUSAL_PATTERNS = [
 
 _GOOGLE_REFUSAL_PATTERNS = [
     # Gemini safety filter outputs
-    r"I(?:'m| am)\s+(?:not\s+)?able\s+to\s+(?:help|assist|provide|generate)\s+(?:with\s+)?(?:that|this)",
+    (r"I(?:'m| am)\s+(?:not\s+)?able\s+to\s+"
+     r"(?:help|assist|provide|generate)\s+"
+     r"(?:with\s+)?(?:that|this)"),
     r"I\s+can(?:'t|not)\s+(?:help|respond|generate|create)\s+(?:with\s+)?(?:that|this|content)",
     # Google's safety category framing
     r"(?:blocked|filtered)\s+(?:due\s+to|by|for)\s+(?:safety|content)\s+(?:settings|filters|reasons)",
@@ -75,7 +81,7 @@ _CROSS_PROVIDER_REFUSAL_PATTERNS = [
 ]
 
 
-def _compile_patterns(raw_patterns: List[str]) -> List[re.Pattern]:
+def _compile_patterns(raw_patterns: list[str]) -> list[re.Pattern]:
     """Pre-compile regex patterns for efficient repeated matching."""
     return [re.compile(pattern, re.IGNORECASE) for pattern in raw_patterns]
 
@@ -97,7 +103,7 @@ ALL_DEFAULT_PATTERNS = (
 
 def is_refusal(
     content: str,
-    custom_patterns: Optional[Sequence[str | re.Pattern]] = None,
+    custom_patterns: Sequence[str | re.Pattern] | None = None,
     use_defaults: bool = True,
 ) -> bool:
     """Determine if a response is a refusal.
@@ -116,7 +122,7 @@ def is_refusal(
     if not content or not content.strip():
         return False
 
-    patterns_to_check: List[re.Pattern] = []
+    patterns_to_check: list[re.Pattern] = []
 
     if use_defaults:
         patterns_to_check.extend(ALL_DEFAULT_PATTERNS)
@@ -137,8 +143,8 @@ def is_refusal(
 
 def classify_refusal(
     content: str,
-    custom_patterns: Optional[Sequence[str | re.Pattern]] = None,
-) -> Optional[str]:
+    custom_patterns: Sequence[str | re.Pattern] | None = None,
+) -> str | None:
     """Classify which refusal pattern matched, for diagnostic output.
 
     Returns the matched pattern string, or None if no refusal detected.

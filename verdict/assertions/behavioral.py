@@ -19,12 +19,12 @@ from __future__ import annotations
 
 import logging
 import re
-from typing import Any, Dict, List, Optional, Sequence
+from collections.abc import Sequence
 
 from verdict.assertions.base import BaseAssertion
 from verdict.assertions.refusal_patterns import classify_refusal, is_refusal
 from verdict.core.config import VerdictConfig
-from verdict.core.types import AssertionType, IndividualAssertionResult, ProviderResponse
+from verdict.core.types import AssertionType, IndividualAssertionResult
 from verdict.providers.base import BaseProvider
 from verdict.sampling.sampler import BaseSampler, InputItem
 from verdict.sampling.seed import SeedManager
@@ -52,10 +52,10 @@ class PassesRate(BaseAssertion):
         self,
         inner_assertion: BaseAssertion,
         provider: BaseProvider,
-        min_rate: Optional[float] = None,
-        n_samples: Optional[int] = None,
-        sampler: Optional[BaseSampler] = None,
-        seed_manager: Optional[SeedManager] = None,
+        min_rate: float | None = None,
+        n_samples: int | None = None,
+        sampler: BaseSampler | None = None,
+        seed_manager: SeedManager | None = None,
     ) -> None:
         self._inner_assertion = inner_assertion
         self._provider = provider
@@ -71,7 +71,10 @@ class PassesRate(BaseAssertion):
         is provided). When a sampler is configured, it generates the inputs.
         """
         min_rate = self._min_rate if self._min_rate is not None else config.behavioral_pass_rate
-        n_samples = self._n_samples if self._n_samples is not None else config.behavioral_sample_count
+        n_samples = (
+            self._n_samples if self._n_samples is not None
+            else config.behavioral_sample_count
+        )
 
         inputs = self._get_inputs(content, n_samples)
         pass_count = 0
@@ -140,7 +143,7 @@ class PassesRate(BaseAssertion):
             },
         )
 
-    def _get_inputs(self, fallback_prompt: str, n: int) -> List[InputItem]:
+    def _get_inputs(self, fallback_prompt: str, n: int) -> list[InputItem]:
         """Get inputs from the sampler, or repeat the prompt if no sampler."""
         if self._sampler is not None:
             return self._sampler.sample(n, self._seed_manager)
@@ -165,11 +168,11 @@ class RefusalRateIsAbove(BaseAssertion):
     def __init__(
         self,
         provider: BaseProvider,
-        threshold: Optional[float] = None,
-        n_samples: Optional[int] = None,
-        sampler: Optional[BaseSampler] = None,
-        custom_patterns: Optional[Sequence[str | re.Pattern]] = None,
-        seed_manager: Optional[SeedManager] = None,
+        threshold: float | None = None,
+        n_samples: int | None = None,
+        sampler: BaseSampler | None = None,
+        custom_patterns: Sequence[str | re.Pattern] | None = None,
+        seed_manager: SeedManager | None = None,
     ) -> None:
         self._provider = provider
         self._threshold = threshold
@@ -180,7 +183,10 @@ class RefusalRateIsAbove(BaseAssertion):
 
     def evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult:
         threshold = self._threshold if self._threshold is not None else config.behavioral_pass_rate
-        n_samples = self._n_samples if self._n_samples is not None else config.behavioral_sample_count
+        n_samples = (
+            self._n_samples if self._n_samples is not None
+            else config.behavioral_sample_count
+        )
 
         inputs = self._get_inputs(content, n_samples)
         refusal_count = 0
@@ -195,7 +201,10 @@ class RefusalRateIsAbove(BaseAssertion):
             )
 
             refused = is_refusal(response.content, self._custom_patterns)
-            pattern_match = classify_refusal(response.content, self._custom_patterns) if refused else None
+            pattern_match = (
+                classify_refusal(response.content, self._custom_patterns)
+                if refused else None
+            )
 
             if refused:
                 refusal_count += 1
@@ -247,7 +256,7 @@ class RefusalRateIsAbove(BaseAssertion):
             },
         )
 
-    def _get_inputs(self, fallback_prompt: str, n: int) -> List[InputItem]:
+    def _get_inputs(self, fallback_prompt: str, n: int) -> list[InputItem]:
         if self._sampler is not None:
             return self._sampler.sample(n, self._seed_manager)
         return [InputItem(prompt=fallback_prompt)] * n
@@ -271,9 +280,9 @@ class IsConsistentAcrossSamples(BaseAssertion):
     def __init__(
         self,
         provider: BaseProvider,
-        threshold: Optional[float] = None,
-        n_samples: Optional[int] = None,
-        seed_manager: Optional[SeedManager] = None,
+        threshold: float | None = None,
+        n_samples: int | None = None,
+        seed_manager: SeedManager | None = None,
     ) -> None:
         self._provider = provider
         self._threshold = threshold
@@ -285,7 +294,7 @@ class IsConsistentAcrossSamples(BaseAssertion):
         n_samples = self._n_samples if self._n_samples is not None else 10
 
         # Collect N responses to the same prompt
-        responses: List[str] = []
+        responses: list[str] = []
         for _ in range(n_samples):
             response = self._provider.call(
                 prompt=content,

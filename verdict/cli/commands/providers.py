@@ -3,11 +3,9 @@
 from __future__ import annotations
 
 import importlib
-import sys
 import time
 
 import click
-
 
 PROVIDER_MAP = {
     "openai": ("verdict.providers.openai", "OpenAIProvider"),
@@ -85,7 +83,10 @@ def providers(run_check: bool) -> None:
 
         start = time.monotonic()
         try:
-            with console.status(f"[verdict.muted]Checking {name}...[/verdict.muted]", spinner="dots"):
+            with console.status(
+                f"[verdict.muted]Checking {name}...[/verdict.muted]",
+                spinner="dots",
+            ):
                 response = provider_instance.call(MINIMAL_PROMPT)
             elapsed_ms = int((time.monotonic() - start) * 1000)
             model_id = getattr(response, "model", "unknown")
@@ -115,7 +116,8 @@ def providers(run_check: bool) -> None:
 
     if not any_installed:
         console.print(
-            "\n[verdict.warn]No external providers installed.[/verdict.warn] Install at least one:\n"
+            "\n[verdict.warn]No external providers installed."
+            "[/verdict.warn] Install at least one:\n"
             "  pip install verdict[openai]\n"
             "  pip install verdict[anthropic]\n"
             "  pip install verdict[ollama]"

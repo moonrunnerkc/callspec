@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from verdict.core.types import ProviderResponse
 from verdict.providers.base import BaseProvider
@@ -35,12 +35,12 @@ class OpenAIProvider(BaseProvider):
     def __init__(
         self,
         model: str = "gpt-4o",
-        api_key: Optional[str] = None,
-        base_url: Optional[str] = None,
-        organization: Optional[str] = None,
+        api_key: str | None = None,
+        base_url: str | None = None,
+        organization: str | None = None,
         temperature: float = 0.0,
-        seed: Optional[int] = 42,
-        max_tokens: Optional[int] = None,
+        seed: int | None = 42,
+        max_tokens: int | None = None,
         **client_kwargs: Any,
     ) -> None:
         self._model = model
@@ -101,16 +101,16 @@ class OpenAIProvider(BaseProvider):
     def _build_messages(
         self,
         prompt: str,
-        messages: Optional[List[Dict[str, str]]] = None,
-    ) -> List[Dict[str, str]]:
+        messages: list[dict[str, str]] | None = None,
+    ) -> list[dict[str, str]]:
         """Build the messages array from prompt and optional conversation history."""
         if messages is not None:
             return list(messages)
         return [{"role": "user", "content": prompt}]
 
-    def _build_params(self, **kwargs: Any) -> Dict[str, Any]:
+    def _build_params(self, **kwargs: Any) -> dict[str, Any]:
         """Merge default params with per-call overrides."""
-        params: Dict[str, Any] = {
+        params: dict[str, Any] = {
             "model": self._model,
             "temperature": self._temperature,
         }
@@ -128,7 +128,7 @@ class OpenAIProvider(BaseProvider):
     def call(
         self,
         prompt: str,
-        messages: Optional[List[Dict[str, str]]] = None,
+        messages: list[dict[str, str]] | None = None,
         **kwargs: Any,
     ) -> ProviderResponse:
         client = self._get_client()
@@ -160,7 +160,7 @@ class OpenAIProvider(BaseProvider):
     async def call_async(
         self,
         prompt: str,
-        messages: Optional[List[Dict[str, str]]] = None,
+        messages: list[dict[str, str]] | None = None,
         **kwargs: Any,
     ) -> ProviderResponse:
         """Native async using OpenAI's AsyncOpenAI client."""

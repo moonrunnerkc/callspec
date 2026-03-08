@@ -11,14 +11,13 @@ Reference: scipy.stats.proportion_confint with method='wilson'.
 from __future__ import annotations
 
 import math
-from typing import Tuple
 
 
 def wilson_confidence_interval(
     successes: int,
     total: int,
     confidence_level: float = 0.95,
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     """Compute Wilson score confidence interval for a proportion.
 
     Args:

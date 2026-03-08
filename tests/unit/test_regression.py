@@ -14,8 +14,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 from verdict.assertions.regression import (
     FormatMatchesBaseline,
     MatchesBaseline,
@@ -80,7 +78,9 @@ class TestMatchesBaseline:
     def test_structural_change_fails(self, tmp_path: Path) -> None:
         """Different JSON keys: structural check fails even if content is similar."""
         baseline_content = "Climate change affects coastal areas with rising sea levels."
-        current_content = json.dumps({"text": "Climate change affects coastal areas with rising sea levels."})
+        current_content = json.dumps(
+            {"text": "Climate change affects coastal areas with rising sea levels."}
+        )
         manager = _create_baseline(tmp_path, "struct_change", baseline_content)
 
         assertion = MatchesBaseline("struct_change", manager)
@@ -109,13 +109,17 @@ class TestMatchesBaseline:
         assertion_result = assertion.evaluate(current, CONFIG)
 
         assert "diag" in assertion_result.message
-        assert "semantic similarity" in assertion_result.message.lower() or "below" in assertion_result.message.lower()
+        lower_msg = assertion_result.message.lower()
+        assert "semantic similarity" in lower_msg or "below" in lower_msg
 
     def test_both_plain_text_structural_match(self, tmp_path: Path) -> None:
         """Two plain-text (non-JSON) responses: structural dimension treated as match."""
         baseline = "Climate change causes rising sea levels and coastal erosion in many regions."
         # Close paraphrase to ensure semantic similarity is high
-        current = "Rising sea levels and coastal erosion are caused by climate change in many areas."
+        current = (
+            "Rising sea levels and coastal erosion are caused "
+            "by climate change in many areas."
+        )
         manager = _create_baseline(tmp_path, "plaintext", baseline)
 
         assertion = MatchesBaseline("plaintext", manager, semantic_threshold=0.5)

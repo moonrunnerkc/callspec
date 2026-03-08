@@ -27,13 +27,19 @@ def report(report_file: str, output_format: str) -> None:
     from verdict.cli.console import console
 
     try:
-        with open(report_file, "r") as fh:
+        with open(report_file) as fh:
             raw = json.load(fh)
     except json.JSONDecodeError as json_err:
-        console.print(f"[verdict.fail]Invalid JSON[/verdict.fail] in {escape(report_file)}: {escape(str(json_err))}")
+        console.print(
+            f"[verdict.fail]Invalid JSON[/verdict.fail] "
+            f"in {escape(report_file)}: {escape(str(json_err))}"
+        )
         sys.exit(2)
     except OSError as io_err:
-        console.print(f"[verdict.fail]Cannot read[/verdict.fail] {escape(report_file)}: {escape(str(io_err))}")
+        console.print(
+            f"[verdict.fail]Cannot read[/verdict.fail] "
+            f"{escape(report_file)}: {escape(str(io_err))}"
+        )
         sys.exit(2)
 
     if output_format == "json":

@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from verdict.core.types import ProviderResponse
 from verdict.providers.base import BaseProvider
@@ -35,9 +35,9 @@ class GoogleProvider(BaseProvider):
     def __init__(
         self,
         model: str = "gemini-2.0-flash",
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
         temperature: float = 0.0,
-        max_output_tokens: Optional[int] = None,
+        max_output_tokens: int | None = None,
         **generation_kwargs: Any,
     ) -> None:
         self._model_name = model
@@ -84,7 +84,7 @@ class GoogleProvider(BaseProvider):
     def _build_contents(
         self,
         prompt: str,
-        messages: Optional[List[Dict[str, str]]] = None,
+        messages: list[dict[str, str]] | None = None,
     ) -> list:
         """Convert messages to Google's content format.
 
@@ -117,7 +117,7 @@ class GoogleProvider(BaseProvider):
     def call(
         self,
         prompt: str,
-        messages: Optional[List[Dict[str, str]]] = None,
+        messages: list[dict[str, str]] | None = None,
         **kwargs: Any,
     ) -> ProviderResponse:
         # Google's generate_content does not accept seed or temperature as
@@ -144,7 +144,10 @@ class GoogleProvider(BaseProvider):
             for candidate in response.candidates:
                 raw["candidates"].append({
                     "content": str(candidate.content) if candidate.content else "",
-                    "finish_reason": str(candidate.finish_reason) if candidate.finish_reason else None,
+                    "finish_reason": (
+                        str(candidate.finish_reason)
+                        if candidate.finish_reason else None
+                    ),
                 })
 
         # Token counts from usage metadata
@@ -175,7 +178,7 @@ class GoogleProvider(BaseProvider):
     async def call_async(
         self,
         prompt: str,
-        messages: Optional[List[Dict[str, str]]] = None,
+        messages: list[dict[str, str]] | None = None,
         **kwargs: Any,
     ) -> ProviderResponse:
         """Async call using google-generativeai's async support.
@@ -203,7 +206,10 @@ class GoogleProvider(BaseProvider):
             for candidate in response.candidates:
                 raw["candidates"].append({
                     "content": str(candidate.content) if candidate.content else "",
-                    "finish_reason": str(candidate.finish_reason) if candidate.finish_reason else None,
+                    "finish_reason": (
+                        str(candidate.finish_reason)
+                        if candidate.finish_reason else None
+                    ),
                 })
 
         prompt_tokens = None

@@ -17,11 +17,9 @@ from __future__ import annotations
 import logging
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Optional
 
 from verdict.errors import SnapshotError
 from verdict.snapshots.serializer import (
-    SNAPSHOT_SCHEMA_VERSION,
     SnapshotEntry,
     SnapshotFile,
     SnapshotSerializer,
@@ -106,7 +104,7 @@ class SnapshotManager:
         prompt: str,
         model: str = "unknown",
         provider: str = "unknown",
-        metadata: Optional[Dict] = None,
+        metadata: dict | None = None,
         overwrite: bool = False,
     ) -> SnapshotEntry:
         """Create a new snapshot entry and persist it.
@@ -135,7 +133,10 @@ class SnapshotManager:
         snapshot_file.entries[snapshot_key] = SnapshotSerializer.serialize_entry(entry)
         self.save(snapshot_file)
 
-        logger.info("Created snapshot entry: %s (model=%s, %d chars)", snapshot_key, model, len(content))
+        logger.info(
+            "Created snapshot entry: %s (model=%s, %d chars)",
+            snapshot_key, model, len(content),
+        )
         return entry
 
     def update_entry(
@@ -145,7 +146,7 @@ class SnapshotManager:
         prompt: str,
         model: str = "unknown",
         provider: str = "unknown",
-        metadata: Optional[Dict] = None,
+        metadata: dict | None = None,
     ) -> SnapshotEntry:
         """Update an existing entry or create it if it does not exist."""
         return self.create_entry(
@@ -184,7 +185,7 @@ class SnapshotManager:
         logger.info("Deleted all %d snapshot entries", count)
         return count
 
-    def list_keys(self) -> List[str]:
+    def list_keys(self) -> list[str]:
         """Return sorted list of all snapshot keys in the file."""
         if not self.exists:
             return []

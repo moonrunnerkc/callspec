@@ -11,13 +11,6 @@ from __future__ import annotations
 
 import pytest
 
-from verdict.assertions.semantic import (
-    DoesNotDiscuss,
-    IsFactuallyConsistentWith,
-    SemanticIntentMatches,
-    UsesLanguageAtGradeLevel,
-)
-from verdict.core.config import VerdictConfig
 from tests.fixtures.semantic_pairs import (
     FACTUAL_CONSISTENCY_BAD_PAIRS,
     FACTUAL_CONSISTENCY_GOOD_PAIRS,
@@ -27,6 +20,13 @@ from tests.fixtures.semantic_pairs import (
     TOPIC_AVOIDANCE_BAD_PAIRS,
     TOPIC_AVOIDANCE_GOOD_PAIRS,
 )
+from verdict.assertions.semantic import (
+    DoesNotDiscuss,
+    IsFactuallyConsistentWith,
+    SemanticIntentMatches,
+    UsesLanguageAtGradeLevel,
+)
+from verdict.core.config import VerdictConfig
 
 CONFIG = VerdictConfig()
 

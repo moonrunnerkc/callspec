@@ -7,7 +7,7 @@ like "assertion failed" or "provider error" are not acceptable here.
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 class VerdictError(Exception):
@@ -29,7 +29,7 @@ class ProviderError(VerdictError):
         provider: str,
         message: str,
         attempts: int = 1,
-        cause: Optional[Exception] = None,
+        cause: Exception | None = None,
     ) -> None:
         self.provider = provider
         self.attempts = attempts
@@ -66,7 +66,7 @@ class AssertionError(VerdictError):
         self,
         assertion_name: str,
         message: str,
-        details: Optional[Dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         self.assertion_name = assertion_name
         self.details = details or {}
@@ -85,7 +85,7 @@ class SnapshotError(VerdictError):
 class ConfigurationError(VerdictError):
     """Raised when VerdictConfig or YAML suite config is invalid."""
 
-    def __init__(self, message: str, field: Optional[str] = None) -> None:
+    def __init__(self, message: str, field: str | None = None) -> None:
         self.field = field
         prefix = f"ConfigurationError [{field}]" if field else "ConfigurationError"
         super().__init__(f"{prefix}: {message}")
@@ -102,7 +102,7 @@ class SuiteParseError(VerdictError):
         self,
         filepath: str,
         message: str,
-        line_number: Optional[int] = None,
+        line_number: int | None = None,
     ) -> None:
         self.filepath = filepath
         self.line_number = line_number

@@ -18,7 +18,7 @@ import logging
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from verdict.errors import SnapshotError
 
@@ -46,8 +46,8 @@ class SnapshotEntry:
     provider: str = "unknown"
     timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     content_length: int = 0
-    json_keys: Optional[List[str]] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    json_keys: list[str] | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         self.content_length = len(self.content)
@@ -75,7 +75,7 @@ class SnapshotFile:
     schema_version: int = SNAPSHOT_SCHEMA_VERSION
     created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     updated_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
-    entries: Dict[str, Dict[str, Any]] = field(default_factory=dict)
+    entries: dict[str, dict[str, Any]] = field(default_factory=dict)
 
 
 class SnapshotSerializer:
@@ -87,12 +87,12 @@ class SnapshotSerializer:
     """
 
     @staticmethod
-    def serialize_entry(entry: SnapshotEntry) -> Dict[str, Any]:
+    def serialize_entry(entry: SnapshotEntry) -> dict[str, Any]:
         """Convert a SnapshotEntry to a JSON-serializable dict."""
         return asdict(entry)
 
     @staticmethod
-    def deserialize_entry(data: Dict[str, Any]) -> SnapshotEntry:
+    def deserialize_entry(data: dict[str, Any]) -> SnapshotEntry:
         """Reconstruct a SnapshotEntry from a dict.
 
         Tolerates missing optional fields for forward compatibility
@@ -142,7 +142,8 @@ class SnapshotSerializer:
             raise SnapshotError(
                 str(filepath),
                 f"Snapshot file not found at {filepath}. "
-                f"Run 'verdict snapshot create' or 'pytest --verdict-snapshot' to create a baseline.",
+                f"Run 'verdict snapshot create' or "
+                f"'pytest --verdict-snapshot' to create a baseline.",
             )
 
         try:

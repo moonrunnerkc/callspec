@@ -8,21 +8,19 @@ cache behavior, and error handling across all sampler strategies.
 from __future__ import annotations
 
 import json
-import os
 import tempfile
 from pathlib import Path
 
 import pytest
 
 from verdict.providers.mock import MockProvider
-from verdict.sampling.sampler import BaseSampler, InputItem
+from verdict.sampling.sampler import InputItem
 from verdict.sampling.seed import SeedManager
 from verdict.sampling.strategies import (
     FixedSetSampler,
     SemanticVariantSampler,
     TemplateSampler,
 )
-
 
 # ---------------------------------------------------------------------------
 # SeedManager

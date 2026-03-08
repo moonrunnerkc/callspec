@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional
-
+from typing import Any
 
 # Calibrated against SBERT STS-B benchmarks (Reimers & Gurevych, 2019).
 # 0.75 cosine similarity in the all-MiniLM-L6-v2 space corresponds to
@@ -76,11 +75,11 @@ class VerdictConfig:
     max_retries: int = MAX_RETRIES
     retry_backoff_base_seconds: float = RETRY_BACKOFF_BASE_SECONDS
     temperature: float = 0.0
-    seed: Optional[int] = 42
+    seed: int | None = 42
 
     # Execution
     fail_fast: bool = True
     strict_mode: bool = False
 
     # Extensibility: provider-specific or assertion-specific overrides
-    extra: Dict[str, Any] = field(default_factory=dict)
+    extra: dict[str, Any] = field(default_factory=dict)

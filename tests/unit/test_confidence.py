@@ -7,10 +7,6 @@ is tested against known values from standard statistical tables.
 
 from __future__ import annotations
 
-import math
-
-import pytest
-
 from verdict.scoring.confidence import (
     _z_score_for_confidence,
     passes_confidence_check,

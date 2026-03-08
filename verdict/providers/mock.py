@@ -9,7 +9,7 @@ without spending API credits.
 from __future__ import annotations
 
 import time
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable
 
 from verdict.core.types import ProviderResponse
 from verdict.providers.base import BaseProvider
@@ -41,7 +41,7 @@ class MockProvider(BaseProvider):
     def call(
         self,
         prompt: str,
-        messages: Optional[List[Dict[str, str]]] = None,
+        messages: list[dict[str, str]] | None = None,
         **kwargs: Any,
     ) -> ProviderResponse:
         start = time.monotonic()

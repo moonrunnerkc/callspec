@@ -8,10 +8,7 @@ Tests run without a real GitHub Actions environment by controlling os.environ.
 from __future__ import annotations
 
 import os
-import tempfile
 from unittest.mock import patch
-
-import pytest
 
 from verdict.core.types import (
     AssertionResult,
@@ -30,7 +27,6 @@ from verdict.integrations.github_actions import (
     set_output,
     write_step_summary,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers for building test results

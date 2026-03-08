@@ -13,8 +13,7 @@ and optional messages array for multi-turn scenarios.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from dataclasses import dataclass
 
 from verdict.sampling.seed import SeedManager
 
@@ -28,14 +27,14 @@ class InputItem:
     """
 
     prompt: str
-    messages: Optional[List[Dict[str, str]]] = None
+    messages: list[dict[str, str]] | None = None
 
 
 class BaseSampler(ABC):
     """Interface for all input sampling strategies."""
 
     @abstractmethod
-    def sample(self, n: int, seed_manager: Optional[SeedManager] = None) -> List[InputItem]:
+    def sample(self, n: int, seed_manager: SeedManager | None = None) -> list[InputItem]:
         """Generate n input items for behavioral assertion trials.
 
         Args:

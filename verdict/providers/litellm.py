@@ -21,7 +21,7 @@ from __future__ import annotations
 
 import logging
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from verdict.core.types import ProviderResponse
 from verdict.providers.base import BaseProvider
@@ -40,11 +40,11 @@ class LiteLLMProvider(BaseProvider):
     def __init__(
         self,
         model: str = "gpt-4o",
-        api_key: Optional[str] = None,
-        api_base: Optional[str] = None,
+        api_key: str | None = None,
+        api_base: str | None = None,
         temperature: float = 0.0,
-        seed: Optional[int] = 42,
-        max_tokens: Optional[int] = None,
+        seed: int | None = 42,
+        max_tokens: int | None = None,
         **litellm_kwargs: Any,
     ) -> None:
         self._model = model
@@ -78,14 +78,14 @@ class LiteLLMProvider(BaseProvider):
     def _build_messages(
         self,
         prompt: str,
-        messages: Optional[List[Dict[str, str]]] = None,
-    ) -> List[Dict[str, str]]:
+        messages: list[dict[str, str]] | None = None,
+    ) -> list[dict[str, str]]:
         if messages is not None:
             return list(messages)
         return [{"role": "user", "content": prompt}]
 
-    def _build_params(self, **kwargs) -> Dict[str, Any]:
-        params: Dict[str, Any] = {
+    def _build_params(self, **kwargs) -> dict[str, Any]:
+        params: dict[str, Any] = {
             "model": self._model,
             "temperature": self._temperature,
         }
@@ -121,7 +121,7 @@ class LiteLLMProvider(BaseProvider):
     def call(
         self,
         prompt: str,
-        messages: Optional[List[Dict[str, str]]] = None,
+        messages: list[dict[str, str]] | None = None,
         **kwargs: Any,
     ) -> ProviderResponse:
         litellm = self._get_litellm()
@@ -156,7 +156,7 @@ class LiteLLMProvider(BaseProvider):
     async def call_async(
         self,
         prompt: str,
-        messages: Optional[List[Dict[str, str]]] = None,
+        messages: list[dict[str, str]] | None = None,
         **kwargs: Any,
     ) -> ProviderResponse:
         """Async call using LiteLLM's acompletion."""

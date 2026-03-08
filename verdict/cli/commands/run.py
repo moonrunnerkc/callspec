@@ -31,7 +31,13 @@ import click
     default=False,
     help="Treat borderline passes (score within 5%% of threshold) as failures.",
 )
-def run(suite_file: str, provider: str | None, output_format: str, output: str | None, strict: bool) -> None:
+def run(
+    suite_file: str,
+    provider: str | None,
+    output_format: str,
+    output: str | None,
+    strict: bool,
+) -> None:
     """Execute a YAML assertion suite and produce a structured report.
 
     Exits with non-zero code on any assertion failure, making this
@@ -71,7 +77,10 @@ def run(suite_file: str, provider: str | None, output_format: str, output: str |
         with console.status("[verdict.muted]Running suite...[/verdict.muted]", spinner="dots"):
             suite_result = runner.run_suite(suite)
     except VerdictError as verdict_error:
-        console.print(f"[verdict.fail]Error during suite execution:[/verdict.fail] {escape(str(verdict_error))}")
+        console.print(
+            f"[verdict.fail]Error during suite execution:[/verdict.fail] "
+            f"{escape(str(verdict_error))}"
+        )
         sys.exit(1)
 
     # Format output
@@ -85,7 +94,10 @@ def run(suite_file: str, provider: str | None, output_format: str, output: str |
     if output:
         # Writing to file always uses plaintext string form
         if report_text is None:
-            report_text = ReportFormatter.to_plaintext(suite_result=suite_result, suite_name=suite.name)
+            report_text = ReportFormatter.to_plaintext(
+                suite_result=suite_result,
+                suite_name=suite.name,
+            )
         with open(output, "w") as fh:
             fh.write(report_text)
         console.print(f"Report written to [verdict.key]{output}[/verdict.key]")
@@ -150,6 +162,8 @@ def _resolve_provider(provider_name: str | None, suite):
         return None
     except Exception as init_error:
         console.print(
-            f"[verdict.fail]Failed to initialize provider '{escape(name)}':[/verdict.fail] {escape(str(init_error))}",
+            f"[verdict.fail]Failed to initialize provider "
+            f"'{escape(name)}':[/verdict.fail] "
+            f"{escape(str(init_error))}",
         )
         return None

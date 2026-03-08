@@ -11,7 +11,6 @@ import time
 
 import click
 
-
 PROVIDER_MAP = {
     "openai": ("verdict.providers.openai", "OpenAIProvider"),
     "anthropic": ("verdict.providers.anthropic", "AnthropicProvider"),
@@ -108,7 +107,11 @@ def _check_single_provider(name: str, failures: list[str]) -> None:
     try:
         module = importlib.import_module(module_path)
     except ImportError:
-        console.print(f"  {SKIP_MARKER} [verdict.key]{name}[/verdict.key]  [verdict.skip]not installed (pip install verdict[{name}])[/verdict.skip]")
+        console.print(
+            f"  {SKIP_MARKER} [verdict.key]{name}[/verdict.key]  "
+            f"[verdict.skip]not installed "
+            f"(pip install verdict[{name}])[/verdict.skip]"
+        )
         return
 
     # Phase 2: instantiate the provider
@@ -116,7 +119,11 @@ def _check_single_provider(name: str, failures: list[str]) -> None:
     try:
         provider_instance = provider_class()
     except Exception as init_err:
-        console.print(f"  {FAIL_MARKER} [verdict.key]{name}[/verdict.key]  [verdict.fail]initialization error:[/verdict.fail] {escape(str(init_err))}")
+        console.print(
+            f"  {FAIL_MARKER} [verdict.key]{name}[/verdict.key]  "
+            f"[verdict.fail]initialization error:[/verdict.fail] "
+            f"{escape(str(init_err))}"
+        )
         failures.append(name)
         return
 
@@ -130,7 +137,8 @@ def _check_single_provider(name: str, failures: list[str]) -> None:
         elapsed_ms = int((time.monotonic() - start_ms) * 1000)
         console.print(
             f"  {FAIL_MARKER} [verdict.key]{name}[/verdict.key]  "
-            f"[verdict.fail]call failed[/verdict.fail] after {elapsed_ms}ms: {escape(str(call_err))}"
+            f"[verdict.fail]call failed[/verdict.fail] "
+            f"after {elapsed_ms}ms: {escape(str(call_err))}"
         )
         failures.append(name)
         return

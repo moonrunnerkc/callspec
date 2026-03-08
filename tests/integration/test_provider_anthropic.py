@@ -9,14 +9,12 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
-from typing import Any, List, Optional
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 from verdict.core.types import ProviderResponse
 from verdict.providers.anthropic import AnthropicProvider
-
 
 # ---- Mock objects mirroring Anthropic SDK response shape ----
 
@@ -37,10 +35,10 @@ class MockAnthropicResponse:
     id: str = "msg_01XFDUDYJgAACzvnptvVoYEL"
     type: str = "message"
     role: str = "assistant"
-    content: List[MockTextBlock] = field(default_factory=lambda: [MockTextBlock()])
+    content: list[MockTextBlock] = field(default_factory=lambda: [MockTextBlock()])
     model: str = "claude-sonnet-4-20250514"
     stop_reason: str = "end_turn"
-    stop_sequence: Optional[str] = None
+    stop_sequence: str | None = None
     usage: MockAnthropicUsage = field(default_factory=MockAnthropicUsage)
 
     def model_dump(self) -> dict:
@@ -51,7 +49,10 @@ class MockAnthropicResponse:
             "content": [{"type": b.type, "text": b.text} for b in self.content],
             "model": self.model,
             "stop_reason": self.stop_reason,
-            "usage": {"input_tokens": self.usage.input_tokens, "output_tokens": self.usage.output_tokens},
+            "usage": {
+                "input_tokens": self.usage.input_tokens,
+                "output_tokens": self.usage.output_tokens,
+            },
         }
 
 

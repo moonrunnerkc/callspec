@@ -13,7 +13,7 @@ from pathlib import Path
 import pytest
 
 from verdict.errors import SnapshotError
-from verdict.snapshots.diff import DiffResult, SnapshotDiff
+from verdict.snapshots.diff import SnapshotDiff
 from verdict.snapshots.manager import SnapshotManager
 from verdict.snapshots.serializer import (
     SNAPSHOT_SCHEMA_VERSION,
@@ -21,7 +21,6 @@ from verdict.snapshots.serializer import (
     SnapshotFile,
     SnapshotSerializer,
 )
-
 
 # ---------------------------------------------------------------------------
 # SnapshotEntry

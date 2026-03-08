@@ -10,9 +10,8 @@ and a plain-English description of what is wrong.
 
 from __future__ import annotations
 
-import re
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any
 
 import yaml
 
@@ -37,7 +36,7 @@ SUITE_SCHEMA_VERSION = "1.0"
 
 # Maps YAML assertion type names to their builder functions.
 # Each function takes a params dict and returns a BaseAssertion instance.
-_ASSERTION_BUILDERS: Dict[str, Any] = {}
+_ASSERTION_BUILDERS: dict[str, Any] = {}
 
 
 def _register_assertion(name: str):
@@ -51,12 +50,12 @@ def _register_assertion(name: str):
 # -- Structural assertion builders --
 
 @_register_assertion("is_valid_json")
-def _build_is_valid_json(params: Dict[str, Any]) -> BaseAssertion:
+def _build_is_valid_json(params: dict[str, Any]) -> BaseAssertion:
     return IsValidJson()
 
 
 @_register_assertion("matches_schema")
-def _build_matches_schema(params: Dict[str, Any]) -> BaseAssertion:
+def _build_matches_schema(params: dict[str, Any]) -> BaseAssertion:
     schema = params.get("schema")
     if not schema:
         raise ValueError("matches_schema requires a 'schema' parameter")
@@ -64,7 +63,7 @@ def _build_matches_schema(params: Dict[str, Any]) -> BaseAssertion:
 
 
 @_register_assertion("contains_keys")
-def _build_contains_keys(params: Dict[str, Any]) -> BaseAssertion:
+def _build_contains_keys(params: dict[str, Any]) -> BaseAssertion:
     keys = params.get("keys")
     if not keys:
         raise ValueError("contains_keys requires a 'keys' parameter (list of strings)")
@@ -72,7 +71,7 @@ def _build_contains_keys(params: Dict[str, Any]) -> BaseAssertion:
 
 
 @_register_assertion("length_between")
-def _build_length_between(params: Dict[str, Any]) -> BaseAssertion:
+def _build_length_between(params: dict[str, Any]) -> BaseAssertion:
     min_chars = params.get("min_chars", 0)
     max_chars = params.get("max_chars")
     if max_chars is None:
@@ -81,7 +80,7 @@ def _build_length_between(params: Dict[str, Any]) -> BaseAssertion:
 
 
 @_register_assertion("matches_pattern")
-def _build_matches_pattern(params: Dict[str, Any]) -> BaseAssertion:
+def _build_matches_pattern(params: dict[str, Any]) -> BaseAssertion:
     pattern = params.get("pattern")
     if not pattern:
         raise ValueError("matches_pattern requires a 'pattern' parameter")
@@ -89,7 +88,7 @@ def _build_matches_pattern(params: Dict[str, Any]) -> BaseAssertion:
 
 
 @_register_assertion("does_not_contain")
-def _build_does_not_contain(params: Dict[str, Any]) -> BaseAssertion:
+def _build_does_not_contain(params: dict[str, Any]) -> BaseAssertion:
     text = params.get("text", params.get("pattern", ""))
     is_regex = params.get("is_regex", False)
     if not text:
@@ -98,7 +97,7 @@ def _build_does_not_contain(params: Dict[str, Any]) -> BaseAssertion:
 
 
 @_register_assertion("starts_with")
-def _build_starts_with(params: Dict[str, Any]) -> BaseAssertion:
+def _build_starts_with(params: dict[str, Any]) -> BaseAssertion:
     prefix = params.get("prefix", "")
     if not prefix:
         raise ValueError("starts_with requires a 'prefix' parameter")
@@ -106,7 +105,7 @@ def _build_starts_with(params: Dict[str, Any]) -> BaseAssertion:
 
 
 @_register_assertion("ends_with")
-def _build_ends_with(params: Dict[str, Any]) -> BaseAssertion:
+def _build_ends_with(params: dict[str, Any]) -> BaseAssertion:
     suffix = params.get("suffix", "")
     if not suffix:
         raise ValueError("ends_with requires a 'suffix' parameter")
@@ -116,7 +115,7 @@ def _build_ends_with(params: Dict[str, Any]) -> BaseAssertion:
 # -- Semantic assertion builders (lazy import to avoid requiring verdict[semantic]) --
 
 @_register_assertion("semantic_intent_matches")
-def _build_semantic_intent_matches(params: Dict[str, Any]) -> BaseAssertion:
+def _build_semantic_intent_matches(params: dict[str, Any]) -> BaseAssertion:
     from verdict.assertions.semantic import SemanticIntentMatches
     reference = params.get("reference_intent", params.get("reference", ""))
     threshold = params.get("threshold")
@@ -126,7 +125,7 @@ def _build_semantic_intent_matches(params: Dict[str, Any]) -> BaseAssertion:
 
 
 @_register_assertion("does_not_discuss")
-def _build_does_not_discuss(params: Dict[str, Any]) -> BaseAssertion:
+def _build_does_not_discuss(params: dict[str, Any]) -> BaseAssertion:
     from verdict.assertions.semantic import DoesNotDiscuss
     topic = params.get("topic", "")
     threshold = params.get("threshold")
@@ -136,7 +135,7 @@ def _build_does_not_discuss(params: Dict[str, Any]) -> BaseAssertion:
 
 
 @_register_assertion("is_factually_consistent_with")
-def _build_is_factually_consistent_with(params: Dict[str, Any]) -> BaseAssertion:
+def _build_is_factually_consistent_with(params: dict[str, Any]) -> BaseAssertion:
     from verdict.assertions.semantic import IsFactuallyConsistentWith
     reference = params.get("reference_text", params.get("reference", ""))
     threshold = params.get("threshold")
@@ -146,7 +145,7 @@ def _build_is_factually_consistent_with(params: Dict[str, Any]) -> BaseAssertion
 
 
 @_register_assertion("uses_language_at_grade_level")
-def _build_uses_language_at_grade_level(params: Dict[str, Any]) -> BaseAssertion:
+def _build_uses_language_at_grade_level(params: dict[str, Any]) -> BaseAssertion:
     from verdict.assertions.semantic import UsesLanguageAtGradeLevel
     grade = params.get("grade")
     tolerance = params.get("tolerance", 2)
@@ -155,7 +154,7 @@ def _build_uses_language_at_grade_level(params: Dict[str, Any]) -> BaseAssertion
     return UsesLanguageAtGradeLevel(grade, tolerance)
 
 
-def _build_assertion(assertion_def: Dict[str, Any], filepath: str) -> BaseAssertion:
+def _build_assertion(assertion_def: dict[str, Any], filepath: str) -> BaseAssertion:
     """Convert a single YAML assertion definition to a BaseAssertion instance."""
     assertion_type = assertion_def.get("type")
     if not assertion_type:
@@ -183,14 +182,14 @@ def _build_assertion(assertion_def: Dict[str, Any], filepath: str) -> BaseAssert
         ) from build_error
 
 
-def _parse_config(raw_config: Dict[str, Any]) -> VerdictConfig:
+def _parse_config(raw_config: dict[str, Any]) -> VerdictConfig:
     """Build a VerdictConfig from YAML config section."""
     known_fields = {f.name for f in VerdictConfig.__dataclass_fields__.values()}
     filtered = {k: v for k, v in raw_config.items() if k in known_fields}
     return VerdictConfig(**filtered)
 
 
-def _parse_case(case_def: Dict[str, Any], filepath: str, index: int) -> AssertionCase:
+def _parse_case(case_def: dict[str, Any], filepath: str, index: int) -> AssertionCase:
     """Parse a single case definition from the YAML cases list."""
     name = case_def.get("name")
     if not name:

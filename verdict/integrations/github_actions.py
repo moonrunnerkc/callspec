@@ -15,17 +15,13 @@ adoption.
 
 from __future__ import annotations
 
-import json
 import os
-import sys
-from typing import Any, Dict, List, Optional
 
 from verdict.core.types import (
     AssertionResult,
     IndividualAssertionResult,
     SuiteResult,
 )
-
 
 # GitHub Actions workflow command severity levels
 _SEVERITY_ERROR = "error"
@@ -41,17 +37,17 @@ def is_github_actions() -> bool:
 def format_annotation(
     level: str,
     message: str,
-    file: Optional[str] = None,
-    line: Optional[int] = None,
-    col: Optional[int] = None,
-    title: Optional[str] = None,
+    file: str | None = None,
+    line: int | None = None,
+    col: int | None = None,
+    title: str | None = None,
 ) -> str:
     """Build a single GitHub Actions workflow command annotation.
 
     The format is strict: ::level file=...,line=...,col=...::message
     Each parameter is optional except level and message.
     """
-    params: List[str] = []
+    params: list[str] = []
     if file:
         params.append(f"file={file}")
     if line is not None:
@@ -69,8 +65,8 @@ def format_annotation(
 
 def annotate_individual_result(
     result: IndividualAssertionResult,
-    file: Optional[str] = None,
-    line: Optional[int] = None,
+    file: str | None = None,
+    line: int | None = None,
 ) -> str:
     """Convert a single assertion result into a GitHub annotation string.
 
@@ -106,15 +102,15 @@ def annotate_individual_result(
 def annotate_assertion_result(
     result: AssertionResult,
     test_name: str = "",
-    file: Optional[str] = None,
-    line: Optional[int] = None,
-) -> List[str]:
+    file: str | None = None,
+    line: int | None = None,
+) -> list[str]:
     """Convert a full assertion chain result into GitHub annotation strings.
 
     Produces one annotation per failed (or borderline) assertion in the chain.
     Passing assertions produce no output to keep the PR clean.
     """
-    annotations: List[str] = []
+    annotations: list[str] = []
     for individual in result.assertions:
         annotation = annotate_individual_result(individual, file=file, line=line)
         if annotation:
@@ -125,14 +121,14 @@ def annotate_assertion_result(
 
 def annotate_suite_result(
     suite_result: SuiteResult,
-    file: Optional[str] = None,
-) -> List[str]:
+    file: str | None = None,
+) -> list[str]:
     """Convert a full suite result into GitHub annotation strings.
 
     One annotation per failing assertion across all cases. Also emits a
     summary annotation with the overall pass/fail count.
     """
-    annotations: List[str] = []
+    annotations: list[str] = []
 
     for case_name, case_result in suite_result.case_results.items():
         case_annotations = annotate_assertion_result(
@@ -162,7 +158,7 @@ def annotate_suite_result(
     return annotations
 
 
-def emit_annotations(annotations: List[str]) -> None:
+def emit_annotations(annotations: list[str]) -> None:
     """Write annotation strings to stdout where GitHub Actions picks them up.
 
     Each annotation is a single line written to stdout. GitHub Actions
@@ -183,7 +179,7 @@ def write_step_summary(suite_result: SuiteResult, suite_name: str = "default") -
     if not summary_path:
         return
 
-    lines: List[str] = []
+    lines: list[str] = []
     status_emoji = "Pass" if suite_result.passed else "Fail"
     lines.append(f"## Verdict: {suite_name} ({status_emoji})")
     lines.append("")
@@ -234,7 +230,7 @@ def set_output(name: str, value: str) -> None:
 def emit_suite_result(
     suite_result: SuiteResult,
     suite_name: str = "default",
-    file: Optional[str] = None,
+    file: str | None = None,
 ) -> None:
     """Complete GitHub Actions integration: annotations, summary, and outputs.
 

@@ -19,7 +19,6 @@ import json
 import logging
 from dataclasses import dataclass, field
 from difflib import unified_diff
-from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -36,16 +35,16 @@ class DiffResult:
 
     snapshot_key: str
     structural_match: bool = True
-    semantic_similarity: Optional[float] = None
-    semantic_drift: Optional[float] = None
+    semantic_similarity: float | None = None
+    semantic_drift: float | None = None
 
     # JSON key-level structural changes
-    keys_added: List[str] = field(default_factory=list)
-    keys_removed: List[str] = field(default_factory=list)
-    keys_unchanged: List[str] = field(default_factory=list)
+    keys_added: list[str] = field(default_factory=list)
+    keys_removed: list[str] = field(default_factory=list)
+    keys_unchanged: list[str] = field(default_factory=list)
 
     # Content diff as a list of unified diff lines
-    content_diff_lines: List[str] = field(default_factory=list)
+    content_diff_lines: list[str] = field(default_factory=list)
     content_changed: bool = False
 
     # Length change
@@ -92,7 +91,7 @@ class SnapshotDiff:
         current_content: str,
         baseline_model: str = "",
         current_model: str = "",
-        baseline_json_keys: Optional[List[str]] = None,
+        baseline_json_keys: list[str] | None = None,
         compute_semantic: bool = False,
         embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2",
     ) -> DiffResult:
@@ -162,7 +161,7 @@ def _compute_structural_diff(
     diff_result: DiffResult,
     baseline_content: str,
     current_content: str,
-    baseline_json_keys: Optional[List[str]],
+    baseline_json_keys: list[str] | None,
 ) -> None:
     """Compare top-level JSON keys between baseline and current content.
 
@@ -220,7 +219,7 @@ def _compute_semantic_diff(
         )
 
 
-def _extract_json_keys(text: str) -> Optional[List[str]]:
+def _extract_json_keys(text: str) -> list[str] | None:
     """Extract sorted top-level keys from a JSON string, or None if not JSON."""
     try:
         parsed = json.loads(text)

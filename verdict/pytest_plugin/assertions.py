@@ -69,7 +69,10 @@ def _format_failure_report(result: AssertionResult) -> str:
     lines.append(f"  execution time: {result.execution_time_ms}ms")
 
     if result.prompt_tokens is not None:
-        lines.append(f"  tokens: {result.prompt_tokens} prompt, {result.completion_tokens} completion")
+        lines.append(
+            f"  tokens: {result.prompt_tokens} prompt, "
+            f"{result.completion_tokens} completion"
+        )
 
     lines.append("")
 

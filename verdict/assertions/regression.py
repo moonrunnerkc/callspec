@@ -19,14 +19,11 @@ directory and filename are configurable per test or suite.
 
 from __future__ import annotations
 
-from typing import Optional
-
 from verdict.assertions.base import BaseAssertion
 from verdict.core.config import VerdictConfig
 from verdict.core.types import IndividualAssertionResult
 from verdict.snapshots.diff import SnapshotDiff
 from verdict.snapshots.manager import SnapshotManager
-from verdict.snapshots.serializer import SnapshotEntry
 
 
 class MatchesBaseline(BaseAssertion):
@@ -46,7 +43,7 @@ class MatchesBaseline(BaseAssertion):
         self,
         snapshot_key: str,
         snapshot_manager: SnapshotManager,
-        semantic_threshold: Optional[float] = None,
+        semantic_threshold: float | None = None,
     ) -> None:
         self._snapshot_key = snapshot_key
         self._snapshot_manager = snapshot_manager
@@ -140,7 +137,7 @@ class SemanticDriftIsBelow(BaseAssertion):
         self,
         snapshot_key: str,
         snapshot_manager: SnapshotManager,
-        max_drift: Optional[float] = None,
+        max_drift: float | None = None,
     ) -> None:
         self._snapshot_key = snapshot_key
         self._snapshot_manager = snapshot_manager

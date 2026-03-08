@@ -8,7 +8,6 @@ YAML configuration files. Both paths produce the same internal structure.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Sequence
 
 from verdict.assertions.base import BaseAssertion
 from verdict.core.config import VerdictConfig
@@ -21,8 +20,8 @@ class AssertionCase:
 
     name: str
     prompt: str
-    assertions: List[BaseAssertion]
-    messages: Optional[List[Dict[str, str]]] = None
+    assertions: list[BaseAssertion]
+    messages: list[dict[str, str]] | None = None
     severity: Severity = Severity.ERROR
 
 
@@ -36,7 +35,7 @@ class AssertionSuite:
     """
 
     name: str
-    cases: List[AssertionCase] = field(default_factory=list)
+    cases: list[AssertionCase] = field(default_factory=list)
     config: VerdictConfig = field(default_factory=VerdictConfig)
 
     def add_case(self, case: AssertionCase) -> None:

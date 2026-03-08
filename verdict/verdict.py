@@ -7,8 +7,6 @@ assertion chains via assert_that().
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional
-
 from verdict.core.builder import AssertionBuilder
 from verdict.core.config import VerdictConfig
 from verdict.core.runner import AssertionRunner
@@ -30,7 +28,7 @@ class Verdict:
     def __init__(
         self,
         provider: BaseProvider,
-        config: Optional[VerdictConfig] = None,
+        config: VerdictConfig | None = None,
     ) -> None:
         self._config = config or VerdictConfig()
         self._runner = AssertionRunner(provider=provider, config=self._config)
@@ -46,7 +44,7 @@ class Verdict:
     def assert_that(
         self,
         prompt: str,
-        messages: Optional[List[Dict[str, str]]] = None,
+        messages: list[dict[str, str]] | None = None,
     ) -> AssertionBuilder:
         """Entry point for building an assertion chain.
 

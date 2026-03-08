@@ -9,16 +9,13 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
-from typing import Any, List, Optional
 from unittest.mock import MagicMock, patch
 
 import pytest
 
+from tests.fixtures.recorded_responses import MISTRAL_CHAT_RESPONSE
 from verdict.core.types import ProviderResponse
 from verdict.providers.mistral import MistralProvider
-
-from tests.fixtures.recorded_responses import MISTRAL_CHAT_RESPONSE
-
 
 # ---- Mock objects mirroring Mistral SDK response shape ----
 
@@ -48,7 +45,7 @@ class MockMistralResponse:
     object: str = "chat.completion"
     created: int = 1700000000
     model: str = "mistral-large-latest"
-    choices: List[MockMistralChoice] = field(default_factory=lambda: [MockMistralChoice()])
+    choices: list[MockMistralChoice] = field(default_factory=lambda: [MockMistralChoice()])
     usage: MockMistralUsage = field(default_factory=MockMistralUsage)
 
     def model_dump(self) -> dict:

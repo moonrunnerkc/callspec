@@ -26,14 +26,11 @@ from verdict.assertions.refusal_patterns import (
     classify_refusal,
     is_refusal,
 )
-from verdict.assertions.structural import IsValidJson, LengthBetween, StartsWith
+from verdict.assertions.structural import IsValidJson, StartsWith
 from verdict.core.config import VerdictConfig
 from verdict.core.types import AssertionType
 from verdict.providers.mock import MockProvider
-from verdict.sampling.sampler import InputItem
-from verdict.sampling.seed import SeedManager
 from verdict.sampling.strategies import FixedSetSampler
-
 
 # ---------------------------------------------------------------------------
 # Test fixtures and helpers

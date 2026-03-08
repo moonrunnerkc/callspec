@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class AssertionType(Enum):
@@ -34,14 +34,14 @@ class ProviderResponse:
     """
 
     content: str
-    raw: Dict[str, Any] = field(default_factory=dict)
+    raw: dict[str, Any] = field(default_factory=dict)
     model: str = "unknown"
     provider: str = "unknown"
     latency_ms: int = 0
-    prompt_tokens: Optional[int] = None
-    completion_tokens: Optional[int] = None
-    finish_reason: Optional[str] = None
-    request_id: Optional[str] = None
+    prompt_tokens: int | None = None
+    completion_tokens: int | None = None
+    finish_reason: str | None = None
+    request_id: str | None = None
 
 
 @dataclass
@@ -57,10 +57,10 @@ class IndividualAssertionResult:
     assertion_name: str
     passed: bool
     message: str
-    score: Optional[float] = None
-    threshold: Optional[float] = None
-    confidence: Optional[float] = None
-    details: Dict[str, Any] = field(default_factory=dict)
+    score: float | None = None
+    threshold: float | None = None
+    confidence: float | None = None
+    details: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -74,12 +74,12 @@ class AssertionResult:
     """
 
     passed: bool
-    assertions: List[IndividualAssertionResult]
-    provider_response: Optional[ProviderResponse] = None
+    assertions: list[IndividualAssertionResult]
+    provider_response: ProviderResponse | None = None
     execution_time_ms: int = 0
     model: str = "unknown"
-    prompt_tokens: Optional[int] = None
-    completion_tokens: Optional[int] = None
+    prompt_tokens: int | None = None
+    completion_tokens: int | None = None
 
 
 @dataclass
@@ -91,7 +91,7 @@ class SuiteResult:
     """
 
     passed: bool
-    case_results: Dict[str, AssertionResult] = field(default_factory=dict)
+    case_results: dict[str, AssertionResult] = field(default_factory=dict)
     total_cases: int = 0
     passed_cases: int = 0
     failed_cases: int = 0

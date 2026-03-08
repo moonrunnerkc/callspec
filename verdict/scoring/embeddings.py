@@ -9,7 +9,7 @@ magnitude, producing stable comparisons between short and long responses.
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     import numpy as np
@@ -52,20 +52,19 @@ def _get_model(model_name: str):
     return model
 
 
-def compute_embeddings(texts: List[str], model_name: str) -> "np.ndarray":
+def compute_embeddings(texts: list[str], model_name: str) -> np.ndarray:
     """Encode a list of texts into embedding vectors.
 
     Returns a 2D numpy array of shape (len(texts), embedding_dim).
     The model is loaded lazily and cached.
     """
-    import numpy as np  # noqa: F811 -- lazy import, numpy ships with sentence-transformers
 
     model = _get_model(model_name)
     embeddings = model.encode(texts, convert_to_numpy=True, show_progress_bar=False)
     return embeddings
 
 
-def cosine_similarity(embedding_a: "np.ndarray", embedding_b: "np.ndarray") -> float:
+def cosine_similarity(embedding_a: np.ndarray, embedding_b: np.ndarray) -> float:
     """Compute cosine similarity between two embedding vectors.
 
     Returns a float in [-1, 1]. Identical vectors produce 1.0.

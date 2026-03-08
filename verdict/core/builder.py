@@ -12,7 +12,8 @@ executed conditionally.
 from __future__ import annotations
 
 import re
-from typing import Any, Dict, List, Optional, Sequence
+from collections.abc import Sequence
+from typing import Any
 
 from verdict.assertions.base import BaseAssertion
 from verdict.assertions.behavioral import (
@@ -61,12 +62,12 @@ class AssertionBuilder:
         self,
         runner: AssertionRunner,
         prompt: str,
-        messages: Optional[List[Dict[str, str]]] = None,
+        messages: list[dict[str, str]] | None = None,
     ) -> None:
         self._runner = runner
         self._prompt = prompt
         self._messages = messages
-        self._assertions: List[BaseAssertion] = []
+        self._assertions: list[BaseAssertion] = []
 
     # -- Structural assertions --
 
@@ -75,7 +76,7 @@ class AssertionBuilder:
         self._assertions.append(IsValidJson())
         return self
 
-    def matches_schema(self, schema: Dict[str, Any]) -> AssertionBuilder:
+    def matches_schema(self, schema: dict[str, Any]) -> AssertionBuilder:
         """Assert the response validates against a JSON Schema."""
         self._assertions.append(MatchesSchema(schema))
         return self
@@ -218,9 +219,9 @@ class AssertionBuilder:
     def passes_rate(
         self,
         assertion: BaseAssertion,
-        min_rate: Optional[float] = None,
-        n_samples: Optional[int] = None,
-        sampler: Optional[BaseSampler] = None,
+        min_rate: float | None = None,
+        n_samples: int | None = None,
+        sampler: BaseSampler | None = None,
     ) -> AssertionBuilder:
         """Assert that an inner assertion passes at min_rate across N samples.
 
@@ -245,10 +246,10 @@ class AssertionBuilder:
 
     def refusal_rate_is_above(
         self,
-        threshold: Optional[float] = None,
-        n_samples: Optional[int] = None,
-        sampler: Optional[BaseSampler] = None,
-        custom_patterns: Optional[Sequence[re.Pattern | str]] = None,
+        threshold: float | None = None,
+        n_samples: int | None = None,
+        sampler: BaseSampler | None = None,
+        custom_patterns: Sequence[re.Pattern | str] | None = None,
     ) -> AssertionBuilder:
         """Assert the model reliably refuses this class of input.
 
@@ -274,8 +275,8 @@ class AssertionBuilder:
 
     def is_consistent_across_samples(
         self,
-        threshold: Optional[float] = None,
-        n_samples: Optional[int] = None,
+        threshold: float | None = None,
+        n_samples: int | None = None,
     ) -> AssertionBuilder:
         """Assert responses to the same prompt are semantically consistent.
 

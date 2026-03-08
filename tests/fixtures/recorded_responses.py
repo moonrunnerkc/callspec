@@ -8,11 +8,10 @@ returned by the provider's Python SDK.
 
 from __future__ import annotations
 
-from typing import Any, Dict
-
+from typing import Any
 
 # OpenAI chat.completions.create response shape (SDK v1+)
-OPENAI_CHAT_RESPONSE: Dict[str, Any] = {
+OPENAI_CHAT_RESPONSE: dict[str, Any] = {
     "id": "chatcmpl-abc123def456",
     "object": "chat.completion",
     "created": 1700000000,
@@ -37,7 +36,7 @@ OPENAI_CHAT_RESPONSE: Dict[str, Any] = {
 
 
 # Anthropic messages.create response shape (SDK >=0.18.0)
-ANTHROPIC_MESSAGES_RESPONSE: Dict[str, Any] = {
+ANTHROPIC_MESSAGES_RESPONSE: dict[str, Any] = {
     "id": "msg_01XFDUDYJgAACzvnptvVoYEL",
     "type": "message",
     "role": "assistant",
@@ -58,7 +57,7 @@ ANTHROPIC_MESSAGES_RESPONSE: Dict[str, Any] = {
 
 
 # Ollama chat response shape
-OLLAMA_CHAT_RESPONSE: Dict[str, Any] = {
+OLLAMA_CHAT_RESPONSE: dict[str, Any] = {
     "model": "llama3:latest",
     "created_at": "2024-01-15T10:30:00Z",
     "message": {
@@ -77,7 +76,7 @@ OLLAMA_CHAT_RESPONSE: Dict[str, Any] = {
 
 
 # Google generativeai response shape (simplified for fixture purposes)
-GOOGLE_GENERATE_RESPONSE: Dict[str, Any] = {
+GOOGLE_GENERATE_RESPONSE: dict[str, Any] = {
     "model": "gemini-2.0-flash",
     "text": "The capital of France is Paris.",
     "candidates": [
@@ -99,7 +98,7 @@ GOOGLE_GENERATE_RESPONSE: Dict[str, Any] = {
 
 
 # Mistral chat.complete response shape
-MISTRAL_CHAT_RESPONSE: Dict[str, Any] = {
+MISTRAL_CHAT_RESPONSE: dict[str, Any] = {
     "id": "cmpl-e5cc70bb28c34",
     "object": "chat.completion",
     "created": 1700000000,
@@ -123,7 +122,7 @@ MISTRAL_CHAT_RESPONSE: Dict[str, Any] = {
 
 
 # LiteLLM completion response shape (mirrors OpenAI)
-LITELLM_COMPLETION_RESPONSE: Dict[str, Any] = {
+LITELLM_COMPLETION_RESPONSE: dict[str, Any] = {
     "id": "chatcmpl-litellm-xyz789",
     "object": "chat.completion",
     "created": 1700000000,

@@ -10,7 +10,8 @@ from __future__ import annotations
 
 import json
 import re
-from typing import Any, Dict, List, Optional, Sequence
+from collections.abc import Sequence
+from typing import Any
 
 import jsonschema
 
@@ -58,7 +59,7 @@ class MatchesSchema(BaseAssertion):
     assertion_type = "structural"
     assertion_name = "matches_schema"
 
-    def __init__(self, schema: Dict[str, Any]) -> None:
+    def __init__(self, schema: dict[str, Any]) -> None:
         self._schema = schema
 
     def evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult:

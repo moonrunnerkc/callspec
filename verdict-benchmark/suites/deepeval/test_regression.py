@@ -66,7 +66,7 @@ class TestDeepEvalDrift:
 
         prompt_text = load_prompt("structured_output")
 
-        # Call the model under test (same as Verdict does)
+        # Call the model under test (same as LLMAssert does)
         client = OpenAI()
         response = client.chat.completions.create(
             model="gpt-4o-2024-11-20",
@@ -118,7 +118,7 @@ class TestDeepEvalDrift:
         """Manual drift detection: DeepEval has no built-in baseline comparison.
 
         We compute cosine similarity ourselves using sentence-transformers,
-        which is the same approach Verdict uses natively. This test exists
+        which is the same approach LLMAssert uses natively. This test exists
         to show that detecting drift in DeepEval requires manual embedding
         computation that is not part of DeepEval's API.
         """

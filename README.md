@@ -2,7 +2,7 @@
 
 <br>
 
-# Verdict
+# LLMAssert
 
 **Behavioral assertion testing for LLM applications.**
 
@@ -10,13 +10,13 @@ Created by [Bradley R. Kinnard](https://github.com/moonrunnerkc)
 
 <br>
 
-[![PyPI](https://img.shields.io/pypi/v/verdict)](https://pypi.org/project/verdict/)
+[![PyPI](https://img.shields.io/pypi/v/llm-assert)](https://pypi.org/project/llm-assert/)
 &nbsp;&nbsp;
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 &nbsp;&nbsp;
-[![Python](https://img.shields.io/pypi/pyversions/verdict)](https://pypi.org/project/verdict/)
+[![Python](https://img.shields.io/pypi/pyversions/llm-assert)](https://pypi.org/project/llm-assert/)
 &nbsp;&nbsp;
-![Tests](https://img.shields.io/badge/tests-458%20passing-brightgreen.svg)
+![Tests](https://img.shields.io/badge/tests-450%20passing-brightgreen.svg)
 
 <br>
 
@@ -33,15 +33,15 @@ Created by [Bradley R. Kinnard](https://github.com/moonrunnerkc)
 ## Quick Start
 
 ```bash
-pip install "verdict[anthropic]"
+pip install "llm-assert[anthropic]"
 ```
 
 ```python
-from verdict import Verdict
-from verdict.providers.anthropic import AnthropicProvider
+from llm_assert import LLMAssert
+from llm_assert.providers.anthropic import AnthropicProvider
 
 provider = AnthropicProvider(model="claude-sonnet-4-20250514")
-v = Verdict(provider)
+v = LLMAssert(provider)
 
 result = (
     v.assert_that("Return a JSON object with keys: title, summary, tags")
@@ -66,9 +66,9 @@ Works with any provider. Swap `AnthropicProvider` for `OpenAIProvider`, `OllamaP
 
 ## What Is This
 
-Verdict is a composable assertion library for verifying LLM output. It drops into your existing pytest suite and gives you a clean pass/fail on whether your AI system behaves correctly.
+LLMAssert is a composable assertion library for verifying LLM output. It drops into your existing pytest suite and gives you a clean pass/fail on whether your AI system behaves correctly.
 
-It is not a tracing platform, an observability tool, or a dashboard. Those tools monitor what happened. Verdict defines what *should* happen and fails your build if it does not.
+It is not a tracing platform, an observability tool, or a dashboard. Those tools monitor what happened. LLMAssert defines what *should* happen and fails your build if it does not.
 
 Structural assertions (JSON validity, schema compliance, key presence, length bounds, regex) are deterministic, zero cost, and require no LLM calls. Semantic assertions (intent matching, topic avoidance, factual consistency) run locally via sentence-transformers with no API key and no external calls. Behavioral assertions run the model N times and assess the distribution. Regression assertions detect semantic drift and format shifts across model versions.
 
@@ -84,9 +84,9 @@ Structural assertions (JSON validity, schema compliance, key presence, length bo
 - **Provider-agnostic** with adapters for OpenAI, Anthropic, Google, Mistral, Ollama, LiteLLM, and a MockProvider for zero-cost testing
 - **pytest plugin** registering automatically with fixtures, marks, CLI flags, and JSON report hooks
 - **YAML assertion suites** defined as configuration and runnable from CLI with non-zero exit on failure
-- **GitHub Action** (`moonrunnerkc/verdict@v1`) annotating PRs inline with assertion details on failure
+- **GitHub Action** (`moonrunnerkc/llm-assert@v1`) annotating PRs inline with assertion details on failure
 - **Deterministic semantic scoring** via local embeddings, producing identical scores across runs (zero flakiness)
-- **No telemetry, no analytics, no background network traffic.** Verdict makes exactly the LLM calls you ask for.
+- **No telemetry, no analytics, no background network traffic.** LLMAssert makes exactly the LLM calls you ask for.
 
 <br>
 
@@ -97,9 +97,9 @@ Structural assertions (JSON validity, schema compliance, key presence, length bo
 ## Installation
 
 ```bash
-pip install verdict                            # structural assertions only (3s install)
-pip install "verdict[anthropic]"               # add Anthropic provider (~5s)
-pip install "verdict[anthropic,semantic]"       # add local semantic scoring (~85s, includes PyTorch)
+pip install llm-assert                            # structural assertions only (3s install)
+pip install "llm-assert[anthropic]"               # add Anthropic provider (~5s)
+pip install "llm-assert[anthropic,semantic]"       # add local semantic scoring (~85s, includes PyTorch)
 ```
 
 The base install covers structural assertions with any provider. Adding `[semantic]` pulls in sentence-transformers and PyTorch, which is a heavy install but eliminates all runtime API costs for semantic scoring.
@@ -172,8 +172,8 @@ Tested against live Claude output: `semantic_intent_matches` scored 0.77, `does_
 Runs the model N times and assesses the distribution with Wilson confidence intervals.
 
 ```python
-from verdict.assertions.structural import IsValidJson
-from verdict.sampling.strategies import FixedSetSampler
+from llm_assert.assertions.structural import IsValidJson
+from llm_assert.sampling.strategies import FixedSetSampler
 
 sampler = FixedSetSampler(["prompt one", "prompt two", "prompt three"])
 
@@ -196,9 +196,9 @@ Tested with `FixedSetSampler` and `TemplateSampler` against Claude: 5/5 pass rat
 Compare against recorded baselines. Detect semantic drift, format shifts, and silent model updates. Baselines live in your repo as versioned JSON.
 
 ```python
-from verdict.snapshots.manager import SnapshotManager
+from llm_assert.snapshots.manager import SnapshotManager
 
-snap_mgr = SnapshotManager(snapshot_dir="verdict_snapshots/")
+snap_mgr = SnapshotManager(snapshot_dir="llm_assert_snapshots/")
 
 result = (
     v.assert_that(prompt)
@@ -217,7 +217,7 @@ Also available: `.semantic_drift_is_below()` for drift-only checks, and `.format
 <br>
 
 ```python
-from verdict.assertions.structural import IsValidJson, StartsWith
+from llm_assert.assertions.structural import IsValidJson, StartsWith
 
 # Implicit AND: every chained assertion must pass
 result = v.assert_that(prompt).is_valid_json().contains_keys(["name"]).run()
@@ -238,23 +238,23 @@ result = v.assert_that(prompt).satisfies(IsValidJson()).run()
 
 ### Providers
 
-Verdict works with any LLM provider. The provider layer is a thin adapter; assertions are provider-agnostic.
+LLMAssert works with any LLM provider. The provider layer is a thin adapter; assertions are provider-agnostic.
 
 ```bash
-pip install "verdict[openai]"       # OpenAI
-pip install "verdict[anthropic]"    # Anthropic
-pip install "verdict[ollama]"       # Ollama (local)
-pip install "verdict[google]"       # Google Generative AI
-pip install "verdict[mistral]"      # Mistral
-pip install "verdict[litellm]"      # Any provider via LiteLLM
+pip install "llm-assert[openai]"       # OpenAI
+pip install "llm-assert[anthropic]"    # Anthropic
+pip install "llm-assert[ollama]"       # Ollama (local)
+pip install "llm-assert[google]"       # Google Generative AI
+pip install "llm-assert[mistral]"      # Mistral
+pip install "llm-assert[litellm]"      # Any provider via LiteLLM
 ```
 
 ```python
-from verdict.providers.mock import MockProvider
+from llm_assert.providers.mock import MockProvider
 
 # Test assertions without API calls or cost
 mock = MockProvider(response_fn=lambda prompt, msgs=None: '{"title": "Test", "summary": "ok"}')
-v = Verdict(mock)
+v = LLMAssert(mock)
 ```
 
 Every provider returns a `NormalizedResponse` with consistent fields: `content`, `model` (exact identifier, not the alias), `provider`, `latency_ms`, `prompt_tokens`, `completion_tokens`, `finish_reason`, `request_id`, and `raw` (original provider response). Verified against live Anthropic output.
@@ -263,12 +263,12 @@ Every provider returns a `NormalizedResponse` with consistent fields: `content`,
 
 ### pytest Integration
 
-Verdict registers as a pytest plugin. No new CLI or workflow to learn.
+LLMAssert registers as a pytest plugin. No new CLI or workflow to learn.
 
 ```python
-def test_summarizer(verdict_runner):
+def test_summarizer(llm_assert_runner):
     result = (
-        verdict_runner
+        llm_assert_runner
         .assert_that("Summarize the Q3 earnings report")
         .is_valid_json()
         .contains_keys(["summary", "highlights"])
@@ -279,16 +279,16 @@ def test_summarizer(verdict_runner):
 ```
 
 ```bash
-VERDICT_PROVIDER=anthropic pytest tests/ -v
+LLM_ASSERT_PROVIDER=anthropic pytest tests/ -v
 ```
 
 | Flag | Effect |
 |------|--------|
-| `--verdict-report json --verdict-report-path report.json` | Save JSON report |
-| `--verdict-skip-behavioral` | Skip expensive multi-sample tests |
-| `--verdict-strict` | Borderline passes become failures |
+| `--llm-assert-report json --llm-assert-report-path report.json` | Save JSON report |
+| `--llm-assert-skip-behavioral` | Skip expensive multi-sample tests |
+| `--llm-assert-strict` | Borderline passes become failures |
 
-The `--verdict-skip-behavioral` flag skips any test marked with `@pytest.mark.verdict_behavioral`, keeping commit-level runs fast while full behavioral suites run on a longer schedule.
+The `--llm-assert-skip-behavioral` flag skips any test marked with `@pytest.mark.llm_assert_behavioral`, keeping commit-level runs fast while full behavioral suites run on a longer schedule.
 
 <br>
 
@@ -325,7 +325,7 @@ cases:
 ```
 
 ```bash
-VERDICT_PROVIDER=anthropic verdict run suite.yml
+LLM_ASSERT_PROVIDER=anthropic llm-assert run suite.yml
 ```
 
 Exits with non-zero on any failure. Supports `--format json` for CI report ingestion. A 7-case, 30-assertion YAML suite ran against Claude Sonnet 4 in 47 seconds with all cases passing.
@@ -335,14 +335,14 @@ Exits with non-zero on any failure. Supports `--format json` for CI report inges
 ### CLI
 
 ```bash
-verdict check                                  # verify provider connectivity
-verdict run suite.yml --provider anthropic      # execute a YAML assertion suite
-verdict snapshot create my_key "prompt text"    # record a baseline snapshot
-verdict snapshot diff my_key --prompt "prompt"  # compare current vs baseline
-verdict snapshot update my_key "prompt text"    # update an existing baseline
-verdict snapshot delete my_key                  # remove a baseline
-verdict providers                              # list installed providers
-verdict report result.json                     # pretty-print a saved report
+llm-assert check                                  # verify provider connectivity
+llm-assert run suite.yml --provider anthropic      # execute a YAML assertion suite
+llm-assert snapshot create my_key "prompt text"    # record a baseline snapshot
+llm-assert snapshot diff my_key --prompt "prompt"  # compare current vs baseline
+llm-assert snapshot update my_key "prompt text"    # update an existing baseline
+llm-assert snapshot delete my_key                  # remove a baseline
+llm-assert providers                              # list installed providers
+llm-assert report result.json                     # pretty-print a saved report
 ```
 
 <br>
@@ -350,10 +350,10 @@ verdict report result.json                     # pretty-print a saved report
 ### GitHub Actions
 
 ```yaml
-- uses: moonrunnerkc/verdict@v1
+- uses: moonrunnerkc/llm-assert@v1
   with:
-    suite: tests/verdict_suite.yml
-    verdict-extras: anthropic,semantic
+    suite: tests/llm_assert_suite.yml
+    llm-assert-extras: anthropic,semantic
   env:
     ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 ```
@@ -392,7 +392,7 @@ SemanticDrift failed for 'python_summary': drift 0.8863 exceeds max 0.1000
 
 ## Benchmarks
 
-Every number below is produced by a runnable script in [verdict-benchmark/](verdict-benchmark/) and backed by a JSON result file. Full methodology and reproduction instructions: [verdict-benchmark/README.md](verdict-benchmark/README.md).
+Every number below is produced by a runnable script in [llm-assert-benchmark/](llm-assert-benchmark/) and backed by a JSON result file. Full methodology and reproduction instructions: [llm-assert-benchmark/README.md](llm-assert-benchmark/README.md).
 
 <br>
 
@@ -401,7 +401,7 @@ Every number below is produced by a runnable script in [verdict-benchmark/](verd
 
 <br>
 
-| Metric | Verdict | DeepEval | Promptfoo | LangSmith | Braintrust |
+| Metric | LLMAssert | DeepEval | Promptfoo | LangSmith | Braintrust |
 |--------|---------|----------|-----------|-----------|------------|
 | Account required | No | Partial | No | Yes | Yes |
 | Native drift detection | Yes | No | No | No | No |
@@ -410,7 +410,7 @@ Every number below is produced by a runnable script in [verdict-benchmark/](verd
 | Monthly CI cost (30 runs/day) | $26.78 | $31.31 | $28.94 | $29.80 | $29.80 |
 | Lines of code for drift test | 9 | 25 | 6 (YAML) | 27 | -- |
 
-Source: [verdict-benchmark/results/cost.json](verdict-benchmark/results/cost.json), [verdict-benchmark/results/loc.json](verdict-benchmark/results/loc.json)
+Source: [llm-assert-benchmark/results/cost.json](llm-assert-benchmark/results/cost.json), [llm-assert-benchmark/results/loc.json](llm-assert-benchmark/results/loc.json)
 
 </details>
 
@@ -421,14 +421,14 @@ Source: [verdict-benchmark/results/cost.json](verdict-benchmark/results/cost.jso
 
 Actual HTTPS requests intercepted during a 3-case suite run via `urllib3` and `httpx` patching:
 
-| Metric | Verdict | DeepEval |
+| Metric | LLMAssert | DeepEval |
 |--------|---------|----------|
 | Provider API calls | 3 | 12 (3 model + 9 judge) |
 | Telemetry calls | 0 | 4 (3 PostHog + 1 ipify) |
 
-Verdict makes exactly the LLM calls you ask for. No analytics, no IP lookups, no background network traffic.
+LLMAssert makes exactly the LLM calls you ask for. No analytics, no IP lookups, no background network traffic.
 
-Source: [verdict-benchmark/results/api_call_counts.json](verdict-benchmark/results/api_call_counts.json)
+Source: [llm-assert-benchmark/results/api_call_counts.json](llm-assert-benchmark/results/api_call_counts.json)
 
 </details>
 
@@ -437,15 +437,15 @@ Source: [verdict-benchmark/results/api_call_counts.json](verdict-benchmark/resul
 
 <br>
 
-Verdict's embedding-based scoring is deterministic. LLM-as-judge scoring is not.
+LLMAssert's embedding-based scoring is deterministic. LLM-as-judge scoring is not.
 
-| Metric | Verdict (100 runs) | DeepEval (20 runs) |
+| Metric | LLMAssert (100 runs) | DeepEval (20 runs) |
 |--------|--------------------|--------------------|
 | Score stdev | 0.0 | 0.0160 |
 | Score range | 0.0 | 0.0714 (0.929 to 1.0) |
 | Scoring method | Local embeddings | LLM-as-judge |
 
-Source: [verdict-benchmark/results/flakiness.json](verdict-benchmark/results/flakiness.json)
+Source: [llm-assert-benchmark/results/flakiness.json](llm-assert-benchmark/results/flakiness.json)
 
 </details>
 
@@ -482,7 +482,7 @@ Drift measured as `1 - cosine_similarity` between recorded baselines and live mo
 
 The OpenAI pair catches silent version drift within the same model family. The Anthropic pair quantifies behavioral change during a model tier migration. Both are real API endpoints any developer can call today.
 
-Source: [verdict-benchmark/results/drift_detection.json](verdict-benchmark/results/drift_detection.json)
+Source: [llm-assert-benchmark/results/drift_detection.json](llm-assert-benchmark/results/drift_detection.json)
 
 </details>
 
@@ -491,18 +491,18 @@ Source: [verdict-benchmark/results/drift_detection.json](verdict-benchmark/resul
 
 <br>
 
-Verdict's install footprint depends on which extras you need. Measured in fresh venvs with warm pip cache:
+LLMAssert's install footprint depends on which extras you need. Measured in fresh venvs with warm pip cache:
 
 | Configuration | Install | First Test | Total |
 |---|---|---|---|
-| `pip install verdict` | 3.1s | 102ms | 3.2s |
-| `pip install "verdict[anthropic]"` | 5.4s | 105ms | 5.5s |
-| `pip install "verdict[anthropic,semantic]"` | 85.3s | 113ms | 85.4s |
+| `pip install llm-assert` | 3.1s | 102ms | 3.2s |
+| `pip install "llm-assert[anthropic]"` | 5.4s | 105ms | 5.5s |
+| `pip install "llm-assert[anthropic,semantic]"` | 85.3s | 113ms | 85.4s |
 | `pip install deepeval openai` | 12.4s | 1,491ms | 13.8s |
 
 The base install (structural assertions, any provider) is 3.1 seconds. Adding `[semantic]` pulls in sentence-transformers and PyTorch, which is heavy (85s) but eliminates all runtime API costs for semantic scoring. DeepEval's lighter install shifts that cost to runtime: every semantic assertion makes an additional LLM API call, which is why its first test takes 14x longer (1,491ms vs 105ms).
 
-Source: [verdict-benchmark/results/setup_time.json](verdict-benchmark/results/setup_time.json)
+Source: [llm-assert-benchmark/results/setup_time.json](llm-assert-benchmark/results/setup_time.json)
 
 </details>
 
@@ -513,10 +513,10 @@ Source: [verdict-benchmark/results/setup_time.json](verdict-benchmark/results/se
 
 | Interface | Exit Code on Failure |
 |-----------|---------------------|
-| `verdict run` (CLI) | 1 |
+| `llm-assert run` (CLI) | 1 |
 | `pytest` (plugin) | 2 |
 
-Source: [verdict-benchmark/results/exit_codes.json](verdict-benchmark/results/exit_codes.json)
+Source: [llm-assert-benchmark/results/exit_codes.json](llm-assert-benchmark/results/exit_codes.json)
 
 </details>
 
@@ -537,7 +537,7 @@ Every assertion type has been verified against live Claude Sonnet 4 (`claude-son
 | YAML Suite via CLI | 7 cases, 30 assertions | All passed |
 | pytest Plugin | 3 live tests + 1 correctly skipped behavioral | All passed |
 | Error handling | 6 (MockProvider, NormalizedResponse fields, failure messages, schema violations, connectivity, result metadata) | All passed |
-| Unit test suite | 458 tests | 458 passed, 6 skipped |
+| Unit test suite | 458 tests | 450 passed, 8 skipped |
 
 </details>
 

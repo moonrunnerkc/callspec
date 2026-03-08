@@ -2,7 +2,7 @@
 
 No network calls. Takes a function that maps (prompt, messages) to a string
 and wraps the output in a ProviderResponse with stable mock metadata.
-Used in Verdict's own test suite and by teams testing assertion configurations
+Used in LLMAssert's own test suite and by teams testing assertion configurations
 without spending API credits.
 """
 
@@ -11,8 +11,8 @@ from __future__ import annotations
 import time
 from typing import Any, Callable
 
-from verdict.core.types import ProviderResponse
-from verdict.providers.base import BaseProvider
+from llm_assert.core.types import ProviderResponse
+from llm_assert.providers.base import BaseProvider
 
 
 class MockProvider(BaseProvider):

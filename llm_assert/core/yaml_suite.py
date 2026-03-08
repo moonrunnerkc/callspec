@@ -15,8 +15,8 @@ from typing import Any
 
 import yaml
 
-from verdict.assertions.base import BaseAssertion
-from verdict.assertions.structural import (
+from llm_assert.assertions.base import BaseAssertion
+from llm_assert.assertions.structural import (
     ContainsKeys,
     DoesNotContain,
     EndsWith,
@@ -26,10 +26,10 @@ from verdict.assertions.structural import (
     MatchesSchema,
     StartsWith,
 )
-from verdict.core.config import VerdictConfig
-from verdict.core.suite import AssertionCase, AssertionSuite
-from verdict.core.types import Severity
-from verdict.errors import SuiteParseError
+from llm_assert.core.config import LLMAssertConfig
+from llm_assert.core.suite import AssertionCase, AssertionSuite
+from llm_assert.core.types import Severity
+from llm_assert.errors import SuiteParseError
 
 # Current YAML suite schema version
 SUITE_SCHEMA_VERSION = "1.0"
@@ -112,11 +112,11 @@ def _build_ends_with(params: dict[str, Any]) -> BaseAssertion:
     return EndsWith(suffix)
 
 
-# -- Semantic assertion builders (lazy import to avoid requiring verdict[semantic]) --
+# -- Semantic assertion builders (lazy import to avoid requiring llm-assert[semantic]) --
 
 @_register_assertion("semantic_intent_matches")
 def _build_semantic_intent_matches(params: dict[str, Any]) -> BaseAssertion:
-    from verdict.assertions.semantic import SemanticIntentMatches
+    from llm_assert.assertions.semantic import SemanticIntentMatches
     reference = params.get("reference_intent", params.get("reference", ""))
     threshold = params.get("threshold")
     if not reference:
@@ -126,7 +126,7 @@ def _build_semantic_intent_matches(params: dict[str, Any]) -> BaseAssertion:
 
 @_register_assertion("does_not_discuss")
 def _build_does_not_discuss(params: dict[str, Any]) -> BaseAssertion:
-    from verdict.assertions.semantic import DoesNotDiscuss
+    from llm_assert.assertions.semantic import DoesNotDiscuss
     topic = params.get("topic", "")
     threshold = params.get("threshold")
     if not topic:
@@ -136,7 +136,7 @@ def _build_does_not_discuss(params: dict[str, Any]) -> BaseAssertion:
 
 @_register_assertion("is_factually_consistent_with")
 def _build_is_factually_consistent_with(params: dict[str, Any]) -> BaseAssertion:
-    from verdict.assertions.semantic import IsFactuallyConsistentWith
+    from llm_assert.assertions.semantic import IsFactuallyConsistentWith
     reference = params.get("reference_text", params.get("reference", ""))
     threshold = params.get("threshold")
     if not reference:
@@ -146,7 +146,7 @@ def _build_is_factually_consistent_with(params: dict[str, Any]) -> BaseAssertion
 
 @_register_assertion("uses_language_at_grade_level")
 def _build_uses_language_at_grade_level(params: dict[str, Any]) -> BaseAssertion:
-    from verdict.assertions.semantic import UsesLanguageAtGradeLevel
+    from llm_assert.assertions.semantic import UsesLanguageAtGradeLevel
     grade = params.get("grade")
     tolerance = params.get("tolerance", 2)
     if grade is None:
@@ -182,11 +182,11 @@ def _build_assertion(assertion_def: dict[str, Any], filepath: str) -> BaseAssert
         ) from build_error
 
 
-def _parse_config(raw_config: dict[str, Any]) -> VerdictConfig:
-    """Build a VerdictConfig from YAML config section."""
-    known_fields = {f.name for f in VerdictConfig.__dataclass_fields__.values()}
+def _parse_config(raw_config: dict[str, Any]) -> LLMAssertConfig:
+    """Build a LLMAssertConfig from YAML config section."""
+    known_fields = {f.name for f in LLMAssertConfig.__dataclass_fields__.values()}
     filtered = {k: v for k, v in raw_config.items() if k in known_fields}
-    return VerdictConfig(**filtered)
+    return LLMAssertConfig(**filtered)
 
 
 def _parse_case(case_def: dict[str, Any], filepath: str, index: int) -> AssertionCase:
@@ -243,7 +243,7 @@ def load_yaml_suite(filepath: str | Path) -> AssertionSuite:
         version  - schema version (currently "1.0")
         name     - suite name (optional, defaults to filename)
         provider - provider config (name, model, etc.)
-        config   - VerdictConfig overrides
+        config   - LLMAssertConfig overrides
         cases    - ordered list of test cases
     """
     filepath = Path(filepath)
@@ -277,14 +277,14 @@ def load_yaml_suite(filepath: str | Path) -> AssertionSuite:
         raise SuiteParseError(
             str(filepath),
             f"Unsupported suite schema version '{version}'. "
-            f"This version of Verdict supports version 1.x.",
+            f"This version of LLMAssert supports version 1.x.",
         )
 
     suite_name = raw.get("name", filepath.stem)
 
     # Config
     raw_config = raw.get("config", {})
-    config = _parse_config(raw_config) if raw_config else VerdictConfig()
+    config = _parse_config(raw_config) if raw_config else LLMAssertConfig()
 
     # Cases
     raw_cases = raw.get("cases", [])

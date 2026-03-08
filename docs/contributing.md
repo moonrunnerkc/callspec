@@ -1,12 +1,12 @@
 # Contributing
 
-Guidelines for contributing to Verdict.
+Guidelines for contributing to LLMAssert.
 
 ## Getting Started
 
 ```bash
-git clone https://github.com/moonrunnerkc/verdict.git
-cd verdict
+git clone https://github.com/moonrunnerkc/llm-assert.git
+cd llm-assert
 python -m venv .venv
 source .venv/bin/activate
 pip install -e ".[all]"
@@ -19,10 +19,10 @@ pip install -e ".[all]"
 pytest
 
 # With coverage
-pytest --cov=verdict --cov-report=term-missing
+pytest --cov=llm_assert --cov-report=term-missing
 
 # Skip behavioral tests (faster)
-pytest --verdict-skip-behavioral
+pytest --llm-assert-skip-behavioral
 
 # Only unit tests
 pytest tests/unit/
@@ -33,17 +33,17 @@ pytest tests/integration/
 
 ## Code Style
 
-Verdict uses ruff for linting and formatting:
+LLMAssert uses ruff for linting and formatting:
 
 ```bash
-ruff check verdict/ tests/
-ruff format verdict/ tests/
+ruff check llm_assert/ tests/
+ruff format llm_assert/ tests/
 ```
 
 Type checking with mypy:
 
 ```bash
-mypy verdict/
+mypy llm_assert/
 ```
 
 ## Engineering Standards
@@ -94,17 +94,17 @@ the existing library does not match. Added pattern covering the
 ## Adding a New Assertion Type
 
 1. Create the assertion class in the appropriate module (`structural.py`, `semantic.py`, etc.)
-2. Implement `evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult`
-3. Add a builder method in `verdict/core/builder.py`
-4. Add a YAML builder in `verdict/core/yaml_suite.py`
+2. Implement `evaluate(self, content: str, config: LLMAssertConfig) -> IndividualAssertionResult`
+3. Add a builder method in `llm_assert/core/builder.py`
+4. Add a YAML builder in `llm_assert/core/yaml_suite.py`
 5. Write unit tests in `tests/unit/`
 6. Add documentation in `docs/assertion_types.md`
 
-Use the [assertion type request template](https://github.com/moonrunnerkc/verdict/issues/new?template=assertion_type_request.md) for proposing new types.
+Use the [assertion type request template](https://github.com/moonrunnerkc/llm-assert/issues/new?template=assertion_type_request.md) for proposing new types.
 
 ## Adding a New Provider
 
-1. Create the adapter in `verdict/providers/`
+1. Create the adapter in `llm_assert/providers/`
 2. Implement `BaseProvider.call()` returning a `ProviderResponse`
 3. Add an optional dependency in `pyproject.toml`
 4. Write integration tests (skip when API key is absent)
@@ -113,8 +113,8 @@ Use the [assertion type request template](https://github.com/moonrunnerkc/verdic
 ## Project Structure
 
 ```
-verdict/
-  verdict/
+llm_assert/
+  llm_assert/
     core/          # Runner, suite, config, types, report, builder
     assertions/    # Structural, semantic, behavioral, regression, composite
     providers/     # Provider adapters (OpenAI, Anthropic, etc.)

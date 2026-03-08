@@ -1,4 +1,4 @@
-"""Verdict pytest plugin entry point.
+"""LLMAssert pytest plugin entry point.
 
 Registers fixtures, custom marks, CLI flags, and report hooks with pytest.
 Discovered via the pytest11 entry point group defined in pyproject.toml.
@@ -13,53 +13,53 @@ from __future__ import annotations
 import pytest
 
 # Re-export fixtures so pytest discovers them via this entry point module
-from verdict.pytest_plugin.fixtures import (  # noqa: F401
-    verdict_config,
-    verdict_provider,
-    verdict_runner,
+from llm_assert.pytest_plugin.fixtures import (  # noqa: F401
+    llm_assert_config,
+    llm_assert_provider,
+    llm_assert_runner,
 )
-from verdict.pytest_plugin.reporter import VerdictReportPlugin, clear_verdict_results
+from llm_assert.pytest_plugin.reporter import LLMAssertReportPlugin, clear_llm_assert_results
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:
-    """Register Verdict-specific CLI flags with pytest."""
-    group = parser.getgroup("verdict", "Verdict behavioral assertion testing")
+    """Register LLMAssert-specific CLI flags with pytest."""
+    group = parser.getgroup("llm-assert", "LLMAssert behavioral assertion testing")
 
     group.addoption(
-        "--verdict-snapshot",
+        "--llm-assert-snapshot",
         action="store_true",
         default=False,
         help="Run snapshot creation/update operations instead of assertions.",
     )
 
     group.addoption(
-        "--verdict-strict",
+        "--llm-assert-strict",
         action="store_true",
         default=False,
         help="Treat semantic assertion warnings (score within 5%% of threshold) as failures.",
     )
 
     group.addoption(
-        "--verdict-report",
+        "--llm-assert-report",
         action="store",
         default=None,
         metavar="FORMAT",
-        help="Produce a Verdict report. Formats: json, junit.",
+        help="Produce a LLMAssert report. Formats: json, junit.",
     )
 
     group.addoption(
-        "--verdict-report-path",
+        "--llm-assert-report-path",
         action="store",
         default=None,
         metavar="PATH",
-        help="Output path for the Verdict report file.",
+        help="Output path for the LLMAssert report file.",
     )
 
     group.addoption(
-        "--verdict-skip-behavioral",
+        "--llm-assert-skip-behavioral",
         action="store_true",
         default=False,
-        help="Skip tests marked with @pytest.mark.verdict_behavioral.",
+        help="Skip tests marked with @pytest.mark.llm_assert_behavioral.",
     )
 
 
@@ -67,34 +67,34 @@ def pytest_configure(config: pytest.Config) -> None:
     """Register markers and activate report plugin if requested."""
     config.addinivalue_line(
         "markers",
-        "verdict_behavioral: marks tests as behavioral (multi-sample, expensive)",
+        "llm_assert_behavioral: marks tests as behavioral (multi-sample, expensive)",
     )
 
-    # Activate report plugin when --verdict-report is specified
-    report_format = config.getoption("--verdict-report", default=None)
+    # Activate report plugin when --llm-assert-report is specified
+    report_format = config.getoption("--llm-assert-report", default=None)
     if report_format:
-        report_path = config.getoption("--verdict-report-path", default=None)
+        report_path = config.getoption("--llm-assert-report-path", default=None)
         config.pluginmanager.register(
-            VerdictReportPlugin(report_format, report_path),
-            name="verdict-report",
+            LLMAssertReportPlugin(report_format, report_path),
+            name="llm-assert-report",
         )
 
 
 def pytest_collection_modifyitems(
     config: pytest.Config, items: list[pytest.Item]
 ) -> None:
-    """Skip behavioral tests when --verdict-skip-behavioral is active."""
-    if not config.getoption("--verdict-skip-behavioral", default=False):
+    """Skip behavioral tests when --llm-assert-skip-behavioral is active."""
+    if not config.getoption("--llm-assert-skip-behavioral", default=False):
         return
 
     skip_marker = pytest.mark.skip(
-        reason="Skipped by --verdict-skip-behavioral (expensive multi-sample test)"
+        reason="Skipped by --llm-assert-skip-behavioral (expensive multi-sample test)"
     )
     for test_item in items:
-        if "verdict_behavioral" in test_item.keywords:
+        if "llm_assert_behavioral" in test_item.keywords:
             test_item.add_marker(skip_marker)
 
 
 def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
-    """Clean up recorded Verdict results at session end."""
-    clear_verdict_results()
+    """Clean up recorded LLMAssert results at session end."""
+    clear_llm_assert_results()

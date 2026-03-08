@@ -1,7 +1,7 @@
 """SnapshotSerializer: JSON serialization with schema versioning.
 
 Snapshots are the baseline format for regression assertions. The schema
-version is embedded in every snapshot file so Verdict can detect and
+version is embedded in every snapshot file so LLMAssert can detect and
 refuse to compare incompatible formats rather than producing silent
 wrong results. Changing this schema post-release requires migration
 tooling, so the format is intentionally minimal and stable.
@@ -20,7 +20,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from verdict.errors import SnapshotError
+from llm_assert.errors import SnapshotError
 
 logger = logging.getLogger(__name__)
 
@@ -142,8 +142,8 @@ class SnapshotSerializer:
             raise SnapshotError(
                 str(filepath),
                 f"Snapshot file not found at {filepath}. "
-                f"Run 'verdict snapshot create' or "
-                f"'pytest --verdict-snapshot' to create a baseline.",
+                f"Run 'llm-assert snapshot create' or "
+                f"'pytest --llm-assert-snapshot' to create a baseline.",
             )
 
         try:
@@ -161,14 +161,14 @@ class SnapshotSerializer:
             raise SnapshotError(
                 str(filepath),
                 "Snapshot file is missing 'schema_version'. "
-                "This file may predate the current Verdict version and needs to be regenerated.",
+                "This file may predate the current LLMAssert version and needs to be regenerated.",
             )
 
         if file_version > SNAPSHOT_SCHEMA_VERSION:
             raise SnapshotError(
                 str(filepath),
                 f"Snapshot schema version {file_version} is newer than supported version "
-                f"{SNAPSHOT_SCHEMA_VERSION}. Upgrade Verdict or regenerate the snapshot.",
+                f"{SNAPSHOT_SCHEMA_VERSION}. Upgrade LLMAssert or regenerate the snapshot.",
             )
 
         return SnapshotFile(

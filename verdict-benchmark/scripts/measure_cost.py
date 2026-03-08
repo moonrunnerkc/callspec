@@ -55,15 +55,15 @@ def compute_cost(model: str, prompt_tokens: int, completion_tokens: int) -> floa
 
 
 def analyze_verdict() -> dict:
-    """Verdict cost model: one provider call per case, zero for semantic scoring."""
-    # Verdict makes exactly one API call per test case (to get the LLM response).
+    """LLMAssert cost model: one provider call per case, zero for semantic scoring."""
+    # LLMAssert makes exactly one API call per test case (to get the LLM response).
     # Semantic assertions use local embeddings (sentence-transformers), zero API calls.
     # Structural assertions are pure string operations, zero API calls.
 
     # Suite has 7 cases: structured_output, semantic_intent, format_compliance,
     # code_generation, numeric_reasoning, instruction_following, chain_of_thought
     provider_calls = 7
-    judge_calls = 0  # Verdict uses local embeddings, not LLM-as-judge
+    judge_calls = 0  # LLMAssert uses local embeddings, not LLM-as-judge
     embedding_calls = 0  # Local model, no API
 
     per_run_cost = sum(

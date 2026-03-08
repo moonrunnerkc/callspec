@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from verdict.assertions.composite import AndAssertion, NegationWrapper, OrAssertion
-from verdict.assertions.structural import IsValidJson, LengthBetween, StartsWith
-from verdict.core.config import VerdictConfig
+from llm_assert.assertions.composite import AndAssertion, NegationWrapper, OrAssertion
+from llm_assert.assertions.structural import IsValidJson, LengthBetween, StartsWith
+from llm_assert.core.config import LLMAssertConfig
 
-CONFIG = VerdictConfig()
+CONFIG = LLMAssertConfig()
 
 
 class TestNegationWrapper:

@@ -1,32 +1,32 @@
-"""Pytest assertion helpers that produce Verdict-flavored failure output.
+"""Pytest assertion helpers that produce LLMAssert-flavored failure output.
 
-These functions bridge Verdict's AssertionResult into pytest's assertion
-introspection. When a Verdict assertion fails, the developer sees:
+These functions bridge LLMAssert's AssertionResult into pytest's assertion
+introspection. When a LLMAssert assertion fails, the developer sees:
 which assertion type failed, the score vs threshold, the model and
 provider, and the input prompt. Not just "assert False".
 
 Usage in a test:
-    from verdict.pytest_plugin.assertions import assert_verdict_pass
+    from llm_assert.pytest_plugin.assertions import assert_llm_assert_pass
 
-    def test_json_output(verdict_runner):
-        result = verdict_runner.assert_that("Return JSON").is_valid_json().run()
-        assert_verdict_pass(result)
+    def test_json_output(llm_assert_runner):
+        result = llm_assert_runner.assert_that("Return JSON").is_valid_json().run()
+        assert_llm_assert_pass(result)
 """
 
 from __future__ import annotations
 
-from verdict.core.types import AssertionResult, IndividualAssertionResult
+from llm_assert.core.types import AssertionResult, IndividualAssertionResult
 
 
-class VerdictAssertionError(AssertionError):
-    """Custom AssertionError with structured Verdict failure details.
+class LLMAssertAssertionError(AssertionError):
+    """Custom AssertionError with structured LLMAssert failure details.
 
     Inherits from AssertionError so pytest's native assertion
     introspection displays the message correctly.
     """
 
     def __init__(self, message: str, result: AssertionResult) -> None:
-        self.verdict_result = result
+        self.llm_assert_result = result
         super().__init__(message)
 
 
@@ -58,7 +58,7 @@ def _format_individual_failure(individual: IndividualAssertionResult) -> str:
 
 def _format_failure_report(result: AssertionResult) -> str:
     """Build the full failure report string shown in pytest output."""
-    lines = ["", "Verdict assertion chain FAILED", ""]
+    lines = ["", "LLMAssert assertion chain FAILED", ""]
 
     # Provider and model context
     if result.provider_response:
@@ -87,25 +87,25 @@ def _format_failure_report(result: AssertionResult) -> str:
     return "\n".join(lines)
 
 
-def assert_verdict_pass(result: AssertionResult) -> None:
-    """Assert that a Verdict result passed, with structured failure output.
+def assert_llm_assert_pass(result: AssertionResult) -> None:
+    """Assert that a LLMAssert result passed, with structured failure output.
 
-    Use this instead of `assert result.passed` to get Verdict-specific
+    Use this instead of `assert result.passed` to get LLMAssert-specific
     failure formatting in the pytest terminal output.
     """
     if not result.passed:
         report = _format_failure_report(result)
-        raise VerdictAssertionError(report, result)
+        raise LLMAssertAssertionError(report, result)
 
 
-def assert_verdict_fail(result: AssertionResult) -> None:
-    """Assert that a Verdict result failed (for testing negative assertions).
+def assert_llm_assert_fail(result: AssertionResult) -> None:
+    """Assert that a LLMAssert result failed (for testing negative assertions).
 
     Useful when writing tests that verify a model correctly rejects input.
     """
     if result.passed:
         raise AssertionError(
-            "Expected Verdict assertion chain to FAIL, but all assertions passed.\n"
+            "Expected LLMAssert assertion chain to FAIL, but all assertions passed.\n"
             f"  assertions: {len(result.assertions)}\n"
             f"  model: {result.model}\n"
         )

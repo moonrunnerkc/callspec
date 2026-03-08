@@ -10,12 +10,12 @@ from __future__ import annotations
 import os
 from unittest.mock import patch
 
-from verdict.core.types import (
+from llm_assert.core.types import (
     AssertionResult,
     IndividualAssertionResult,
     SuiteResult,
 )
-from verdict.integrations.github_actions import (
+from llm_assert.integrations.github_actions import (
     _is_borderline_pass,
     annotate_assertion_result,
     annotate_individual_result,
@@ -111,11 +111,11 @@ class TestFormatAnnotation:
             file="tests/test_llm.py",
             line=42,
             col=8,
-            title="Verdict: is_valid_json",
+            title="LLMAssert: is_valid_json",
         )
         assert result == (
             "::error file=tests/test_llm.py,line=42,col=8,"
-            "title=Verdict: is_valid_json::something broke"
+            "title=LLMAssert: is_valid_json::something broke"
         )
 
     def test_warning_with_file_only(self):
@@ -409,7 +409,7 @@ class TestWriteStepSummary:
             write_step_summary(suite, suite_name="my_suite")
 
         content = summary_file.read_text()
-        assert "## Verdict: my_suite" in content
+        assert "## LLMAssert: my_suite" in content
         assert "1/1" in content
         assert "json_check" in content
         assert "| Case |" in content
@@ -467,23 +467,23 @@ class TestSetOutput:
         output_file = tmp_path / "output.txt"
 
         with patch.dict(os.environ, {"GITHUB_OUTPUT": str(output_file)}):
-            set_output("verdict_passed", "true")
-            set_output("verdict_total_cases", "5")
+            set_output("llm_assert_passed", "true")
+            set_output("llm_assert_total_cases", "5")
 
         content = output_file.read_text()
-        assert "verdict_passed=true\n" in content
-        assert "verdict_total_cases=5\n" in content
+        assert "llm_assert_passed=true\n" in content
+        assert "llm_assert_total_cases=5\n" in content
 
     def test_no_op_when_env_var_missing(self):
         env = os.environ.copy()
         env.pop("GITHUB_OUTPUT", None)
         with patch.dict(os.environ, env, clear=True):
             # Should not raise
-            set_output("verdict_passed", "true")
+            set_output("llm_assert_passed", "true")
 
     def test_handles_unwritable_path_gracefully(self):
         with patch.dict(os.environ, {"GITHUB_OUTPUT": "/nonexistent/dir/output.txt"}):
-            set_output("verdict_passed", "true")
+            set_output("llm_assert_passed", "true")
 
 
 # ---------------------------------------------------------------------------
@@ -523,19 +523,19 @@ class TestEmitSuiteResult:
         captured = capsys.readouterr()
         assert "::error" in captured.out
         assert "Expected valid JSON" in captured.out
-        assert "Verdict Summary" in captured.out
+        assert "LLMAssert Summary" in captured.out
 
         # Step summary written
         summary_content = summary_file.read_text()
-        assert "## Verdict: test_suite" in summary_content
+        assert "## LLMAssert: test_suite" in summary_content
         assert "failing_case" in summary_content
 
         # Outputs written
         output_content = output_file.read_text()
-        assert "verdict_passed=false" in output_content
-        assert "verdict_passed_cases=1" in output_content
-        assert "verdict_failed_cases=1" in output_content
-        assert "verdict_total_cases=2" in output_content
+        assert "llm_assert_passed=false" in output_content
+        assert "llm_assert_passed_cases=1" in output_content
+        assert "llm_assert_failed_cases=1" in output_content
+        assert "llm_assert_total_cases=2" in output_content
 
     def test_works_without_github_env_vars(self, capsys):
         """Annotations still print to stdout even without summary/output files."""
@@ -576,4 +576,4 @@ class TestEmitSuiteResult:
         assert "passed" in captured.out
 
         output_content = output_file.read_text()
-        assert "verdict_passed=true" in output_content
+        assert "llm_assert_passed=true" in output_content

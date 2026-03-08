@@ -12,11 +12,11 @@ on CPU for a typical response using all-MiniLM-L6-v2.
 
 from __future__ import annotations
 
-from verdict.assertions.base import BaseAssertion
-from verdict.core.config import VerdictConfig
-from verdict.core.types import IndividualAssertionResult
-from verdict.scoring.embeddings import score_similarity
-from verdict.scoring.structural import compute_flesch_kincaid_grade
+from llm_assert.assertions.base import BaseAssertion
+from llm_assert.core.config import LLMAssertConfig
+from llm_assert.core.types import IndividualAssertionResult
+from llm_assert.scoring.embeddings import score_similarity
+from llm_assert.scoring.structural import compute_flesch_kincaid_grade
 
 
 class SemanticIntentMatches(BaseAssertion):
@@ -41,7 +41,7 @@ class SemanticIntentMatches(BaseAssertion):
         self._reference_intent = reference_intent
         self._threshold = threshold
 
-    def evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult:
+    def evaluate(self, content: str, config: LLMAssertConfig) -> IndividualAssertionResult:
         threshold = (
             self._threshold if self._threshold is not None
             else config.semantic_similarity_threshold
@@ -100,7 +100,7 @@ class DoesNotDiscuss(BaseAssertion):
         self._topic = topic
         self._threshold = threshold
 
-    def evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult:
+    def evaluate(self, content: str, config: LLMAssertConfig) -> IndividualAssertionResult:
         threshold = (
             self._threshold if self._threshold is not None
             else config.topic_avoidance_threshold
@@ -164,7 +164,7 @@ class IsFactuallyConsistentWith(BaseAssertion):
         self._reference_text = reference_text
         self._threshold = threshold
 
-    def evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult:
+    def evaluate(self, content: str, config: LLMAssertConfig) -> IndividualAssertionResult:
         threshold = (
             self._threshold if self._threshold is not None
             else config.factual_consistency_threshold
@@ -223,7 +223,7 @@ class UsesLanguageAtGradeLevel(BaseAssertion):
         self._target_grade = grade
         self._tolerance = tolerance
 
-    def evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult:
+    def evaluate(self, content: str, config: LLMAssertConfig) -> IndividualAssertionResult:
         actual_grade = compute_flesch_kincaid_grade(content)
         lower_bound = self._target_grade - self._tolerance
         upper_bound = self._target_grade + self._tolerance

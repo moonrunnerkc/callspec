@@ -1,6 +1,6 @@
 """AssertionBuilder: fluent API for chaining assertions.
 
-This is the developer-facing API. A call to verdict.assert_that(prompt)
+This is the developer-facing API. A call to llm_assert.assert_that(prompt)
 returns an AssertionBuilder. The developer chains structural, semantic,
 behavioral, and composite assertions, then calls .run() to execute.
 
@@ -15,25 +15,25 @@ import re
 from collections.abc import Sequence
 from typing import Any
 
-from verdict.assertions.base import BaseAssertion
-from verdict.assertions.behavioral import (
+from llm_assert.assertions.base import BaseAssertion
+from llm_assert.assertions.behavioral import (
     IsConsistentAcrossSamples,
     PassesRate,
     RefusalRateIsAbove,
 )
-from verdict.assertions.composite import NegationWrapper, OrAssertion
-from verdict.assertions.regression import (
+from llm_assert.assertions.composite import NegationWrapper, OrAssertion
+from llm_assert.assertions.regression import (
     FormatMatchesBaseline,
     MatchesBaseline,
     SemanticDriftIsBelow,
 )
-from verdict.assertions.semantic import (
+from llm_assert.assertions.semantic import (
     DoesNotDiscuss,
     IsFactuallyConsistentWith,
     SemanticIntentMatches,
     UsesLanguageAtGradeLevel,
 )
-from verdict.assertions.structural import (
+from llm_assert.assertions.structural import (
     ContainsKeys,
     DoesNotContain,
     EndsWith,
@@ -43,11 +43,11 @@ from verdict.assertions.structural import (
     MatchesSchema,
     StartsWith,
 )
-from verdict.core.runner import AssertionRunner
-from verdict.core.types import AssertionResult
-from verdict.sampling.sampler import BaseSampler
-from verdict.sampling.seed import SeedManager
-from verdict.snapshots.manager import SnapshotManager
+from llm_assert.core.runner import AssertionRunner
+from llm_assert.core.types import AssertionResult
+from llm_assert.sampling.sampler import BaseSampler
+from llm_assert.sampling.seed import SeedManager
+from llm_assert.snapshots.manager import SnapshotManager
 
 
 class AssertionBuilder:
@@ -123,7 +123,7 @@ class AssertionBuilder:
         """Assert the response semantically aligns with the reference intent.
 
         Default threshold 0.75 calibrated against SBERT STS-B benchmarks.
-        Requires verdict[semantic] extra.
+        Requires llm-assert[semantic] extra.
         """
         self._assertions.append(SemanticIntentMatches(reference_intent, threshold))
         return self
@@ -175,7 +175,7 @@ class AssertionBuilder:
     ) -> AssertionBuilder:
         """Assert the response matches a recorded baseline structurally and semantically.
 
-        Both checks must pass independently. Requires verdict[semantic] for
+        Both checks must pass independently. Requires llm-assert[semantic] for
         the semantic comparison. Loads baseline from the provided SnapshotManager.
         """
         self._assertions.append(

@@ -3,7 +3,7 @@
 
 This tests the reliability of each tool's semantic assertions by running
 them repeatedly against the same input. Tools with statistical confidence
-intervals (Verdict) should show lower variance than tools with raw
+intervals (LLMAssert) should show lower variance than tools with raw
 threshold comparisons (DeepEval, Promptfoo).
 
 Only tests assertions that do not require live API calls (using recorded
@@ -37,8 +37,8 @@ def load_baseline_content(model_dir: str, prompt_name: str) -> str | None:
 
 
 def measure_verdict_flakiness(runs: int) -> dict:
-    """Run Verdict's semantic similarity assertion N times on the same input."""
-    from verdict.scoring.embeddings import score_similarity
+    """Run LLMAssert's semantic similarity assertion N times on the same input."""
+    from llm_assert.scoring.embeddings import score_similarity
 
     content_a = load_baseline_content("claude_3_haiku_20240307", "semantic_intent")
     content_b = load_baseline_content("claude_sonnet_4_20250514", "semantic_intent")
@@ -81,21 +81,21 @@ def measure_verdict_flakiness(runs: int) -> dict:
         "scores_max": round(max(scores), 6),
         "threshold": threshold,
         "elapsed_ms": elapsed_ms,
-        "note": "Verdict embeddings are deterministic: same input always produces same score. Zero variance expected.",
+        "note": "LLMAssert embeddings are deterministic: same input always produces same score. Zero variance expected.",
     }
 
 
 def measure_structural_flakiness(runs: int) -> dict:
     """Run a structural assertion N times. Should be perfectly deterministic."""
-    from verdict.assertions.structural import IsValidJson
-    from verdict.core.config import VerdictConfig
+    from llm_assert.assertions.structural import IsValidJson
+    from llm_assert.core.config import LLMAssertConfig
 
     content = load_baseline_content("claude_3_haiku_20240307", "structured_output")
     if content is None:
         return {"error": "Baselines not recorded."}
 
     assertion = IsValidJson()
-    config = VerdictConfig()
+    config = LLMAssertConfig()
     pass_count = 0
 
     print(f"  Running {runs} iterations of is_valid_json...")
@@ -124,14 +124,14 @@ def main() -> None:
     import argparse
 
     parser = argparse.ArgumentParser(description="Measure assertion flakiness.")
-    parser.add_argument("--tool", choices=["verdict", "deepeval"], default="verdict")
+    parser.add_argument("--tool", choices=["verdict", "deepeval"], default="llm-assert")
     parser.add_argument("--runs", type=int, default=100)
     args = parser.parse_args()
 
     results = {}
 
     if args.tool == "verdict":
-        print("=== Verdict Flakiness Measurement ===")
+        print("=== LLMAssert Flakiness Measurement ===")
         results["semantic"] = measure_verdict_flakiness(args.runs)
         results["structural"] = measure_structural_flakiness(args.runs)
 

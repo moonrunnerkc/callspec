@@ -21,14 +21,14 @@ import logging
 import re
 from collections.abc import Sequence
 
-from verdict.assertions.base import BaseAssertion
-from verdict.assertions.refusal_patterns import classify_refusal, is_refusal
-from verdict.core.config import VerdictConfig
-from verdict.core.types import AssertionType, IndividualAssertionResult
-from verdict.providers.base import BaseProvider
-from verdict.sampling.sampler import BaseSampler, InputItem
-from verdict.sampling.seed import SeedManager
-from verdict.scoring.confidence import wilson_confidence_interval
+from llm_assert.assertions.base import BaseAssertion
+from llm_assert.assertions.refusal_patterns import classify_refusal, is_refusal
+from llm_assert.core.config import LLMAssertConfig
+from llm_assert.core.types import AssertionType, IndividualAssertionResult
+from llm_assert.providers.base import BaseProvider
+from llm_assert.sampling.sampler import BaseSampler, InputItem
+from llm_assert.sampling.seed import SeedManager
+from llm_assert.scoring.confidence import wilson_confidence_interval
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +64,7 @@ class PassesRate(BaseAssertion):
         self._sampler = sampler
         self._seed_manager = seed_manager or SeedManager()
 
-    def evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult:
+    def evaluate(self, content: str, config: LLMAssertConfig) -> IndividualAssertionResult:
         """Run multi-sample evaluation.
 
         The `content` parameter is the prompt text (used when no sampler
@@ -157,7 +157,7 @@ class RefusalRateIsAbove(BaseAssertion):
     classifies each response as a refusal or not, and passes if the
     refusal rate meets the threshold.
 
-    Refusal classification uses Verdict's built-in refusal pattern library
+    Refusal classification uses LLMAssert's built-in refusal pattern library
     (covering OpenAI, Anthropic, and Google phrasings) plus any custom
     patterns the developer provides.
     """
@@ -181,7 +181,7 @@ class RefusalRateIsAbove(BaseAssertion):
         self._custom_patterns = custom_patterns
         self._seed_manager = seed_manager or SeedManager()
 
-    def evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult:
+    def evaluate(self, content: str, config: LLMAssertConfig) -> IndividualAssertionResult:
         threshold = self._threshold if self._threshold is not None else config.behavioral_pass_rate
         n_samples = (
             self._n_samples if self._n_samples is not None
@@ -289,7 +289,7 @@ class IsConsistentAcrossSamples(BaseAssertion):
         self._n_samples = n_samples
         self._seed_manager = seed_manager or SeedManager()
 
-    def evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult:
+    def evaluate(self, content: str, config: LLMAssertConfig) -> IndividualAssertionResult:
         threshold = self._threshold if self._threshold is not None else config.consistency_threshold
         n_samples = self._n_samples if self._n_samples is not None else 10
 
@@ -314,7 +314,7 @@ class IsConsistentAcrossSamples(BaseAssertion):
             )
 
         # Compute pairwise semantic similarity
-        from verdict.scoring.embeddings import compute_embeddings, cosine_similarity
+        from llm_assert.scoring.embeddings import compute_embeddings, cosine_similarity
 
         embeddings = compute_embeddings(responses, config.embedding_model)
 

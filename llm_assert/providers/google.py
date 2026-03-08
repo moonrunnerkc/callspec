@@ -9,7 +9,7 @@ The google-generativeai SDK uses generation_config for parameters like
 temperature. The model string returned in the response is used as-is
 for the ProviderResponse.model field.
 
-Requires: pip install verdict[google]
+Requires: pip install llm-assert[google]
 """
 
 from __future__ import annotations
@@ -18,8 +18,8 @@ import logging
 import time
 from typing import Any
 
-from verdict.core.types import ProviderResponse
-from verdict.providers.base import BaseProvider
+from llm_assert.core.types import ProviderResponse
+from llm_assert.providers.base import BaseProvider
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +62,7 @@ class GoogleProvider(BaseProvider):
         except ImportError as import_error:
             raise ImportError(
                 "Google provider requires the google-generativeai package. "
-                "Install with: pip install verdict[google]"
+                "Install with: pip install llm-assert[google]"
             ) from import_error
 
         if self._api_key is not None:

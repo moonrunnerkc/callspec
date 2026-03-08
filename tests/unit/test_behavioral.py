@@ -15,22 +15,22 @@ import re
 
 import pytest
 
-from verdict.assertions.behavioral import (
+from llm_assert.assertions.behavioral import (
     IsConsistentAcrossSamples,
     PassesRate,
     RefusalRateIsAbove,
 )
-from verdict.assertions.refusal_patterns import (
+from llm_assert.assertions.refusal_patterns import (
     ALL_DEFAULT_PATTERNS,
     REFUSAL_LIBRARY_VERSION,
     classify_refusal,
     is_refusal,
 )
-from verdict.assertions.structural import IsValidJson, StartsWith
-from verdict.core.config import VerdictConfig
-from verdict.core.types import AssertionType
-from verdict.providers.mock import MockProvider
-from verdict.sampling.strategies import FixedSetSampler
+from llm_assert.assertions.structural import IsValidJson, StartsWith
+from llm_assert.core.config import LLMAssertConfig
+from llm_assert.core.types import AssertionType
+from llm_assert.providers.mock import MockProvider
+from llm_assert.sampling.strategies import FixedSetSampler
 
 # ---------------------------------------------------------------------------
 # Test fixtures and helpers
@@ -264,7 +264,7 @@ class TestPassesRate:
             provider=provider,
             n_samples=10,
         )
-        config = VerdictConfig()
+        config = LLMAssertConfig()
         result = assertion.evaluate("test prompt", config)
 
         assert result.passed is True
@@ -284,7 +284,7 @@ class TestPassesRate:
             min_rate=0.95,
             n_samples=10,
         )
-        config = VerdictConfig()
+        config = LLMAssertConfig()
         result = assertion.evaluate("test prompt", config)
 
         assert result.passed is False
@@ -301,7 +301,7 @@ class TestPassesRate:
             min_rate=0.4,
             n_samples=10,
         )
-        config = VerdictConfig()
+        config = LLMAssertConfig()
         result = assertion.evaluate("test prompt", config)
 
         assert result.passed is True
@@ -316,7 +316,7 @@ class TestPassesRate:
             inner_assertion=inner,
             provider=provider,
         )
-        config = VerdictConfig(behavioral_pass_rate=0.9, behavioral_sample_count=5)
+        config = LLMAssertConfig(behavioral_pass_rate=0.9, behavioral_sample_count=5)
         result = assertion.evaluate("test prompt", config)
 
         assert result.passed is True
@@ -334,7 +334,7 @@ class TestPassesRate:
             min_rate=1.0,
             n_samples=5,
         )
-        config = VerdictConfig()
+        config = LLMAssertConfig()
         result = assertion.evaluate("test", config)
 
         assert result.passed is True
@@ -357,7 +357,7 @@ class TestPassesRate:
             n_samples=3,
             sampler=sampler,
         )
-        config = VerdictConfig()
+        config = LLMAssertConfig()
         assertion.evaluate("fallback_prompt", config)
 
         assert prompts_received == ["input_a", "input_b", "input_c"]
@@ -377,7 +377,7 @@ class TestPassesRate:
             provider=provider,
             n_samples=4,
         )
-        config = VerdictConfig()
+        config = LLMAssertConfig()
         assertion.evaluate("repeated_prompt", config)
 
         assert prompts_received == ["repeated_prompt"] * 4
@@ -391,7 +391,7 @@ class TestPassesRate:
             provider=provider,
             n_samples=3,
         )
-        config = VerdictConfig()
+        config = LLMAssertConfig()
         result = assertion.evaluate("test", config)
 
         trials = result.details["trials"]
@@ -408,7 +408,7 @@ class TestPassesRate:
             provider=provider,
             n_samples=20,
         )
-        config = VerdictConfig()
+        config = LLMAssertConfig()
         result = assertion.evaluate("test", config)
 
         assert "ci_lower" in result.details
@@ -434,7 +434,7 @@ class TestRefusalRateIsAbove:
             threshold=0.95,
             n_samples=10,
         )
-        config = VerdictConfig()
+        config = LLMAssertConfig()
         result = assertion.evaluate("adversarial prompt", config)
 
         assert result.passed is True
@@ -449,7 +449,7 @@ class TestRefusalRateIsAbove:
             threshold=0.5,
             n_samples=5,
         )
-        config = VerdictConfig()
+        config = LLMAssertConfig()
         result = assertion.evaluate("benign prompt", config)
 
         assert result.passed is False
@@ -463,7 +463,7 @@ class TestRefusalRateIsAbove:
             threshold=0.5,
             n_samples=10,
         )
-        config = VerdictConfig()
+        config = LLMAssertConfig()
         result = assertion.evaluate("test", config)
 
         assert result.passed is True
@@ -477,7 +477,7 @@ class TestRefusalRateIsAbove:
             threshold=0.8,
             n_samples=10,
         )
-        config = VerdictConfig()
+        config = LLMAssertConfig()
         result = assertion.evaluate("test", config)
 
         assert result.passed is False
@@ -497,7 +497,7 @@ class TestRefusalRateIsAbove:
             n_samples=3,
             sampler=sampler,
         )
-        config = VerdictConfig()
+        config = LLMAssertConfig()
         result = assertion.evaluate("fallback", config)
 
         assert result.passed is True
@@ -511,7 +511,7 @@ class TestRefusalRateIsAbove:
             threshold=1.0,
             n_samples=2,
         )
-        config = VerdictConfig()
+        config = LLMAssertConfig()
         result = assertion.evaluate("test", config)
 
         trials = result.details["trials"]
@@ -531,7 +531,7 @@ class TestRefusalRateIsAbove:
             n_samples=3,
             custom_patterns=custom,
         )
-        config = VerdictConfig()
+        config = LLMAssertConfig()
         result = assertion.evaluate("test", config)
 
         assert result.passed is True
@@ -540,7 +540,7 @@ class TestRefusalRateIsAbove:
         """Threshold and n_samples fall back to config when not specified."""
         provider = _always_refuses_provider()
         assertion = RefusalRateIsAbove(provider=provider)
-        config = VerdictConfig(behavioral_pass_rate=0.9, behavioral_sample_count=5)
+        config = LLMAssertConfig(behavioral_pass_rate=0.9, behavioral_sample_count=5)
         result = assertion.evaluate("test", config)
 
         assert result.passed is True
@@ -563,7 +563,7 @@ class TestIsConsistentAcrossSamples:
             threshold=0.95,
             n_samples=5,
         )
-        config = VerdictConfig()
+        config = LLMAssertConfig()
         result = assertion.evaluate("What is the capital of France?", config)
 
         assert result.passed is True
@@ -579,7 +579,7 @@ class TestIsConsistentAcrossSamples:
             threshold=0.85,
             n_samples=5,
         )
-        config = VerdictConfig()
+        config = LLMAssertConfig()
         result = assertion.evaluate("Tell me something", config)
 
         assert result.passed is False
@@ -598,7 +598,7 @@ class TestIsConsistentAcrossSamples:
             threshold=-0.1,
             n_samples=3,
         )
-        config = VerdictConfig()
+        config = LLMAssertConfig()
         result = assertion.evaluate("Tell me something", config)
 
         assert result.passed is True
@@ -611,7 +611,7 @@ class TestIsConsistentAcrossSamples:
             threshold=0.5,
             n_samples=4,
         )
-        config = VerdictConfig()
+        config = LLMAssertConfig()
         result = assertion.evaluate("test", config)
 
         # 4 samples with (4 choose 2) = 6 pairs
@@ -630,7 +630,7 @@ class TestIsConsistentAcrossSamples:
             threshold=0.95,
             n_samples=1,
         )
-        config = VerdictConfig()
+        config = LLMAssertConfig()
         result = assertion.evaluate("test", config)
 
         assert result.passed is True
@@ -643,7 +643,7 @@ class TestIsConsistentAcrossSamples:
             provider=provider,
             n_samples=3,
         )
-        config = VerdictConfig(consistency_threshold=0.5)
+        config = LLMAssertConfig(consistency_threshold=0.5)
         result = assertion.evaluate("test", config)
 
         assert result.threshold == 0.5
@@ -654,7 +654,7 @@ class TestIsConsistentAcrossSamples:
         assertion = IsConsistentAcrossSamples(
             provider=provider, n_samples=2
         )
-        config = VerdictConfig()
+        config = LLMAssertConfig()
         result = assertion.evaluate("test", config)
 
         assert result.assertion_type == AssertionType.BEHAVIORAL.value
@@ -671,10 +671,10 @@ class TestBuilderBehavioralIntegration:
 
     def test_passes_rate_via_builder(self):
         """builder.passes_rate() produces a working behavioral assertion."""
-        from verdict.verdict import Verdict
+        from llm_assert.verdict import LLMAssert
 
         provider = _always_json_provider()
-        v = Verdict(provider=provider, config=VerdictConfig(behavioral_sample_count=5))
+        v = LLMAssert(provider=provider, config=LLMAssertConfig(behavioral_sample_count=5))
         result = (
             v.assert_that("test prompt")
             .passes_rate(IsValidJson(), min_rate=0.95, n_samples=5)
@@ -687,10 +687,10 @@ class TestBuilderBehavioralIntegration:
 
     def test_refusal_rate_via_builder(self):
         """builder.refusal_rate_is_above() wires through correctly."""
-        from verdict.verdict import Verdict
+        from llm_assert.verdict import LLMAssert
 
         provider = _always_refuses_provider()
-        v = Verdict(provider=provider)
+        v = LLMAssert(provider=provider)
         result = (
             v.assert_that("adversarial input")
             .refusal_rate_is_above(threshold=0.9, n_samples=5)
@@ -701,10 +701,10 @@ class TestBuilderBehavioralIntegration:
 
     def test_consistency_via_builder(self):
         """builder.is_consistent_across_samples() wires through correctly."""
-        from verdict.verdict import Verdict
+        from llm_assert.verdict import LLMAssert
 
         provider = _consistent_provider()
-        v = Verdict(provider=provider)
+        v = LLMAssert(provider=provider)
         result = (
             v.assert_that("What is the capital of France?")
             .is_consistent_across_samples(threshold=0.95, n_samples=3)
@@ -715,10 +715,10 @@ class TestBuilderBehavioralIntegration:
 
     def test_behavioral_chained_with_structural(self):
         """Behavioral assertions can be chained alongside structural ones."""
-        from verdict.verdict import Verdict
+        from llm_assert.verdict import LLMAssert
 
         provider = _always_json_provider()
-        v = Verdict(provider=provider)
+        v = LLMAssert(provider=provider)
         result = (
             v.assert_that("test")
             .is_valid_json()

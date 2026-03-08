@@ -1,13 +1,13 @@
 """SnapshotDiff: produces human-readable diffs between snapshots.
 
 Used by regression assertions to report exactly what changed between
-the baseline and the current response, and by the CLI `verdict snapshot diff`
+the baseline and the current response, and by the CLI `llm-assert snapshot diff`
 command to show developers what shifted before they commit updated baselines.
 
 The diff covers three dimensions independently:
 1. Structural: JSON key changes (added, removed, reordered)
 2. Content: character-level text differences
-3. Semantic: cosine similarity drift (requires verdict[semantic])
+3. Semantic: cosine similarity drift (requires llm-assert[semantic])
 
 Each dimension produces its own section of the diff output, so a developer
 can see whether the change is structural, semantic, or both.
@@ -208,14 +208,14 @@ def _compute_semantic_diff(
     warning and leaving semantic fields as None.
     """
     try:
-        from verdict.scoring.embeddings import score_similarity
+        from llm_assert.scoring.embeddings import score_similarity
         similarity = score_similarity(baseline_content, current_content, embedding_model)
         diff_result.semantic_similarity = similarity
         diff_result.semantic_drift = 1.0 - similarity
     except ImportError:
         logger.warning(
             "Cannot compute semantic diff: sentence-transformers not installed. "
-            "Install with: pip install verdict[semantic]"
+            "Install with: pip install llm-assert[semantic]"
         )
 
 

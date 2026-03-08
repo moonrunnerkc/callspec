@@ -27,7 +27,7 @@ npm install -g promptfoo
 
 ## What Promptfoo Does Well
 
-- **No account required**: Genuinely local-first. This matches Verdict.
+- **No account required**: Genuinely local-first. This matches LLMAssert.
 - **Browser result viewer**: `npx promptfoo view` opens an interactive
   browser UI for reviewing results. Useful for manual inspection.
 - **Mature ecosystem**: Extensive documentation, active community,

@@ -22,11 +22,11 @@ RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 # that contain actual logic (no imports, comments, or blank lines).
 
 VERDICT_SNIPPET = """
-from verdict import Verdict
-from verdict.providers.openai import OpenAIProvider
+from llm_assert import LLMAssert
+from llm_assert.providers.openai import OpenAIProvider
 
 provider = OpenAIProvider(model="gpt-4o-2024-11-20", temperature=0, seed=42)
-v = Verdict(provider)
+v = LLMAssert(provider)
 
 result = v.assert_that(prompt).semantic_drift_is_below(
     snapshot_key="structured_output",

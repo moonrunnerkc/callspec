@@ -7,7 +7,7 @@ is tested against known values from standard statistical tables.
 
 from __future__ import annotations
 
-from verdict.scoring.confidence import (
+from llm_assert.scoring.confidence import (
     _z_score_for_confidence,
     passes_confidence_check,
     wilson_confidence_interval,

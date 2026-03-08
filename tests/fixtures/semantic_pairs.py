@@ -21,9 +21,9 @@ INTENT_MATCH_GOOD_PAIRS = [
                   "Empirically measured similarity ~0.89 in all-MiniLM-L6-v2.",
     },
     {
-        "content": "To install and set up the verdict package, run pip install verdict "
+        "content": "To install and set up the llm-assert package, run pip install llm-assert "
                    "in your terminal.",
-        "intent": "how to install and set up the verdict package",
+        "intent": "how to install and set up the llm-assert package",
         "reason": "Content directly addresses the installation and setup intent. "
                   "Empirically measured similarity ~0.86.",
     },

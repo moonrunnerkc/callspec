@@ -51,9 +51,9 @@ def load_baseline(model_dir: str, prompt_name: str) -> dict | None:
 
 
 def compute_drift_verdict(old_content: str, new_content: str) -> dict:
-    """Use Verdict's built-in embedding scorer to compute drift."""
+    """Use LLMAssert's built-in embedding scorer to compute drift."""
     start = time.monotonic()
-    from verdict.scoring.embeddings import score_similarity
+    from llm_assert.scoring.embeddings import score_similarity
 
     similarity = score_similarity(old_content, new_content, model_name="all-MiniLM-L6-v2")
     elapsed_ms = int((time.monotonic() - start) * 1000)
@@ -125,7 +125,7 @@ def run_drift_measurements(tool: str) -> list:
             if tool == "verdict":
                 measurement = compute_drift_verdict(old_content, new_content)
             else:
-                # For non-Verdict tools, we measure what the manual approach yields
+                # For non-LLMAssert tools, we measure what the manual approach yields
                 # since none of them have built-in drift detection
                 measurement = compute_drift_manual_embeddings(old_content, new_content)
 

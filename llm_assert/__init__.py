@@ -1,7 +1,7 @@
-"""Verdict: Behavioral assertion testing for LLM applications."""
+"""LLMAssert: Behavioral assertion testing for LLM applications."""
 
-from verdict.core.config import VerdictConfig
-from verdict.core.types import (
+from llm_assert.core.config import LLMAssertConfig
+from llm_assert.core.types import (
     AssertionResult,
     AssertionType,
     IndividualAssertionResult,
@@ -9,13 +9,13 @@ from verdict.core.types import (
     Severity,
     SuiteResult,
 )
-from verdict.verdict import Verdict
-from verdict.version import __version__
+from llm_assert.verdict import LLMAssert
+from llm_assert.version import __version__
 
 __all__ = [
     "__version__",
-    "Verdict",
-    "VerdictConfig",
+    "LLMAssert",
+    "LLMAssertConfig",
     "AssertionResult",
     "AssertionType",
     "IndividualAssertionResult",

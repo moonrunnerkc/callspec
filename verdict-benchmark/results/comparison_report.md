@@ -1,6 +1,6 @@
-# Verdict Benchmark Results
+# LLMAssert Benchmark Results
 
-| Metric | Verdict | DeepEval | Promptfoo | LangSmith | Braintrust |
+| Metric | LLMAssert | DeepEval | Promptfoo | LangSmith | Braintrust |
 |--------|---------|----------|-----------|-----------|------------|
 | Account required | No | Partial | No | Yes | Yes |
 | Language | Python | Python | Node.js | Python | Python |

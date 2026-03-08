@@ -107,7 +107,7 @@ class TestBraintrustDrift:
 
         # Braintrust Eval pushes results to their platform
         eval_result = braintrust.Eval(
-            "verdict-benchmark",
+            "llm-assert-benchmark",
             data=lambda: [
                 {
                     "input": {"prompt": prompt_text},

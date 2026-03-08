@@ -9,9 +9,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from verdict.assertions.base import BaseAssertion
-from verdict.core.config import VerdictConfig
-from verdict.core.types import Severity
+from llm_assert.assertions.base import BaseAssertion
+from llm_assert.core.config import LLMAssertConfig
+from llm_assert.core.types import Severity
 
 
 @dataclass
@@ -36,7 +36,7 @@ class AssertionSuite:
 
     name: str
     cases: list[AssertionCase] = field(default_factory=list)
-    config: VerdictConfig = field(default_factory=VerdictConfig)
+    config: LLMAssertConfig = field(default_factory=LLMAssertConfig)
 
     def add_case(self, case: AssertionCase) -> None:
         self.cases.append(case)

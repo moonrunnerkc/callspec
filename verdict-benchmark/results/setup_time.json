@@ -12,7 +12,7 @@
     "warm_ms": 5460,
     "install_ms": 5355,
     "first_test_ms": 105,
-    "pip_install": "pip install verdict[anthropic]",
+    "pip_install": "pip install llm-assert[anthropic]",
     "note": "Base + Anthropic provider. Still no numpy or PyTorch."
   },
   "verdict_full": {

@@ -1,4 +1,4 @@
-"""Shared types used across the Verdict library."""
+"""Shared types used across the LLMAssert library."""
 
 from __future__ import annotations
 

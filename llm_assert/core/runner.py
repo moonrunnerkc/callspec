@@ -10,17 +10,17 @@ from __future__ import annotations
 
 import time
 
-from verdict.assertions.base import BaseAssertion
-from verdict.core.config import VerdictConfig
-from verdict.core.suite import AssertionSuite
-from verdict.core.types import (
+from llm_assert.assertions.base import BaseAssertion
+from llm_assert.core.config import LLMAssertConfig
+from llm_assert.core.suite import AssertionSuite
+from llm_assert.core.types import (
     AssertionResult,
     IndividualAssertionResult,
     ProviderResponse,
     SuiteResult,
 )
-from verdict.errors import ProviderError
-from verdict.providers.base import BaseProvider
+from llm_assert.errors import ProviderError
+from llm_assert.providers.base import BaseProvider
 
 
 class AssertionRunner:
@@ -32,12 +32,12 @@ class AssertionRunner:
     report.
     """
 
-    def __init__(self, provider: BaseProvider, config: VerdictConfig | None = None) -> None:
+    def __init__(self, provider: BaseProvider, config: LLMAssertConfig | None = None) -> None:
         self._provider = provider
-        self._config = config or VerdictConfig()
+        self._config = config or LLMAssertConfig()
 
     @property
-    def config(self) -> VerdictConfig:
+    def config(self) -> LLMAssertConfig:
         return self._config
 
     @property

@@ -1,6 +1,6 @@
-"""Verdict pytest conftest: provides configured provider fixtures.
+"""LLMAssert pytest conftest: provides configured provider fixtures.
 
-This conftest sets up Verdict providers for benchmark tests.
+This conftest sets up LLMAssert providers for benchmark tests.
 Provider selection is controlled by environment variables or
 pytest command-line options.
 """
@@ -23,18 +23,18 @@ def pytest_addoption(parser):
 
 @pytest.fixture(scope="session")
 def benchmark_provider(request):
-    """Provide a configured Verdict provider based on CLI or env."""
+    """Provide a configured LLMAssert provider based on CLI or env."""
     provider_name = request.config.getoption("--benchmark-provider")
 
     if provider_name == "openai":
-        from verdict.providers.openai import OpenAIProvider
+        from llm_assert.providers.openai import OpenAIProvider
         return OpenAIProvider(
             model="gpt-4o-2024-11-20",
             temperature=0.0,
             seed=42,
         )
     elif provider_name == "anthropic":
-        from verdict.providers.anthropic import AnthropicProvider
+        from llm_assert.providers.anthropic import AnthropicProvider
         return AnthropicProvider(
             model="claude-sonnet-4-20250514",
             temperature=0.0,

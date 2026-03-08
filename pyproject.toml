@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "verdict"
+name = "llm-assert"
 version = "0.1.0"
 description = "Behavioral assertion testing for LLM applications. The pytest of LLM testing."
 readme = "README.md"
@@ -52,35 +52,35 @@ dev = [
     "mypy>=1.0.0",
 ]
 all = [
-    "verdict[semantic]",
-    "verdict[openai]",
-    "verdict[anthropic]",
-    "verdict[google]",
-    "verdict[mistral]",
-    "verdict[ollama]",
-    "verdict[litellm]",
-    "verdict[dev]",
+    "llm-assert[semantic]",
+    "llm-assert[openai]",
+    "llm-assert[anthropic]",
+    "llm-assert[google]",
+    "llm-assert[mistral]",
+    "llm-assert[ollama]",
+    "llm-assert[litellm]",
+    "llm-assert[dev]",
 ]
 
 [project.scripts]
-verdict = "verdict.cli.main:cli"
+llm-assert = "llm_assert.cli.main:cli"
 
 [project.entry-points."pytest11"]
-verdict = "verdict.pytest_plugin.plugin"
+llm-assert = "llm_assert.pytest_plugin.plugin"
 
 [project.urls]
-Homepage = "https://github.com/moonrunnerkc/verdict"
+Homepage = "https://github.com/moonrunnerkc/llm-assert"
 Documentation = "https://verdict.run/docs"
-Repository = "https://github.com/moonrunnerkc/verdict"
-Issues = "https://github.com/moonrunnerkc/verdict/issues"
+Repository = "https://github.com/moonrunnerkc/llm-assert"
+Issues = "https://github.com/moonrunnerkc/llm-assert/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["verdict"]
+packages = ["llm_assert"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = [
-    "verdict_behavioral: marks tests as behavioral (multi-sample, expensive)",
+    "llm_assert_behavioral: marks tests as behavioral (multi-sample, expensive)",
 ]
 
 [tool.ruff]

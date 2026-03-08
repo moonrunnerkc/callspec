@@ -13,7 +13,7 @@
       "scores_max": 0.570892,
       "threshold": 0.7,
       "elapsed_ms": 11627,
-      "note": "Verdict embeddings are deterministic: same input always produces same score. Zero variance expected."
+      "note": "LLMAssert embeddings are deterministic: same input always produces same score. Zero variance expected."
     },
     "structural": {
       "tool": "verdict",

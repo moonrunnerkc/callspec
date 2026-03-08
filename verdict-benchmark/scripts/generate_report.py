@@ -39,9 +39,9 @@ def format_table() -> str:
     api_calls = load_json("api_call_counts.json")
 
     lines = []
-    lines.append("# Verdict Benchmark Results")
+    lines.append("# LLMAssert Benchmark Results")
     lines.append("")
-    lines.append("| Metric | Verdict | DeepEval | Promptfoo | LangSmith | Braintrust |")
+    lines.append("| Metric | LLMAssert | DeepEval | Promptfoo | LangSmith | Braintrust |")
     lines.append("|--------|---------|----------|-----------|-----------|------------|")
 
     # Account required
@@ -51,7 +51,7 @@ def format_table() -> str:
     lines.append("| Language | Python | Python | Node.js | Python | Python |")
 
     # Setup time (tiered)
-    # Verdict has three tiers: base, with_provider, full (semantic)
+    # LLMAssert has three tiers: base, with_provider, full (semantic)
     # Use base for the primary comparison; show full separately
     verdict_base = setup.get("verdict_base", setup.get("verdict", {}))
     verdict_full = setup.get("verdict_full", {})
@@ -122,7 +122,7 @@ def format_table() -> str:
             row += " -- |"
     lines.append(row)
 
-    # Flakiness (Verdict)
+    # Flakiness (LLMAssert)
     row = "| Flakiness stdev (semantic) |"
     for tool in TOOLS:
         if tool in flakiness:

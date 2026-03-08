@@ -1,6 +1,6 @@
 # YAML Suite Format
 
-YAML suites define assertion cases as configuration files. They compile to the same internal `AssertionSuite` representation as the Python API, and are run via `verdict run <suite.yml>`.
+YAML suites define assertion cases as configuration files. They compile to the same internal `AssertionSuite` representation as the Python API, and are run via `llm-assert run <suite.yml>`.
 
 ## Structure
 
@@ -28,12 +28,12 @@ cases:
 |-----|----------|-------------|
 | `version` | No | Schema version. Currently `"1.0"`. Defaults to `"1.0"` if omitted. |
 | `name` | No | Suite name for report output. Defaults to the filename. |
-| `config` | No | `VerdictConfig` overrides for this suite. |
+| `config` | No | `LLMAssertConfig` overrides for this suite. |
 | `cases` | Yes | Ordered list of test cases. At least one case required. |
 
 ## Config Section
 
-Any field from `VerdictConfig` can be set here:
+Any field from `LLMAssertConfig` can be set here:
 
 ```yaml
 config:
@@ -157,7 +157,7 @@ Every assertion available in the Python API is expressible in YAML. The `type` f
 
 ### Semantic Assertions
 
-Require `verdict[semantic]` to be installed.
+Require `llm-assert[semantic]` to be installed.
 
 ```yaml
 # Intent alignment
@@ -189,13 +189,13 @@ Require `verdict[semantic]` to be installed.
 
 ```bash
 # Run a suite file
-verdict run suite.yml
+llm-assert run suite.yml
 
 # With a specific report format
-verdict run suite.yml --report-format json --report-path report.json
+llm-assert run suite.yml --report-format json --report-path report.json
 
 # With GitHub Actions annotations
-verdict run suite.yml --github-annotations
+llm-assert run suite.yml --github-annotations
 ```
 
 ## Validation

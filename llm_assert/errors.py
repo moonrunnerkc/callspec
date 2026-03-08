@@ -1,4 +1,4 @@
-"""All Verdict exception types.
+"""All LLMAssert exception types.
 
 Each exception carries enough context for a developer debugging at 2am
 to understand what failed, where, and what to try next. Generic messages
@@ -10,13 +10,13 @@ from __future__ import annotations
 from typing import Any
 
 
-class VerdictError(Exception):
-    """Base exception for all Verdict errors."""
+class LLMAssertError(Exception):
+    """Base exception for all LLMAssert errors."""
 
     pass
 
 
-class ProviderError(VerdictError):
+class ProviderError(LLMAssertError):
     """Raised when a provider call fails after exhausting retries.
 
     Includes the provider name, the number of attempts, and the
@@ -43,7 +43,7 @@ class ProviderError(VerdictError):
         super().__init__(full_message)
 
 
-class ProviderNotConfiguredError(VerdictError):
+class ProviderNotConfiguredError(LLMAssertError):
     """Raised when a provider is referenced but not installed or configured."""
 
     def __init__(self, provider: str, install_hint: str = "") -> None:
@@ -54,7 +54,7 @@ class ProviderNotConfiguredError(VerdictError):
         super().__init__(message)
 
 
-class AssertionError(VerdictError):
+class AssertionError(LLMAssertError):
     """Raised when an assertion encounters an internal error during evaluation.
 
     This is not a test failure (those produce AssertionResult with passed=False).
@@ -74,7 +74,7 @@ class AssertionError(VerdictError):
         super().__init__(full_message)
 
 
-class SnapshotError(VerdictError):
+class SnapshotError(LLMAssertError):
     """Raised on snapshot lifecycle failures: missing baseline, corrupt file, schema mismatch."""
 
     def __init__(self, snapshot_key: str, message: str) -> None:
@@ -82,8 +82,8 @@ class SnapshotError(VerdictError):
         super().__init__(f"SnapshotError [{snapshot_key}]: {message}")
 
 
-class ConfigurationError(VerdictError):
-    """Raised when VerdictConfig or YAML suite config is invalid."""
+class ConfigurationError(LLMAssertError):
+    """Raised when LLMAssertConfig or YAML suite config is invalid."""
 
     def __init__(self, message: str, field: str | None = None) -> None:
         self.field = field
@@ -91,7 +91,7 @@ class ConfigurationError(VerdictError):
         super().__init__(f"{prefix}: {message}")
 
 
-class SuiteParseError(VerdictError):
+class SuiteParseError(LLMAssertError):
     """Raised when a YAML suite file cannot be parsed or validated.
 
     Includes the line number when available so the developer can jump

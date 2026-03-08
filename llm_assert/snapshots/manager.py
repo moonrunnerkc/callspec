@@ -1,12 +1,12 @@
 """SnapshotManager: create, load, update, delete baselines.
 
 Manages the lifecycle of snapshot files stored in a project's
-verdict_snapshots/ directory. Each snapshot file contains one or more
+llm_assert_snapshots/ directory. Each snapshot file contains one or more
 entries keyed by snapshot_key. The manager operates on SnapshotFile
 and SnapshotEntry objects through the SnapshotSerializer; it never
 touches raw JSON directly.
 
-The default snapshot directory (verdict_snapshots/) is placed at the
+The default snapshot directory (llm_assert_snapshots/) is placed at the
 project root, alongside pyproject.toml. This mirrors the convention
 used by pytest-snapshot and syrupy, so teams already familiar with
 snapshot testing recognize the pattern immediately.
@@ -18,8 +18,8 @@ import logging
 from datetime import datetime, timezone
 from pathlib import Path
 
-from verdict.errors import SnapshotError
-from verdict.snapshots.serializer import (
+from llm_assert.errors import SnapshotError
+from llm_assert.snapshots.serializer import (
     SnapshotEntry,
     SnapshotFile,
     SnapshotSerializer,
@@ -28,7 +28,7 @@ from verdict.snapshots.serializer import (
 logger = logging.getLogger(__name__)
 
 # Default directory name, relative to project root.
-DEFAULT_SNAPSHOT_DIR = "verdict_snapshots"
+DEFAULT_SNAPSHOT_DIR = "llm_assert_snapshots"
 DEFAULT_SNAPSHOT_FILENAME = "baselines.json"
 
 
@@ -92,7 +92,7 @@ class SnapshotManager:
                 snapshot_key,
                 f"No baseline entry found for key '{snapshot_key}'. "
                 f"Available keys: {available_str}. "
-                f"Run 'verdict snapshot create' to record a baseline for this key.",
+                f"Run 'llm-assert snapshot create' to record a baseline for this key.",
             )
 
         return SnapshotSerializer.deserialize_entry(entry_data)
@@ -118,7 +118,7 @@ class SnapshotManager:
             raise SnapshotError(
                 snapshot_key,
                 f"Baseline already exists for key '{snapshot_key}'. "
-                f"Use overwrite=True or 'verdict snapshot update' to replace it.",
+                f"Use overwrite=True or 'llm-assert snapshot update' to replace it.",
             )
 
         entry = SnapshotEntry(

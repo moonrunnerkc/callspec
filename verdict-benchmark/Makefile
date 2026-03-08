@@ -17,7 +17,7 @@ help: ## Show this help
 
 # -- Installation --
 
-install-verdict: ## Install Verdict with all benchmark dependencies
+install-verdict: ## Install LLMAssert with all benchmark dependencies
 	cd $(VERDICT_ROOT) && pip install -e ".[semantic,openai,anthropic]"
 
 install-deepeval: ## Install DeepEval
@@ -41,13 +41,13 @@ record-baselines: ## Record baselines from all available providers
 
 # -- Individual Benchmarks --
 
-bench-verdict: ## Run Verdict benchmark suite
-	@echo "=== Verdict Benchmark ==="
+bench-verdict: ## Run LLMAssert benchmark suite
+	@echo "=== LLMAssert Benchmark ==="
 	$(VENV_PYTHON) scripts/measure_drift_detection.py --tool verdict
 	$(VENV_PYTHON) scripts/measure_flakiness.py --tool verdict --runs 100
 	$(VENV_PYTHON) scripts/measure_cost.py --tool verdict
 	@echo ""
-	@echo "Verdict benchmark complete. Results in results/"
+	@echo "LLMAssert benchmark complete. Results in results/"
 
 bench-deepeval: ## Run DeepEval benchmark suite
 	@echo "=== DeepEval Benchmark ==="
@@ -91,12 +91,12 @@ compare: measure-cost measure-drift measure-flakiness measure-loc report ## Run 
 report: ## Generate comparison report from results
 	$(VENV_PYTHON) scripts/generate_report.py
 
-# -- Verdict YAML Suite --
+# -- LLMAssert YAML Suite --
 
-run-verdict-suite: ## Run Verdict YAML assertion suite against live provider
-	verdict run suites/verdict/regression_suite.yml -p anthropic
+run-verdict-suite: ## Run LLMAssert YAML assertion suite against live provider
+	llm-assert run suites/verdict/regression_suite.yml -p anthropic
 
-run-verdict-tests: ## Run Verdict pytest regression tests
+run-verdict-tests: ## Run LLMAssert pytest regression tests
 	$(VENV_PYTHON) -m pytest suites/verdict/test_regression.py -v --tb=short
 
 # -- Cleanup --

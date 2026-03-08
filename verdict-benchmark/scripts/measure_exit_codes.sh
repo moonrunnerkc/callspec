@@ -18,7 +18,7 @@ BENCHMARK_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 RESULTS_DIR="$BENCHMARK_ROOT/results"
 mkdir -p "$RESULTS_DIR"
 
-# Create a temporary failing suite for Verdict
+# Create a temporary failing suite for LLMAssert
 create_verdict_failing_suite() {
     local tmpfile
     tmpfile=$(mktemp --suffix=.yml)
@@ -37,14 +37,14 @@ YAML
 }
 
 measure_verdict_exit_codes() {
-    echo "=== Verdict Exit Codes ==="
+    echo "=== LLMAssert Exit Codes ==="
 
     local suite_file
     suite_file=$(create_verdict_failing_suite)
 
-    # Mode 1: Verdict CLI with failing assertion
+    # Mode 1: LLMAssert CLI with failing assertion
     echo -n "  CLI (verdict run): "
-    verdict run "$suite_file" -p mock > /dev/null 2>&1
+    llm-assert run "$suite_file" -p mock > /dev/null 2>&1
     local cli_exit=$?
     echo "exit code $cli_exit"
 
@@ -52,12 +52,12 @@ measure_verdict_exit_codes() {
     local pytest_file
     pytest_file=$(mktemp --suffix=.py)
     cat > "$pytest_file" << 'PYTHON'
-from verdict.providers.mock import MockProvider
-from verdict.verdict import Verdict
+from llm_assert.providers.mock import MockProvider
+from llm_assert.verdict import LLMAssert
 
 def test_intentional_failure():
     provider = MockProvider(response_fn=lambda prompt, messages=None: "Hello there!")
-    v = Verdict(provider)
+    v = LLMAssert(provider)
     result = v.assert_that("Say hello").matches_pattern("NEVER_MATCH_12345").run()
     assert result.passed, f"Assertion failed: {result.assertions[0].message}"
 PYTHON

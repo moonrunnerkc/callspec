@@ -14,15 +14,15 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from verdict.assertions.regression import (
+from llm_assert.assertions.regression import (
     FormatMatchesBaseline,
     MatchesBaseline,
     SemanticDriftIsBelow,
 )
-from verdict.core.config import VerdictConfig
-from verdict.snapshots.manager import SnapshotManager
+from llm_assert.core.config import LLMAssertConfig
+from llm_assert.snapshots.manager import SnapshotManager
 
-CONFIG = VerdictConfig()
+CONFIG = LLMAssertConfig()
 
 
 def _create_baseline(

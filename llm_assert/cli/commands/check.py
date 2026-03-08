@@ -1,4 +1,4 @@
-"""verdict check: sanity-check provider connectivity.
+"""llm-assert check: sanity-check provider connectivity.
 
 The first command new users run after pip install. It must work flawlessly
 or the developer experience fails at the first step.
@@ -12,12 +12,12 @@ import time
 import click
 
 PROVIDER_MAP = {
-    "openai": ("verdict.providers.openai", "OpenAIProvider"),
-    "anthropic": ("verdict.providers.anthropic", "AnthropicProvider"),
-    "google": ("verdict.providers.google", "GoogleProvider"),
-    "mistral": ("verdict.providers.mistral", "MistralProvider"),
-    "ollama": ("verdict.providers.ollama", "OllamaProvider"),
-    "litellm": ("verdict.providers.litellm", "LiteLLMProvider"),
+    "openai": ("llm_assert.providers.openai", "OpenAIProvider"),
+    "anthropic": ("llm_assert.providers.anthropic", "AnthropicProvider"),
+    "google": ("llm_assert.providers.google", "GoogleProvider"),
+    "mistral": ("llm_assert.providers.mistral", "MistralProvider"),
+    "ollama": ("llm_assert.providers.ollama", "OllamaProvider"),
+    "litellm": ("llm_assert.providers.litellm", "LiteLLMProvider"),
 }
 
 MINIMAL_PROMPT = "Respond with exactly: OK"
@@ -36,14 +36,14 @@ def check(provider: str | None) -> None:
     the adapter is reachable and configured correctly. Use this after
     installation to validate your environment.
     """
-    from verdict.cli.console import console
+    from llm_assert.cli.console import console
 
     if provider:
         targets = [provider.lower().strip()]
         unknown = [t for t in targets if t not in PROVIDER_MAP]
         if unknown:
             console.print(
-                f"[verdict.fail]Unknown provider:[/verdict.fail] {unknown[0]}. "
+                f"[llm_assert.fail]Unknown provider:[/llm_assert.fail] {unknown[0]}. "
                 f"Available: {', '.join(sorted(PROVIDER_MAP.keys()))}",
             )
             sys.exit(2)
@@ -51,13 +51,13 @@ def check(provider: str | None) -> None:
         targets = _detect_installed_providers()
         if not targets:
             console.print(
-                "[verdict.fail]No provider extras installed.[/verdict.fail] Install one with:\n"
-                "  pip install verdict[openai]\n"
-                "  pip install verdict[anthropic]\n"
-                "  pip install verdict[ollama]\n"
-                "  pip install verdict[google]\n"
-                "  pip install verdict[mistral]\n"
-                "  pip install verdict[litellm]",
+                "[llm_assert.fail]No provider extras installed.[/llm_assert.fail] Install one with:\n"
+                "  pip install llm-assert[openai]\n"
+                "  pip install llm-assert[anthropic]\n"
+                "  pip install llm-assert[ollama]\n"
+                "  pip install llm-assert[google]\n"
+                "  pip install llm-assert[mistral]\n"
+                "  pip install llm-assert[litellm]",
             )
             sys.exit(1)
 
@@ -70,12 +70,12 @@ def check(provider: str | None) -> None:
     console.print()
     if failures:
         console.print(
-            f"[verdict.fail]{len(failures)} provider(s) failed connectivity check.[/verdict.fail]"
+            f"[llm_assert.fail]{len(failures)} provider(s) failed connectivity check.[/llm_assert.fail]"
         )
         sys.exit(1)
     else:
         console.print(
-            f"[verdict.pass]All {len(targets)} provider(s) OK.[/verdict.pass]"
+            f"[llm_assert.pass]All {len(targets)} provider(s) OK.[/llm_assert.pass]"
         )
 
 
@@ -99,7 +99,7 @@ def _check_single_provider(name: str, failures: list[str]) -> None:
 
     from rich.markup import escape
 
-    from verdict.cli.console import FAIL_MARKER, PASS_MARKER, SKIP_MARKER, console
+    from llm_assert.cli.console import FAIL_MARKER, PASS_MARKER, SKIP_MARKER, console
 
     module_path, class_name = PROVIDER_MAP[name]
 
@@ -108,9 +108,9 @@ def _check_single_provider(name: str, failures: list[str]) -> None:
         module = importlib.import_module(module_path)
     except ImportError:
         console.print(
-            f"  {SKIP_MARKER} [verdict.key]{name}[/verdict.key]  "
-            f"[verdict.skip]not installed "
-            f"(pip install verdict[{name}])[/verdict.skip]"
+            f"  {SKIP_MARKER} [llm_assert.key]{name}[/llm_assert.key]  "
+            f"[llm_assert.skip]not installed "
+            f"(pip install llm-assert[{name}])[/llm_assert.skip]"
         )
         return
 
@@ -120,8 +120,8 @@ def _check_single_provider(name: str, failures: list[str]) -> None:
         provider_instance = provider_class()
     except Exception as init_err:
         console.print(
-            f"  {FAIL_MARKER} [verdict.key]{name}[/verdict.key]  "
-            f"[verdict.fail]initialization error:[/verdict.fail] "
+            f"  {FAIL_MARKER} [llm_assert.key]{name}[/llm_assert.key]  "
+            f"[llm_assert.fail]initialization error:[/llm_assert.fail] "
             f"{escape(str(init_err))}"
         )
         failures.append(name)
@@ -130,14 +130,14 @@ def _check_single_provider(name: str, failures: list[str]) -> None:
     # Phase 3: make a minimal call with a spinner
     start_ms = time.monotonic()
     try:
-        with console.status(f"  [verdict.muted]Calling {name}...[/verdict.muted]", spinner="dots"):
+        with console.status(f"  [llm_assert.muted]Calling {name}...[/llm_assert.muted]", spinner="dots"):
             response = provider_instance.call(MINIMAL_PROMPT)
         elapsed_ms = int((time.monotonic() - start_ms) * 1000)
     except Exception as call_err:
         elapsed_ms = int((time.monotonic() - start_ms) * 1000)
         console.print(
-            f"  {FAIL_MARKER} [verdict.key]{name}[/verdict.key]  "
-            f"[verdict.fail]call failed[/verdict.fail] "
+            f"  {FAIL_MARKER} [llm_assert.key]{name}[/llm_assert.key]  "
+            f"[llm_assert.fail]call failed[/llm_assert.fail] "
             f"after {elapsed_ms}ms: {escape(str(call_err))}"
         )
         failures.append(name)
@@ -145,6 +145,6 @@ def _check_single_provider(name: str, failures: list[str]) -> None:
 
     model_id = getattr(response, "model", "unknown")
     console.print(
-        f"  {PASS_MARKER} [verdict.key]{name}[/verdict.key]  "
-        f"model={model_id}  [verdict.muted]{elapsed_ms}ms[/verdict.muted]"
+        f"  {PASS_MARKER} [llm_assert.key]{name}[/llm_assert.key]  "
+        f"model={model_id}  [llm_assert.muted]{elapsed_ms}ms[/llm_assert.muted]"
     )

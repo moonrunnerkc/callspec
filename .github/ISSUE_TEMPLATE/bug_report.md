@@ -1,12 +1,12 @@
 ---
 name: Bug Report
-about: Report a problem with Verdict
+about: Report a problem with LLMAssert
 title: '[BUG] '
 labels: bug
 assignees: ''
 ---
 
-**Verdict version:** (output of `verdict --version`)
+**LLMAssert version:** (output of `llm-assert --version`)
 
 **Python version:** (output of `python --version`)
 
@@ -18,12 +18,12 @@ A clear description of what went wrong.
 
 **Steps to reproduce**
 
-1. Install verdict with `pip install verdict[...]`
+1. Install llm-assert with `pip install llm-assert[...]`
 2. Create test file with:
 ```python
 # minimal reproducer
 ```
-3. Run `pytest` or `verdict run ...`
+3. Run `pytest` or `llm-assert run ...`
 
 **Expected behavior**
 

@@ -15,9 +15,9 @@ from typing import Any
 
 import jsonschema
 
-from verdict.assertions.base import BaseAssertion
-from verdict.core.config import VerdictConfig
-from verdict.core.types import IndividualAssertionResult
+from llm_assert.assertions.base import BaseAssertion
+from llm_assert.core.config import LLMAssertConfig
+from llm_assert.core.types import IndividualAssertionResult
 
 
 class IsValidJson(BaseAssertion):
@@ -26,7 +26,7 @@ class IsValidJson(BaseAssertion):
     assertion_type = "structural"
     assertion_name = "is_valid_json"
 
-    def evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult:
+    def evaluate(self, content: str, config: LLMAssertConfig) -> IndividualAssertionResult:
         try:
             json.loads(content)
             return IndividualAssertionResult(
@@ -62,7 +62,7 @@ class MatchesSchema(BaseAssertion):
     def __init__(self, schema: dict[str, Any]) -> None:
         self._schema = schema
 
-    def evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult:
+    def evaluate(self, content: str, config: LLMAssertConfig) -> IndividualAssertionResult:
         try:
             parsed = json.loads(content)
         except json.JSONDecodeError as parse_error:
@@ -120,7 +120,7 @@ class ContainsKeys(BaseAssertion):
     def __init__(self, keys: Sequence[str]) -> None:
         self._keys = list(keys)
 
-    def evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult:
+    def evaluate(self, content: str, config: LLMAssertConfig) -> IndividualAssertionResult:
         try:
             parsed = json.loads(content)
         except json.JSONDecodeError as parse_error:
@@ -190,7 +190,7 @@ class LengthBetween(BaseAssertion):
         self._min_chars = min_chars
         self._max_chars = max_chars
 
-    def evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult:
+    def evaluate(self, content: str, config: LLMAssertConfig) -> IndividualAssertionResult:
         actual_length = len(content)
         within_bounds = self._min_chars <= actual_length <= self._max_chars
 
@@ -245,7 +245,7 @@ class MatchesPattern(BaseAssertion):
                 f"Invalid regex pattern '{pattern}': {regex_error}"
             ) from regex_error
 
-    def evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult:
+    def evaluate(self, content: str, config: LLMAssertConfig) -> IndividualAssertionResult:
         match = self._pattern.search(content)
 
         if match:
@@ -297,7 +297,7 @@ class DoesNotContain(BaseAssertion):
         else:
             self._compiled = None
 
-    def evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult:
+    def evaluate(self, content: str, config: LLMAssertConfig) -> IndividualAssertionResult:
         if self._is_regex and self._compiled is not None:
             found = self._compiled.search(content) is not None
         else:
@@ -341,7 +341,7 @@ class StartsWith(BaseAssertion):
     def __init__(self, prefix: str) -> None:
         self._prefix = prefix
 
-    def evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult:
+    def evaluate(self, content: str, config: LLMAssertConfig) -> IndividualAssertionResult:
         if content.startswith(self._prefix):
             return IndividualAssertionResult(
                 assertion_type=self.assertion_type,
@@ -373,7 +373,7 @@ class EndsWith(BaseAssertion):
     def __init__(self, suffix: str) -> None:
         self._suffix = suffix
 
-    def evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult:
+    def evaluate(self, content: str, config: LLMAssertConfig) -> IndividualAssertionResult:
         if content.endswith(self._suffix):
             return IndividualAssertionResult(
                 assertion_type=self.assertion_type,

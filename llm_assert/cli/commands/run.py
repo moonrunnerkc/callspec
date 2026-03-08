@@ -1,4 +1,4 @@
-"""verdict run: execute a YAML-defined assertion suite."""
+"""llm-assert run: execute a YAML-defined assertion suite."""
 
 from __future__ import annotations
 
@@ -45,15 +45,15 @@ def run(
     """
     from rich.markup import escape
 
-    from verdict.cli.console import console
-    from verdict.core.report import ReportFormatter, render_rich_report
-    from verdict.core.yaml_suite import load_yaml_suite
-    from verdict.errors import SuiteParseError, VerdictError
+    from llm_assert.cli.console import console
+    from llm_assert.core.report import ReportFormatter, render_rich_report
+    from llm_assert.core.yaml_suite import load_yaml_suite
+    from llm_assert.errors import SuiteParseError, LLMAssertError
 
     try:
         suite = load_yaml_suite(suite_file)
     except SuiteParseError as parse_error:
-        console.print(f"[verdict.fail]Error:[/verdict.fail] {escape(str(parse_error))}")
+        console.print(f"[llm_assert.fail]Error:[/llm_assert.fail] {escape(str(parse_error))}")
         sys.exit(2)
 
     if strict:
@@ -63,23 +63,23 @@ def run(
     resolved_provider = _resolve_provider(provider, suite)
     if resolved_provider is None:
         console.print(
-            "[verdict.fail]Error:[/verdict.fail] No provider specified. Use --provider flag or set "
+            "[llm_assert.fail]Error:[/llm_assert.fail] No provider specified. Use --provider flag or set "
             "'provider' in the suite file.",
             highlight=False,
         )
         sys.exit(2)
 
-    from verdict.core.runner import AssertionRunner
+    from llm_assert.core.runner import AssertionRunner
 
     runner = AssertionRunner(provider=resolved_provider, config=suite.config)
 
     try:
-        with console.status("[verdict.muted]Running suite...[/verdict.muted]", spinner="dots"):
+        with console.status("[llm_assert.muted]Running suite...[/llm_assert.muted]", spinner="dots"):
             suite_result = runner.run_suite(suite)
-    except VerdictError as verdict_error:
+    except LLMAssertError as llm_assert_error:
         console.print(
-            f"[verdict.fail]Error during suite execution:[/verdict.fail] "
-            f"{escape(str(verdict_error))}"
+            f"[llm_assert.fail]Error during suite execution:[/llm_assert.fail] "
+            f"{escape(str(llm_assert_error))}"
         )
         sys.exit(1)
 
@@ -100,7 +100,7 @@ def run(
             )
         with open(output, "w") as fh:
             fh.write(report_text)
-        console.print(f"Report written to [verdict.key]{output}[/verdict.key]")
+        console.print(f"Report written to [llm_assert.key]{output}[/llm_assert.key]")
     elif report_text is not None:
         # JSON or JUnit: emit raw text (no Rich markup)
         click.echo(report_text)
@@ -118,32 +118,32 @@ def _resolve_provider(provider_name: str | None, suite):
 
     from rich.markup import escape
 
-    from verdict.cli.console import console
+    from llm_assert.cli.console import console
 
-    name = provider_name or os.environ.get("VERDICT_PROVIDER")
+    name = provider_name or os.environ.get("LLM_ASSERT_PROVIDER")
 
     if not name:
         return None
 
     name = name.lower().strip()
 
-    from verdict.providers.mock import MockProvider
+    from llm_assert.providers.mock import MockProvider
 
     if name == "mock":
         return MockProvider(response_fn=lambda prompt, msgs=None: prompt)
 
     provider_map = {
-        "openai": ("verdict.providers.openai", "OpenAIProvider"),
-        "anthropic": ("verdict.providers.anthropic", "AnthropicProvider"),
-        "google": ("verdict.providers.google", "GoogleProvider"),
-        "mistral": ("verdict.providers.mistral", "MistralProvider"),
-        "ollama": ("verdict.providers.ollama", "OllamaProvider"),
-        "litellm": ("verdict.providers.litellm", "LiteLLMProvider"),
+        "openai": ("llm_assert.providers.openai", "OpenAIProvider"),
+        "anthropic": ("llm_assert.providers.anthropic", "AnthropicProvider"),
+        "google": ("llm_assert.providers.google", "GoogleProvider"),
+        "mistral": ("llm_assert.providers.mistral", "MistralProvider"),
+        "ollama": ("llm_assert.providers.ollama", "OllamaProvider"),
+        "litellm": ("llm_assert.providers.litellm", "LiteLLMProvider"),
     }
 
     if name not in provider_map:
         console.print(
-            f"[verdict.fail]Unknown provider '{name}'.[/verdict.fail] "
+            f"[llm_assert.fail]Unknown provider '{name}'.[/llm_assert.fail] "
             f"Available: {', '.join(sorted(provider_map.keys()))}, mock",
         )
         return None
@@ -156,14 +156,14 @@ def _resolve_provider(provider_name: str | None, suite):
         return provider_class()
     except ImportError:
         console.print(
-            f"[verdict.fail]Provider '{name}' requires additional dependencies.[/verdict.fail] "
-            f"Install with: pip install verdict[{name}]",
+            f"[llm_assert.fail]Provider '{name}' requires additional dependencies.[/llm_assert.fail] "
+            f"Install with: pip install llm-assert[{name}]",
         )
         return None
     except Exception as init_error:
         console.print(
-            f"[verdict.fail]Failed to initialize provider "
-            f"'{escape(name)}':[/verdict.fail] "
+            f"[llm_assert.fail]Failed to initialize provider "
+            f"'{escape(name)}':[/llm_assert.fail] "
             f"{escape(str(init_error))}",
         )
         return None

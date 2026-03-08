@@ -8,7 +8,7 @@ visible in assertion history.
 Supports deterministic output via temperature=0 and the seed parameter.
 OpenAI has supported deterministic seeds since November 2023.
 
-Requires: pip install verdict[openai]
+Requires: pip install llm-assert[openai]
 """
 
 from __future__ import annotations
@@ -17,8 +17,8 @@ import logging
 import time
 from typing import Any
 
-from verdict.core.types import ProviderResponse
-from verdict.providers.base import BaseProvider
+from llm_assert.core.types import ProviderResponse
+from llm_assert.providers.base import BaseProvider
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +67,7 @@ class OpenAIProvider(BaseProvider):
         except ImportError as import_error:
             raise ImportError(
                 "OpenAI provider requires the openai package. "
-                "Install with: pip install verdict[openai]"
+                "Install with: pip install llm-assert[openai]"
             ) from import_error
 
         self._client = OpenAI(
@@ -87,7 +87,7 @@ class OpenAIProvider(BaseProvider):
         except ImportError as import_error:
             raise ImportError(
                 "OpenAI provider requires the openai package. "
-                "Install with: pip install verdict[openai]"
+                "Install with: pip install llm-assert[openai]"
             ) from import_error
 
         self._async_client = AsyncOpenAI(

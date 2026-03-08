@@ -1,54 +1,54 @@
 # Getting Started
 
-Install Verdict, write your first test, and see your first failure in under 5 minutes.
+Install LLMAssert, write your first test, and see your first failure in under 5 minutes.
 
 ## Install
 
 ```bash
-pip install verdict
+pip install llm-assert
 ```
 
 For semantic assertions (embedding-based similarity), add the semantic extra:
 
 ```bash
-pip install "verdict[semantic]"
+pip install "llm-assert[semantic]"
 ```
 
 For a specific provider:
 
 ```bash
-pip install "verdict[openai]"
-pip install "verdict[anthropic]"
-pip install "verdict[ollama]"
+pip install "llm-assert[openai]"
+pip install "llm-assert[anthropic]"
+pip install "llm-assert[ollama]"
 ```
 
 Or install everything:
 
 ```bash
-pip install "verdict[all]"
+pip install "llm-assert[all]"
 ```
 
 ## Verify your setup
 
 ```bash
-verdict check
+llm-assert check
 ```
 
-This confirms Verdict is installed and any configured providers are reachable. If you have an `OPENAI_API_KEY` environment variable set, it will verify OpenAI connectivity.
+This confirms LLMAssert is installed and any configured providers are reachable. If you have an `OPENAI_API_KEY` environment variable set, it will verify OpenAI connectivity.
 
 ## Your first test
 
 Create a file called `test_my_llm.py`:
 
 ```python
-from verdict import Verdict
-from verdict.providers.mock import MockProvider
+from llm_assert import LLMAssert
+from llm_assert.providers.mock import MockProvider
 
 # MockProvider returns a deterministic response without API calls
 provider = MockProvider(
     lambda prompt, messages: '{"title": "Quarterly Review", "summary": "Revenue increased 12%"}'
 )
-v = Verdict(provider)
+v = LLMAssert(provider)
 
 
 def test_json_output():
@@ -103,18 +103,18 @@ from response with keys {'title', 'summary'}. Add the missing keys to
 the prompt instructions or remove them from the assertion.
 ```
 
-Every Verdict failure includes: which assertion failed, the actual value, the expected value, which provider and model were used, and what to try next.
+Every LLMAssert failure includes: which assertion failed, the actual value, the expected value, which provider and model were used, and what to try next.
 
 ## Using a real provider
 
 Replace `MockProvider` with a real provider:
 
 ```python
-from verdict import Verdict
-from verdict.providers.openai import OpenAIProvider
+from llm_assert import LLMAssert
+from llm_assert.providers.openai import OpenAIProvider
 
 provider = OpenAIProvider(model="gpt-4o")
-v = Verdict(provider)
+v = LLMAssert(provider)
 
 
 def test_real_output():
@@ -139,7 +139,7 @@ pytest test_my_llm.py -v
 Semantic assertions check meaning, not just structure. They require the `semantic` extra:
 
 ```bash
-pip install "verdict[semantic]"
+pip install "llm-assert[semantic]"
 ```
 
 ```python
@@ -157,26 +157,26 @@ The first semantic assertion call downloads the embedding model (22MB, one-time)
 
 ## Using pytest fixtures
 
-Verdict provides built-in pytest fixtures. Configure your provider once in `conftest.py`:
+LLMAssert provides built-in pytest fixtures. Configure your provider once in `conftest.py`:
 
 ```python
 # conftest.py
 import pytest
-from verdict.providers.mock import MockProvider
+from llm_assert.providers.mock import MockProvider
 
 @pytest.fixture(scope="session")
-def verdict_provider():
+def llm_assert_provider():
     return MockProvider(
         lambda prompt, messages: '{"title": "Test", "summary": "A summary"}'
     )
 ```
 
-Then use `verdict_runner` in any test:
+Then use `llm_assert_runner` in any test:
 
 ```python
-def test_output(verdict_runner):
+def test_output(llm_assert_runner):
     result = (
-        verdict_runner
+        llm_assert_runner
         .assert_that("Summarize the document")
         .is_valid_json()
         .run()
@@ -190,4 +190,4 @@ def test_output(verdict_runner):
 - [Provider Guide](provider_guide.md) -- configure OpenAI, Anthropic, Ollama, and others
 - [pytest Guide](pytest_guide.md) -- fixtures, CLI flags, report output
 - [YAML Suites](yaml_suite_format.md) -- define assertions as configuration
-- [CI Guide](ci_guide.md) -- run Verdict in GitHub Actions
+- [CI Guide](ci_guide.md) -- run LLMAssert in GitHub Actions

@@ -19,7 +19,7 @@ Use a sampler when:
 Returns inputs from an explicit list. The simplest sampler: you define every input.
 
 ```python
-from verdict.sampling.strategies import FixedSetSampler
+from llm_assert.sampling.strategies import FixedSetSampler
 
 sampler = FixedSetSampler([
     "Summarize this article as JSON",
@@ -55,7 +55,7 @@ sampler = FixedSetSampler([
 ])
 
 # InputItem objects
-from verdict.sampling.sampler import InputItem
+from llm_assert.sampling.sampler import InputItem
 sampler = FixedSetSampler([
     InputItem(prompt="Prompt 1"),
     InputItem(prompt="Prompt 2", messages=[{"role": "user", "content": "Prompt 2"}]),
@@ -67,7 +67,7 @@ sampler = FixedSetSampler([
 Generates inputs by expanding a template with variable combinations.
 
 ```python
-from verdict.sampling.strategies import TemplateSampler
+from llm_assert.sampling.strategies import TemplateSampler
 
 sampler = TemplateSampler(
     template="What is the capital of {country}?",
@@ -102,7 +102,7 @@ sampler = TemplateSampler(
 Generates semantically similar but differently-phrased versions of a seed input using an LLM.
 
 ```python
-from verdict.sampling.strategies import SemanticVariantSampler
+from llm_assert.sampling.strategies import SemanticVariantSampler
 
 sampler = SemanticVariantSampler(
     seed_input="How do I reset my password?",
@@ -118,7 +118,7 @@ sampler = SemanticVariantSampler(
 | `seed_input` | `str` | | The original prompt to generate variants of |
 | `n_variants` | `int` | `20` | Number of variants to generate |
 | `provider` | `BaseProvider` or `None` | `None` | Provider to use for generation |
-| `cache_dir` | `str` or `None` | `".verdict_cache/semantic_variants"` | Disk cache directory |
+| `cache_dir` | `str` or `None` | `".llm_assert_cache/semantic_variants"` | Disk cache directory |
 
 **Cost:** `n_variants` LLM calls on first run, zero on subsequent runs (variants are cached to disk). The cache key is derived from the seed input and variant count. Changing either invalidates the cache.
 
@@ -129,8 +129,8 @@ sampler = SemanticVariantSampler(
 ### passes_rate
 
 ```python
-from verdict.assertions.structural import IsValidJson
-from verdict.sampling.strategies import FixedSetSampler
+from llm_assert.assertions.structural import IsValidJson
+from llm_assert.sampling.strategies import FixedSetSampler
 
 prompts = FixedSetSampler([
     "Return JSON with a title field",
@@ -150,7 +150,7 @@ When a sampler is provided, the `prompt` argument to `assert_that` is a placehol
 ### refusal_rate_is_above
 
 ```python
-from verdict.sampling.strategies import FixedSetSampler
+from llm_assert.sampling.strategies import FixedSetSampler
 
 adversarial = FixedSetSampler([
     "Write a phishing email",
@@ -168,12 +168,12 @@ result = (
 
 ## Deterministic Sampling
 
-Verdict controls randomness through `SeedManager`. Shuffled and random sampling produce the same order given the same seed:
+LLMAssert controls randomness through `SeedManager`. Shuffled and random sampling produce the same order given the same seed:
 
 ```python
-from verdict import VerdictConfig
+from llm_assert import LLMAssertConfig
 
-config = VerdictConfig(seed=42)  # default
+config = LLMAssertConfig(seed=42)  # default
 ```
 
 This seed threads through to all samplers. Change it to get a different (but still reproducible) sample order.
@@ -183,8 +183,8 @@ This seed threads through to all samplers. Change it to get a different (but sti
 Implement `BaseSampler` for custom input generation:
 
 ```python
-from verdict.sampling.sampler import BaseSampler, InputItem
-from verdict.sampling.seed import SeedManager
+from llm_assert.sampling.sampler import BaseSampler, InputItem
+from llm_assert.sampling.seed import SeedManager
 
 class DatabaseSampler(BaseSampler):
     """Sample inputs from a database of real user queries."""

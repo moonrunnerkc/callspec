@@ -15,7 +15,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
-from verdict.sampling.seed import SeedManager
+from llm_assert.sampling.seed import SeedManager
 
 
 @dataclass(frozen=True)

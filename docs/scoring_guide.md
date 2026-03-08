@@ -1,16 +1,16 @@
 # Scoring Guide
 
-How Verdict evaluates assertions, the reasoning behind each scoring method, and how to tune thresholds for your use case.
+How LLMAssert evaluates assertions, the reasoning behind each scoring method, and how to tune thresholds for your use case.
 
 ## Scoring Methods
 
-Verdict uses three scoring systems. Each is chosen for specific properties that matter in a test library: determinism, cost, and reliability.
+LLMAssert uses three scoring systems. Each is chosen for specific properties that matter in a test library: determinism, cost, and reliability.
 
 ### Embedding Similarity
 
 **Used by:** `semantic_intent_matches`, `does_not_discuss`, `is_factually_consistent_with`, `is_consistent_across_samples`, `matches_baseline`, `semantic_drift_is_below`
 
-**Model:** `sentence-transformers/all-MiniLM-L6-v2` (default, configurable via `VerdictConfig.embedding_model`)
+**Model:** `sentence-transformers/all-MiniLM-L6-v2` (default, configurable via `LLMAssertConfig.embedding_model`)
 
 **Properties:**
 
@@ -27,9 +27,9 @@ Verdict uses three scoring systems. Each is chosen for specific properties that 
 **Changing the model:**
 
 ```python
-from verdict import VerdictConfig
+from llm_assert import LLMAssertConfig
 
-config = VerdictConfig(embedding_model="sentence-transformers/all-mpnet-base-v2")
+config = LLMAssertConfig(embedding_model="sentence-transformers/all-mpnet-base-v2")
 ```
 
 ### Structural Scoring
@@ -107,7 +107,7 @@ Setting `regression_drift_ceiling` to 0.10 catches smaller changes. Setting it t
 
 ## Confidence Intervals
 
-Behavioral assertions produce scores, not binaries. Verdict uses Wilson score confidence intervals for proportional data (pass rates, refusal rates).
+Behavioral assertions produce scores, not binaries. LLMAssert uses Wilson score confidence intervals for proportional data (pass rates, refusal rates).
 
 Wilson intervals are more accurate than normal approximation intervals at both extremes of the probability range (near 0.0 and near 1.0), which is exactly where behavioral assertions operate. This is the method used by `scipy.stats.proportion_confint` with `method='wilson'`.
 
@@ -137,4 +137,4 @@ Or cache the model directory:
     key: sentence-transformers-minilm
 ```
 
-Verdict fails loudly if the model download fails, with a clear error message and instructions. It does not fail silently.
+LLMAssert fails loudly if the model download fails, with a clear error message and instructions. It does not fail silently.

@@ -13,10 +13,10 @@ from pathlib import Path
 
 import pytest
 
-from verdict.providers.mock import MockProvider
-from verdict.sampling.sampler import InputItem
-from verdict.sampling.seed import SeedManager
-from verdict.sampling.strategies import (
+from llm_assert.providers.mock import MockProvider
+from llm_assert.sampling.sampler import InputItem
+from llm_assert.sampling.seed import SeedManager
+from llm_assert.sampling.strategies import (
     FixedSetSampler,
     SemanticVariantSampler,
     TemplateSampler,

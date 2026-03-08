@@ -6,12 +6,12 @@ import json
 
 import pytest
 
-from verdict.assertions.structural import ContainsKeys, IsValidJson, LengthBetween
-from verdict.core.config import VerdictConfig
-from verdict.core.runner import AssertionRunner
-from verdict.core.suite import AssertionCase, AssertionSuite
-from verdict.errors import ProviderError
-from verdict.providers.mock import MockProvider
+from llm_assert.assertions.structural import ContainsKeys, IsValidJson, LengthBetween
+from llm_assert.core.config import LLMAssertConfig
+from llm_assert.core.runner import AssertionRunner
+from llm_assert.core.suite import AssertionCase, AssertionSuite
+from llm_assert.errors import ProviderError
+from llm_assert.providers.mock import MockProvider
 
 
 def _json_provider(content: dict) -> MockProvider:
@@ -58,7 +58,7 @@ class TestAssertionRunner:
 
     def test_fail_fast_stops_at_first_failure(self) -> None:
         provider = MockProvider(lambda prompt, messages: "short")
-        config = VerdictConfig(fail_fast=True)
+        config = LLMAssertConfig(fail_fast=True)
         runner = AssertionRunner(provider, config)
 
         assertion_result = runner.run_assertions(
@@ -74,7 +74,7 @@ class TestAssertionRunner:
 
     def test_no_fail_fast_runs_all(self) -> None:
         provider = MockProvider(lambda prompt, messages: "short")
-        config = VerdictConfig(fail_fast=False)
+        config = LLMAssertConfig(fail_fast=False)
         runner = AssertionRunner(provider, config)
 
         assertion_result = runner.run_assertions(
@@ -113,7 +113,7 @@ class TestAssertionRunner:
             return '{"ok": true}'
 
         provider = MockProvider(flaky_fn)
-        config = VerdictConfig(max_retries=3, retry_backoff_base_seconds=0.01)
+        config = LLMAssertConfig(max_retries=3, retry_backoff_base_seconds=0.01)
         runner = AssertionRunner(provider, config)
 
         assertion_result = runner.run_assertions("test", [IsValidJson()])
@@ -125,7 +125,7 @@ class TestAssertionRunner:
             raise ConnectionError("permanent failure")
 
         provider = MockProvider(always_fail)
-        config = VerdictConfig(max_retries=2, retry_backoff_base_seconds=0.01)
+        config = LLMAssertConfig(max_retries=2, retry_backoff_base_seconds=0.01)
         runner = AssertionRunner(provider, config)
 
         with pytest.raises(ProviderError, match="exhausting all retries"):

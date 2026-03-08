@@ -14,8 +14,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from tests.fixtures.recorded_responses import LITELLM_COMPLETION_RESPONSE
-from verdict.core.types import ProviderResponse
-from verdict.providers.litellm import LiteLLMProvider
+from llm_assert.core.types import ProviderResponse
+from llm_assert.providers.litellm import LiteLLMProvider
 
 # ---- Mock objects mirroring LiteLLM's OpenAI-compatible response shape ----
 
@@ -61,7 +61,7 @@ class TestLiteLLMProviderOffline:
     def test_import_error_gives_actionable_message(self) -> None:
         provider = LiteLLMProvider()
         with patch.dict("sys.modules", {"litellm": None}):
-            with pytest.raises(ImportError, match="pip install verdict\\[litellm\\]"):
+            with pytest.raises(ImportError, match="pip install llm-assert\\[litellm\\]"):
                 provider._get_litellm()
 
     def test_response_normalization(self) -> None:

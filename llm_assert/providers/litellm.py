@@ -2,19 +2,19 @@
 
 Wraps the litellm Python SDK (>=1.0.0) which provides a unified interface
 to 100+ LLM providers through a single API. This is the catch-all adapter
-for any provider not covered by Verdict's first-party adapters.
+for any provider not covered by LLMAssert's first-party adapters.
 
 LiteLLM normalizes provider APIs into an OpenAI-compatible interface,
 so the adapter code closely mirrors the OpenAI adapter. The key advantage
 is that developers can use any LiteLLM-supported provider (Cohere,
 AI21, Replicate, Together, Perplexity, etc.) without waiting for a
-dedicated Verdict adapter.
+dedicated LLMAssert adapter.
 
 The model string follows LiteLLM's provider/model naming convention:
 "anthropic/claude-sonnet-4-20250514", "ollama/llama3", "together_ai/meta-llama/Llama-3-70b",
 etc. See https://docs.litellm.ai/docs/providers for the full list.
 
-Requires: pip install verdict[litellm]
+Requires: pip install llm-assert[litellm]
 """
 
 from __future__ import annotations
@@ -23,8 +23,8 @@ import logging
 import time
 from typing import Any
 
-from verdict.core.types import ProviderResponse
-from verdict.providers.base import BaseProvider
+from llm_assert.core.types import ProviderResponse
+from llm_assert.providers.base import BaseProvider
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +69,7 @@ class LiteLLMProvider(BaseProvider):
         except ImportError as import_error:
             raise ImportError(
                 "LiteLLM provider requires the litellm package. "
-                "Install with: pip install verdict[litellm]"
+                "Install with: pip install llm-assert[litellm]"
             ) from import_error
 
         self._litellm = litellm

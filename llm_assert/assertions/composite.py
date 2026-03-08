@@ -7,9 +7,9 @@ behavioral contracts expressed as single chains.
 
 from __future__ import annotations
 
-from verdict.assertions.base import BaseAssertion
-from verdict.core.config import VerdictConfig
-from verdict.core.types import IndividualAssertionResult
+from llm_assert.assertions.base import BaseAssertion
+from llm_assert.core.config import LLMAssertConfig
+from llm_assert.core.types import IndividualAssertionResult
 
 
 class NegationWrapper(BaseAssertion):
@@ -22,7 +22,7 @@ class NegationWrapper(BaseAssertion):
         self._inner = inner
         self.assertion_name = f"not_{inner.assertion_name}"
 
-    def evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult:
+    def evaluate(self, content: str, config: LLMAssertConfig) -> IndividualAssertionResult:
         inner_result = self._inner.evaluate(content, config)
 
         return IndividualAssertionResult(
@@ -49,7 +49,7 @@ class AndAssertion(BaseAssertion):
     def __init__(self, assertions: list[BaseAssertion]) -> None:
         self._assertions = assertions
 
-    def evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult:
+    def evaluate(self, content: str, config: LLMAssertConfig) -> IndividualAssertionResult:
         failures: list[str] = []
         all_details: list[dict] = []
 
@@ -91,7 +91,7 @@ class OrAssertion(BaseAssertion):
     def __init__(self, assertions: list[BaseAssertion]) -> None:
         self._assertions = assertions
 
-    def evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult:
+    def evaluate(self, content: str, config: LLMAssertConfig) -> IndividualAssertionResult:
         all_details: list[dict] = []
         any_passed = False
 

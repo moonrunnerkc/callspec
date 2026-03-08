@@ -1,10 +1,10 @@
-"""Pytest fixtures for Verdict integration.
+"""Pytest fixtures for LLMAssert integration.
 
-verdict_config  (session scope) - VerdictConfig loaded from env/conftest
-verdict_provider (session scope) - configured provider instance
-verdict_runner  (function scope) - fresh Verdict instance per test
+llm_assert_config  (session scope) - LLMAssertConfig loaded from env/conftest
+llm_assert_provider (session scope) - configured provider instance
+llm_assert_runner  (function scope) - fresh LLMAssert instance per test
 
-These fixtures form the bridge between pytest and the Verdict API.
+These fixtures form the bridge between pytest and the LLMAssert API.
 Developers use them in test files without manual instantiation.
 """
 
@@ -14,70 +14,70 @@ import os
 
 import pytest
 
-from verdict.core.config import VerdictConfig
-from verdict.providers.base import BaseProvider
-from verdict.providers.mock import MockProvider
-from verdict.verdict import Verdict
+from llm_assert.core.config import LLMAssertConfig
+from llm_assert.providers.base import BaseProvider
+from llm_assert.providers.mock import MockProvider
+from llm_assert.verdict import LLMAssert
 
 
 def _resolve_provider_from_env() -> BaseProvider:
-    """Build a provider instance from VERDICT_PROVIDER environment variable.
+    """Build a provider instance from LLM_ASSERT_PROVIDER environment variable.
 
     Supported values: mock, openai, anthropic, google, mistral, ollama, litellm.
     Falls back to MockProvider if unset.
     """
-    provider_name = os.environ.get("VERDICT_PROVIDER", "mock").lower().strip()
+    provider_name = os.environ.get("LLM_ASSERT_PROVIDER", "mock").lower().strip()
 
     if provider_name == "mock":
         return MockProvider(response_fn=lambda prompt, msgs=None: prompt)
 
     # Lazy import to avoid requiring SDK packages at plugin load time
     if provider_name == "openai":
-        from verdict.providers.openai import OpenAIProvider
+        from llm_assert.providers.openai import OpenAIProvider
         return OpenAIProvider()
 
     if provider_name == "anthropic":
-        from verdict.providers.anthropic import AnthropicProvider
+        from llm_assert.providers.anthropic import AnthropicProvider
         return AnthropicProvider()
 
     if provider_name == "google":
-        from verdict.providers.google import GoogleProvider
+        from llm_assert.providers.google import GoogleProvider
         return GoogleProvider()
 
     if provider_name == "mistral":
-        from verdict.providers.mistral import MistralProvider
+        from llm_assert.providers.mistral import MistralProvider
         return MistralProvider()
 
     if provider_name == "ollama":
-        from verdict.providers.ollama import OllamaProvider
+        from llm_assert.providers.ollama import OllamaProvider
         return OllamaProvider()
 
     if provider_name == "litellm":
-        from verdict.providers.litellm import LiteLLMProvider
+        from llm_assert.providers.litellm import LiteLLMProvider
         return LiteLLMProvider()
 
     raise ValueError(
-        f"Unknown VERDICT_PROVIDER '{provider_name}'. "
+        f"Unknown LLM_ASSERT_PROVIDER '{provider_name}'. "
         f"Supported: mock, openai, anthropic, google, mistral, ollama, litellm. "
-        f"Set VERDICT_PROVIDER environment variable to one of these values."
+        f"Set LLM_ASSERT_PROVIDER environment variable to one of these values."
     )
 
 
 @pytest.fixture(scope="session")
-def verdict_config() -> VerdictConfig:
-    """Session-scoped Verdict configuration.
+def llm_assert_config() -> LLMAssertConfig:
+    """Session-scoped LLMAssert configuration.
 
     Reads from environment or uses calibrated defaults.
     Override in conftest.py for project-specific settings.
     """
-    return VerdictConfig()
+    return LLMAssertConfig()
 
 
 @pytest.fixture(scope="session")
-def verdict_provider() -> BaseProvider:
+def llm_assert_provider() -> BaseProvider:
     """Session-scoped provider instance.
 
-    Resolved from VERDICT_PROVIDER env var. Defaults to MockProvider
+    Resolved from LLM_ASSERT_PROVIDER env var. Defaults to MockProvider
     when no provider is configured, so tests never fail due to
     missing credentials unless they explicitly require a real provider.
     """
@@ -85,10 +85,10 @@ def verdict_provider() -> BaseProvider:
 
 
 @pytest.fixture(scope="function")
-def verdict_runner(verdict_provider: BaseProvider, verdict_config: VerdictConfig) -> Verdict:
-    """Function-scoped Verdict instance.
+def llm_assert_runner(llm_assert_provider: BaseProvider, llm_assert_config: LLMAssertConfig) -> LLMAssert:
+    """Function-scoped LLMAssert instance.
 
     Fresh per test to prevent cross-test state leakage.
     Uses the session-scoped provider and config.
     """
-    return Verdict(provider=verdict_provider, config=verdict_config)
+    return LLMAssert(provider=llm_assert_provider, config=llm_assert_config)

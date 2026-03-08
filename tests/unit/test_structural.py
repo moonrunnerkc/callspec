@@ -1,7 +1,7 @@
 """Unit tests for all structural assertion types.
 
 Each assertion is tested with clear pass/fail cases and edge conditions.
-Tests use VerdictConfig defaults unless testing config-dependent behavior.
+Tests use LLMAssertConfig defaults unless testing config-dependent behavior.
 """
 
 from __future__ import annotations
@@ -10,7 +10,7 @@ import json
 
 import pytest
 
-from verdict.assertions.structural import (
+from llm_assert.assertions.structural import (
     ContainsKeys,
     DoesNotContain,
     EndsWith,
@@ -20,9 +20,9 @@ from verdict.assertions.structural import (
     MatchesSchema,
     StartsWith,
 )
-from verdict.core.config import VerdictConfig
+from llm_assert.core.config import LLMAssertConfig
 
-CONFIG = VerdictConfig()
+CONFIG = LLMAssertConfig()
 
 
 # -- IsValidJson --

@@ -19,16 +19,16 @@ LLM providers update models without announcement. "gpt-4o" today may not produce
 
 ```bash
 # Create a snapshot for a specific prompt
-verdict snapshot create --key "product_summary" --prompt "Summarize the product" --provider openai
+llm-assert snapshot create --key "product_summary" --prompt "Summarize the product" --provider openai
 
 # Create snapshots for all cases in a YAML suite
-verdict snapshot create --suite tests/verdict_suite.yml
+llm-assert snapshot create --suite tests/llm_assert_suite.yml
 ```
 
 ### Via pytest
 
 ```bash
-pytest --verdict-snapshot
+pytest --llm-assert-snapshot
 ```
 
 This runs all snapshot creation/update operations instead of running assertions.
@@ -36,9 +36,9 @@ This runs all snapshot creation/update operations instead of running assertions.
 ### Programmatically
 
 ```python
-from verdict.snapshots.manager import SnapshotManager
+from llm_assert.snapshots.manager import SnapshotManager
 
-snapshot_mgr = SnapshotManager("verdict_snapshots/")
+snapshot_mgr = SnapshotManager("llm_assert_snapshots/")
 
 # Save a response as a baseline
 snapshot_mgr.save_entry(
@@ -51,10 +51,10 @@ snapshot_mgr.save_entry(
 
 ## Snapshot Storage
 
-Snapshots are stored as versioned JSON files in a directory (default: `verdict_snapshots/`). The directory and files should be committed to version control.
+Snapshots are stored as versioned JSON files in a directory (default: `llm_assert_snapshots/`). The directory and files should be committed to version control.
 
 ```
-verdict_snapshots/
+llm_assert_snapshots/
   snapshots.json    # all snapshot entries
 ```
 
@@ -74,13 +74,13 @@ Each snapshot entry records:
 Checks both structure and meaning:
 
 ```python
-from verdict.snapshots.manager import SnapshotManager
+from llm_assert.snapshots.manager import SnapshotManager
 
-snapshot_mgr = SnapshotManager("verdict_snapshots/")
+snapshot_mgr = SnapshotManager("llm_assert_snapshots/")
 
-def test_baseline(verdict_runner):
+def test_baseline(llm_assert_runner):
     result = (
-        verdict_runner
+        llm_assert_runner
         .assert_that("Summarize the product")
         .matches_baseline("product_summary", snapshot_mgr)
         .run()
@@ -135,13 +135,13 @@ When model output changes intentionally (after a prompt update or model upgrade)
 
 ```bash
 # Update a specific snapshot
-verdict snapshot update --key "product_summary" --prompt "Summarize the product" --provider openai
+llm-assert snapshot update --key "product_summary" --prompt "Summarize the product" --provider openai
 
 # Update all snapshots in a suite
-verdict snapshot update --suite tests/verdict_suite.yml
+llm-assert snapshot update --suite tests/llm_assert_suite.yml
 
 # Review changes before committing
-verdict snapshot diff --key "product_summary"
+llm-assert snapshot diff --key "product_summary"
 ```
 
 The diff output shows:
@@ -161,8 +161,8 @@ The diff output shows:
 4. **Separate baselines per environment.** If staging and production use different models, maintain separate snapshot directories:
 
 ```python
-staging_snapshots = SnapshotManager("verdict_snapshots/staging/")
-production_snapshots = SnapshotManager("verdict_snapshots/production/")
+staging_snapshots = SnapshotManager("llm_assert_snapshots/staging/")
+production_snapshots = SnapshotManager("llm_assert_snapshots/production/")
 ```
 
 ## Drift Detection Patterns
@@ -170,27 +170,27 @@ production_snapshots = SnapshotManager("verdict_snapshots/production/")
 ### Detecting Silent Model Updates
 
 ```python
-def test_model_drift(verdict_runner):
+def test_model_drift(llm_assert_runner):
     """Fails when the provider silently updates the model."""
     result = (
-        verdict_runner
+        llm_assert_runner
         .assert_that("Summarize the quarterly report")
         .semantic_drift_is_below("quarterly_summary", snapshot_mgr, max_drift=0.10)
         .run()
     )
     assert result.passed, (
         f"Model output has drifted: {result.assertions[0].message}. "
-        f"If intentional, run: verdict snapshot update --key quarterly_summary"
+        f"If intentional, run: llm-assert snapshot update --key quarterly_summary"
     )
 ```
 
 ### Monitoring Format Stability
 
 ```python
-def test_schema_stability(verdict_runner):
+def test_schema_stability(llm_assert_runner):
     """Fails when the model changes its JSON output structure."""
     result = (
-        verdict_runner
+        llm_assert_runner
         .assert_that("Return a product listing as JSON")
         .format_matches_baseline("product_json", snapshot_mgr)
         .run()
@@ -201,9 +201,9 @@ def test_schema_stability(verdict_runner):
 ### Combining Regression with Structural Checks
 
 ```python
-def test_full_regression(verdict_runner):
+def test_full_regression(llm_assert_runner):
     result = (
-        verdict_runner
+        llm_assert_runner
         .assert_that("Summarize the document")
         .is_valid_json()
         .contains_keys(["title", "summary"])

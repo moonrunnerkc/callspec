@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Verdict will be documented in this file.
+All notable changes to LLMAssert will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -14,12 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `MockProvider` for testing without API calls
 - `AssertionRunner` and fluent `AssertionBuilder` API
 - `AssertionResult` and `IndividualAssertionResult` structured result types
-- `VerdictConfig` dataclass for global settings, thresholds, retry policy
+- `LLMAssertConfig` dataclass for global settings, thresholds, retry policy
 - `NormalizedResponse` common structure all providers return
 - `ReportFormatter` with JSON, plaintext, and JUnit XML output
 - Structural assertions: `is_valid_json`, `matches_schema`, `contains_keys`, `length_between`, `matches_pattern`, `does_not_contain`, `starts_with`, `ends_with`
-- Top-level `Verdict` class with `assert_that()` entry point
-- `verdict.errors` module with all exception types
+- Top-level `LLMAssert` class with `assert_that()` entry point
+- `llm_assert.errors` module with all exception types
 - Unit test suite for all structural assertion types
 
 #### Phase 2: Embedding Scorer and Semantic Assertions
@@ -28,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ConfidenceEstimator` with Wilson score confidence intervals
 - Flesch-Kincaid grade level computation in `scoring.structural`
 - Semantic assertions: `SemanticIntentMatches` (threshold 0.75), `DoesNotDiscuss` (threshold 0.6), `IsFactuallyConsistentWith` (threshold 0.80), `UsesLanguageAtGradeLevel`
-- Optional `verdict[semantic]` extra for sentence-transformers and scipy dependencies
+- Optional `llm-assert[semantic]` extra for sentence-transformers and scipy dependencies
 - Unit tests for all semantic assertions and confidence interval computation
 
 #### Phase 3: Snapshot System and Regression Assertions
@@ -40,13 +40,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Unit tests for full snapshot lifecycle and regression assertions
 
 #### Phase 4: Provider Adapters
-- `OpenAIProvider` with deterministic seed support (`verdict[openai]`)
-- `AnthropicProvider` with temperature=0 near-deterministic behavior (`verdict[anthropic]`)
-- `GoogleProvider` for Gemini models (`verdict[google]`)
-- `MistralProvider` (`verdict[mistral]`)
-- `OllamaProvider` for local models with seed support (`verdict[ollama]`)
-- `LiteLLMProvider` as catch-all router for any provider (`verdict[litellm]`)
-- Lazy imports in `verdict.providers` to avoid loading unused SDK dependencies
+- `OpenAIProvider` with deterministic seed support (`llm-assert[openai]`)
+- `AnthropicProvider` with temperature=0 near-deterministic behavior (`llm-assert[anthropic]`)
+- `GoogleProvider` for Gemini models (`llm-assert[google]`)
+- `MistralProvider` (`llm-assert[mistral]`)
+- `OllamaProvider` for local models with seed support (`llm-assert[ollama]`)
+- `LiteLLMProvider` as catch-all router for any provider (`llm-assert[litellm]`)
+- Lazy imports in `llm_assert.providers` to avoid loading unused SDK dependencies
 - Actual model identifier logging from provider response (not requested alias)
 - Integration tests for each provider (skipped when API keys absent)
 
@@ -63,17 +63,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Phase 6: Pytest Plugin and CLI
 - Pytest plugin registered via `pytest11` entry point
-- Fixtures: `verdict_runner`, `verdict_provider`, `verdict_config`
-- Custom `@pytest.mark.verdict_behavioral` mark for expensive multi-sample tests
-- CLI flags: `--verdict-report`, `--verdict-report-path`, `--verdict-strict`, `--verdict-skip-behavioral`, `--verdict-snapshot`
+- Fixtures: `llm_assert_runner`, `llm_assert_provider`, `llm_assert_config`
+- Custom `@pytest.mark.llm_assert_behavioral` mark for expensive multi-sample tests
+- CLI flags: `--llm-assert-report`, `--llm-assert-report-path`, `--llm-assert-strict`, `--llm-assert-skip-behavioral`, `--llm-assert-snapshot`
 - Pytest assertion helpers producing structured failure output
-- Report hook adding Verdict metadata to test reports
-- Click-based CLI: `verdict run`, `verdict check`, `verdict snapshot`, `verdict report`, `verdict providers`
+- Report hook adding LLMAssert metadata to test reports
+- Click-based CLI: `llm-assert run`, `llm-assert check`, `llm-assert snapshot`, `llm-assert report`, `llm-assert providers`
 - YAML suite parser with JSON Schema validation of suite files
 - Integration tests for pytest plugin and CLI commands
 
 #### Phase 7: GitHub Actions Integration and Documentation
-- GitHub Actions annotation formatter (`verdict.integrations.github_actions`)
+- GitHub Actions annotation formatter (`llm_assert.integrations.github_actions`)
 - PR annotations using `::error`, `::warning`, `::notice` workflow commands
 - Borderline pass detection (score within 5% of threshold) emits warnings
 - Step summary output via `$GITHUB_STEP_SUMMARY`

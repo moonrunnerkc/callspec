@@ -6,12 +6,12 @@ the API so model drift is visible in assertion history.
 
 Important: Anthropic does not offer a seed parameter. At temperature=0,
 Claude outputs are highly consistent but not perfectly deterministic.
-The confidence interval mechanism in Verdict's scoring layer accounts
+The confidence interval mechanism in LLMAssert's scoring layer accounts
 for this residual variance. Tests relying on exact output matching
 against Anthropic should use semantic similarity with a threshold
 rather than string equality.
 
-Requires: pip install verdict[anthropic]
+Requires: pip install llm-assert[anthropic]
 """
 
 from __future__ import annotations
@@ -20,8 +20,8 @@ import logging
 import time
 from typing import Any
 
-from verdict.core.types import ProviderResponse
-from verdict.providers.base import BaseProvider
+from llm_assert.core.types import ProviderResponse
+from llm_assert.providers.base import BaseProvider
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +64,7 @@ class AnthropicProvider(BaseProvider):
         except ImportError as import_error:
             raise ImportError(
                 "Anthropic provider requires the anthropic package. "
-                "Install with: pip install verdict[anthropic]"
+                "Install with: pip install llm-assert[anthropic]"
             ) from import_error
 
         kwargs = {**self._client_kwargs}
@@ -83,7 +83,7 @@ class AnthropicProvider(BaseProvider):
         except ImportError as import_error:
             raise ImportError(
                 "Anthropic provider requires the anthropic package. "
-                "Install with: pip install verdict[anthropic]"
+                "Install with: pip install llm-assert[anthropic]"
             ) from import_error
 
         kwargs = {**self._client_kwargs}

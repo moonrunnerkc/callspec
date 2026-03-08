@@ -1,4 +1,4 @@
-"""verdict providers: list installed provider extras and check connectivity."""
+"""llm-assert providers: list installed provider extras and check connectivity."""
 
 from __future__ import annotations
 
@@ -8,12 +8,12 @@ import time
 import click
 
 PROVIDER_MAP = {
-    "openai": ("verdict.providers.openai", "OpenAIProvider"),
-    "anthropic": ("verdict.providers.anthropic", "AnthropicProvider"),
-    "google": ("verdict.providers.google", "GoogleProvider"),
-    "mistral": ("verdict.providers.mistral", "MistralProvider"),
-    "ollama": ("verdict.providers.ollama", "OllamaProvider"),
-    "litellm": ("verdict.providers.litellm", "LiteLLMProvider"),
+    "openai": ("llm_assert.providers.openai", "OpenAIProvider"),
+    "anthropic": ("llm_assert.providers.anthropic", "AnthropicProvider"),
+    "google": ("llm_assert.providers.google", "GoogleProvider"),
+    "mistral": ("llm_assert.providers.mistral", "MistralProvider"),
+    "ollama": ("llm_assert.providers.ollama", "OllamaProvider"),
+    "litellm": ("llm_assert.providers.litellm", "LiteLLMProvider"),
 }
 
 MINIMAL_PROMPT = "Respond with exactly: OK"
@@ -34,14 +34,14 @@ def providers(run_check: bool) -> None:
     """
     from rich.table import Table
 
-    from verdict.cli.console import console
+    from llm_assert.cli.console import console
 
-    table = Table(title="Verdict Providers", border_style="dim", title_style="verdict.header")
-    table.add_column("Provider", style="verdict.key")
+    table = Table(title="LLMAssert Providers", border_style="dim", title_style="llm_assert.header")
+    table.add_column("Provider", style="llm_assert.key")
     table.add_column("Status")
     if run_check:
-        table.add_column("Model", style="verdict.muted")
-        table.add_column("Latency", style="verdict.muted", justify="right")
+        table.add_column("Model", style="llm_assert.muted")
+        table.add_column("Latency", style="llm_assert.muted", justify="right")
 
     any_installed = False
 
@@ -55,7 +55,7 @@ def providers(run_check: bool) -> None:
             installed = False
 
         if not installed:
-            row = [name, "[verdict.skip]NOT INSTALLED[/verdict.skip]"]
+            row = [name, "[llm_assert.skip]NOT INSTALLED[/llm_assert.skip]"]
             if run_check:
                 row += ["", ""]
             table.add_row(*row)
@@ -64,7 +64,7 @@ def providers(run_check: bool) -> None:
         any_installed = True
 
         if not run_check:
-            table.add_row(name, "[verdict.pass]INSTALLED[/verdict.pass]")
+            table.add_row(name, "[llm_assert.pass]INSTALLED[/llm_assert.pass]")
             continue
 
         # Connectivity check
@@ -75,7 +75,7 @@ def providers(run_check: bool) -> None:
             from rich.markup import escape
             table.add_row(
                 name,
-                "[verdict.fail]INIT FAILED[/verdict.fail]",
+                "[llm_assert.fail]INIT FAILED[/llm_assert.fail]",
                 escape(str(init_err)[:40]),
                 "",
             )
@@ -84,7 +84,7 @@ def providers(run_check: bool) -> None:
         start = time.monotonic()
         try:
             with console.status(
-                f"[verdict.muted]Checking {name}...[/verdict.muted]",
+                f"[llm_assert.muted]Checking {name}...[/llm_assert.muted]",
                 spinner="dots",
             ):
                 response = provider_instance.call(MINIMAL_PROMPT)
@@ -92,7 +92,7 @@ def providers(run_check: bool) -> None:
             model_id = getattr(response, "model", "unknown")
             table.add_row(
                 name,
-                "[verdict.pass]OK[/verdict.pass]",
+                "[llm_assert.pass]OK[/llm_assert.pass]",
                 model_id,
                 f"{elapsed_ms}ms",
             )
@@ -101,13 +101,13 @@ def providers(run_check: bool) -> None:
             elapsed_ms = int((time.monotonic() - start) * 1000)
             table.add_row(
                 name,
-                "[verdict.fail]CALL FAILED[/verdict.fail]",
+                "[llm_assert.fail]CALL FAILED[/llm_assert.fail]",
                 escape(str(call_err)[:40]),
                 f"{elapsed_ms}ms",
             )
 
     # Mock provider is always available
-    row = ["mock", "[verdict.pass]BUILT-IN[/verdict.pass]"]
+    row = ["mock", "[llm_assert.pass]BUILT-IN[/llm_assert.pass]"]
     if run_check:
         row += ["", ""]
     table.add_row(*row)
@@ -116,9 +116,9 @@ def providers(run_check: bool) -> None:
 
     if not any_installed:
         console.print(
-            "\n[verdict.warn]No external providers installed."
-            "[/verdict.warn] Install at least one:\n"
-            "  pip install verdict[openai]\n"
-            "  pip install verdict[anthropic]\n"
-            "  pip install verdict[ollama]"
+            "\n[llm_assert.warn]No external providers installed."
+            "[/llm_assert.warn] Install at least one:\n"
+            "  pip install llm-assert[openai]\n"
+            "  pip install llm-assert[anthropic]\n"
+            "  pip install llm-assert[ollama]"
         )

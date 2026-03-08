@@ -19,11 +19,11 @@ directory and filename are configurable per test or suite.
 
 from __future__ import annotations
 
-from verdict.assertions.base import BaseAssertion
-from verdict.core.config import VerdictConfig
-from verdict.core.types import IndividualAssertionResult
-from verdict.snapshots.diff import SnapshotDiff
-from verdict.snapshots.manager import SnapshotManager
+from llm_assert.assertions.base import BaseAssertion
+from llm_assert.core.config import LLMAssertConfig
+from llm_assert.core.types import IndividualAssertionResult
+from llm_assert.snapshots.diff import SnapshotDiff
+from llm_assert.snapshots.manager import SnapshotManager
 
 
 class MatchesBaseline(BaseAssertion):
@@ -49,7 +49,7 @@ class MatchesBaseline(BaseAssertion):
         self._snapshot_manager = snapshot_manager
         self._semantic_threshold = semantic_threshold
 
-    def evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult:
+    def evaluate(self, content: str, config: LLMAssertConfig) -> IndividualAssertionResult:
         threshold = self._semantic_threshold or config.regression_semantic_threshold
         baseline_entry = self._snapshot_manager.get_entry(self._snapshot_key)
 
@@ -143,7 +143,7 @@ class SemanticDriftIsBelow(BaseAssertion):
         self._snapshot_manager = snapshot_manager
         self._max_drift = max_drift
 
-    def evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult:
+    def evaluate(self, content: str, config: LLMAssertConfig) -> IndividualAssertionResult:
         max_drift = self._max_drift or config.regression_drift_ceiling
         baseline_entry = self._snapshot_manager.get_entry(self._snapshot_key)
 
@@ -214,7 +214,7 @@ class FormatMatchesBaseline(BaseAssertion):
         self._snapshot_key = snapshot_key
         self._snapshot_manager = snapshot_manager
 
-    def evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult:
+    def evaluate(self, content: str, config: LLMAssertConfig) -> IndividualAssertionResult:
         baseline_entry = self._snapshot_manager.get_entry(self._snapshot_key)
 
         diff_result = SnapshotDiff.compare(

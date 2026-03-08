@@ -1,4 +1,4 @@
-"""Unit tests for all Verdict CLI commands.
+"""Unit tests for all LLMAssert CLI commands.
 
 Uses click.testing.CliRunner to test commands without subprocess overhead.
 Tests verify correct output, exit codes, and error handling for each command.
@@ -13,7 +13,7 @@ from pathlib import Path
 import pytest
 from click.testing import CliRunner
 
-from verdict.cli.main import cli
+from llm_assert.cli.main import cli
 
 
 @pytest.fixture
@@ -23,8 +23,8 @@ def runner() -> CliRunner:
 
 @pytest.fixture
 def mock_env(monkeypatch):
-    """Set VERDICT_PROVIDER to mock for all CLI tests."""
-    monkeypatch.setenv("VERDICT_PROVIDER", "mock")
+    """Set LLM_ASSERT_PROVIDER to mock for all CLI tests."""
+    monkeypatch.setenv("LLM_ASSERT_PROVIDER", "mock")
 
 
 class TestCLIHelp:
@@ -33,7 +33,7 @@ class TestCLIHelp:
     def test_main_help(self, runner: CliRunner) -> None:
         result = runner.invoke(cli, ["--help"])
         assert result.exit_code == 0
-        assert "Verdict" in result.output
+        assert "LLMAssert" in result.output
         assert "run" in result.output
         assert "check" in result.output
         assert "snapshot" in result.output
@@ -67,11 +67,11 @@ class TestCLIHelp:
     def test_version_flag(self, runner: CliRunner) -> None:
         result = runner.invoke(cli, ["--version"])
         assert result.exit_code == 0
-        assert "verdict" in result.output.lower()
+        assert "llm-assert" in result.output.lower()
 
 
 class TestCheckCommand:
-    """Tests for verdict check."""
+    """Tests for llm-assert check."""
 
     def test_check_unknown_provider(self, runner: CliRunner) -> None:
         result = runner.invoke(cli, ["check", "--provider", "nonexistent"])
@@ -193,7 +193,7 @@ class TestRunCommand:
 
     def test_run_no_provider(self, runner: CliRunner, tmp_path: Path, monkeypatch) -> None:
         """Without a provider set, run should fail with a clear message."""
-        monkeypatch.delenv("VERDICT_PROVIDER", raising=False)
+        monkeypatch.delenv("LLM_ASSERT_PROVIDER", raising=False)
         suite_content = textwrap.dedent("""\
             version: "1.0"
             cases:
@@ -234,7 +234,7 @@ class TestRunCommand:
 
 
 class TestSnapshotCommand:
-    """Tests for verdict snapshot subcommands."""
+    """Tests for llm-assert snapshot subcommands."""
 
     def test_snapshot_list_empty(self, runner: CliRunner, tmp_path: Path) -> None:
         result = runner.invoke(
@@ -323,7 +323,7 @@ class TestSnapshotCommand:
         assert result.exit_code != 0
 
     def test_snapshot_no_provider(self, runner: CliRunner, tmp_path: Path, monkeypatch) -> None:
-        monkeypatch.delenv("VERDICT_PROVIDER", raising=False)
+        monkeypatch.delenv("LLM_ASSERT_PROVIDER", raising=False)
         snap_dir = tmp_path / "snaps"
         result = runner.invoke(
             cli,
@@ -334,7 +334,7 @@ class TestSnapshotCommand:
 
 
 class TestReportCommand:
-    """Tests for verdict report."""
+    """Tests for llm-assert report."""
 
     def test_report_nonexistent_file(self, runner: CliRunner) -> None:
         result = runner.invoke(cli, ["report", "/nonexistent/file.json"])
@@ -428,7 +428,7 @@ class TestReportCommand:
 
 
 class TestProvidersCommand:
-    """Tests for verdict providers."""
+    """Tests for llm-assert providers."""
 
     def test_providers_list(self, runner: CliRunner) -> None:
         result = runner.invoke(cli, ["providers"])
@@ -553,8 +553,8 @@ class TestReportFormatter:
     """Unit tests for ReportFormatter methods."""
 
     def test_to_json_produces_valid_json(self) -> None:
-        from verdict.core.report import ReportFormatter
-        from verdict.core.types import AssertionResult, IndividualAssertionResult, SuiteResult
+        from llm_assert.core.report import ReportFormatter
+        from llm_assert.core.types import AssertionResult, IndividualAssertionResult, SuiteResult
 
         suite_result = SuiteResult(
             passed=True,
@@ -584,8 +584,8 @@ class TestReportFormatter:
         assert parsed["suite"]["passed"] is True
 
     def test_to_plaintext_shows_pass(self) -> None:
-        from verdict.core.report import ReportFormatter
-        from verdict.core.types import AssertionResult, IndividualAssertionResult, SuiteResult
+        from llm_assert.core.report import ReportFormatter
+        from llm_assert.core.types import AssertionResult, IndividualAssertionResult, SuiteResult
 
         suite_result = SuiteResult(
             passed=True,
@@ -613,8 +613,8 @@ class TestReportFormatter:
         assert "is_valid_json" in output
 
     def test_to_junit_produces_xml(self) -> None:
-        from verdict.core.report import ReportFormatter
-        from verdict.core.types import AssertionResult, IndividualAssertionResult, SuiteResult
+        from llm_assert.core.report import ReportFormatter
+        from llm_assert.core.types import AssertionResult, IndividualAssertionResult, SuiteResult
 
         suite_result = SuiteResult(
             passed=False,

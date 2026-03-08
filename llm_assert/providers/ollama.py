@@ -10,7 +10,7 @@ The prompt_tokens and completion_tokens fields will be populated
 when the server returns eval_count/prompt_eval_count metadata,
 which depends on the Ollama version and model.
 
-Requires: pip install verdict[ollama]
+Requires: pip install llm-assert[ollama]
 """
 
 from __future__ import annotations
@@ -19,8 +19,8 @@ import logging
 import time
 from typing import Any
 
-from verdict.core.types import ProviderResponse
-from verdict.providers.base import BaseProvider
+from llm_assert.core.types import ProviderResponse
+from llm_assert.providers.base import BaseProvider
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +64,7 @@ class OllamaProvider(BaseProvider):
         except ImportError as import_error:
             raise ImportError(
                 "Ollama provider requires the ollama package. "
-                "Install with: pip install verdict[ollama]"
+                "Install with: pip install llm-assert[ollama]"
             ) from import_error
 
         kwargs = {**self._client_kwargs}
@@ -83,7 +83,7 @@ class OllamaProvider(BaseProvider):
         except ImportError as import_error:
             raise ImportError(
                 "Ollama provider requires the ollama package. "
-                "Install with: pip install verdict[ollama]"
+                "Install with: pip install llm-assert[ollama]"
             ) from import_error
 
         kwargs = {**self._client_kwargs}

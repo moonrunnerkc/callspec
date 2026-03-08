@@ -1,4 +1,4 @@
-"""Global configuration for Verdict assertion runs."""
+"""Global configuration for LLMAssert assertion runs."""
 
 from __future__ import annotations
 
@@ -47,7 +47,7 @@ DEFAULT_EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 
 
 @dataclass
-class VerdictConfig:
+class LLMAssertConfig:
     """Central configuration object threaded through the entire run.
 
     Every numeric constant with behavioral meaning is configurable here

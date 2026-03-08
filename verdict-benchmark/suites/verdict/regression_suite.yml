@@ -1,4 +1,4 @@
-# Verdict Benchmark: Regression Detection Suite
+# LLMAssert Benchmark: Regression Detection Suite
 #
 # Tests structural, semantic, and format assertions against LLM output.
 # Designed to detect real drift between dated model versions.

@@ -1,4 +1,4 @@
-"""verdict report: pretty-print a saved Verdict result JSON."""
+"""llm-assert report: pretty-print a saved LLMAssert result JSON."""
 
 from __future__ import annotations
 
@@ -17,27 +17,27 @@ import click
     help="Output format. Default is plaintext for terminal display.",
 )
 def report(report_file: str, output_format: str) -> None:
-    """Pretty-print a saved Verdict result JSON file.
+    """Pretty-print a saved LLMAssert result JSON file.
 
-    Reads a JSON report produced by 'verdict run --format json' or
-    'pytest --verdict-report json' and renders it for human consumption.
+    Reads a JSON report produced by 'llm-assert run --format json' or
+    'pytest --llm-assert-report json' and renders it for human consumption.
     """
     from rich.markup import escape
 
-    from verdict.cli.console import console
+    from llm_assert.cli.console import console
 
     try:
         with open(report_file) as fh:
             raw = json.load(fh)
     except json.JSONDecodeError as json_err:
         console.print(
-            f"[verdict.fail]Invalid JSON[/verdict.fail] "
+            f"[llm_assert.fail]Invalid JSON[/llm_assert.fail] "
             f"in {escape(report_file)}: {escape(str(json_err))}"
         )
         sys.exit(2)
     except OSError as io_err:
         console.print(
-            f"[verdict.fail]Cannot read[/verdict.fail] "
+            f"[llm_assert.fail]Cannot read[/llm_assert.fail] "
             f"{escape(report_file)}: {escape(str(io_err))}"
         )
         sys.exit(2)
@@ -62,7 +62,7 @@ def _render_plaintext(raw: dict) -> None:
     from rich.table import Table
     from rich.tree import Tree
 
-    from verdict.cli.console import (
+    from llm_assert.cli.console import (
         FAIL_MARKER,
         PASS_MARKER,
         console,
@@ -74,22 +74,22 @@ def _render_plaintext(raw: dict) -> None:
     total_ms = raw.get("execution_time_ms", 0)
 
     if passed:
-        status_text = "[verdict.pass]PASSED[/verdict.pass]"
+        status_text = "[llm_assert.pass]PASSED[/llm_assert.pass]"
     elif passed is not None:
-        status_text = "[verdict.fail]FAILED[/verdict.fail]"
+        status_text = "[llm_assert.fail]FAILED[/llm_assert.fail]"
     else:
-        status_text = "[verdict.warn]UNKNOWN[/verdict.warn]"
+        status_text = "[llm_assert.warn]UNKNOWN[/llm_assert.warn]"
 
     summary = Table.grid(padding=(0, 2))
-    summary.add_column(style="verdict.key")
+    summary.add_column(style="llm_assert.key")
     summary.add_column()
     summary.add_row("Status", status_text)
     summary.add_row("Duration", f"{total_ms}ms")
 
     console.print(Panel(
         summary,
-        title=f"[verdict.header]{escape(suite_name)}[/verdict.header]",
-        border_style="verdict.header",
+        title=f"[llm_assert.header]{escape(suite_name)}[/llm_assert.header]",
+        border_style="llm_assert.header",
         padding=(0, 1),
     ))
     console.print()
@@ -100,7 +100,7 @@ def _render_plaintext(raw: dict) -> None:
         case_passed = case_data.get("passed", None)
         marker = PASS_MARKER if case_passed else FAIL_MARKER
 
-        tree = Tree(f"{marker} [verdict.key]{escape(case_name)}[/verdict.key]")
+        tree = Tree(f"{marker} [llm_assert.key]{escape(case_name)}[/llm_assert.key]")
 
         assertions = case_data.get("assertions", [])
         for assertion_data in assertions:
@@ -117,14 +117,14 @@ def _render_plaintext(raw: dict) -> None:
                 label_parts.append(f"  {format_score(score, threshold)}")
             if threshold is not None:
                 label_parts.append(
-                    f" [verdict.muted](threshold {threshold})[/verdict.muted]"
+                    f" [llm_assert.muted](threshold {threshold})[/llm_assert.muted]"
                 )
 
             node = tree.add("".join(label_parts))
 
             message = assertion_data.get("message", "")
             if message and not a_passed:
-                node.add(f"[verdict.muted]{escape(message)}[/verdict.muted]")
+                node.add(f"[llm_assert.muted]{escape(message)}[/llm_assert.muted]")
 
         console.print(tree)
 
@@ -133,15 +133,15 @@ def _render_plaintext(raw: dict) -> None:
     passed_cases = sum(1 for c in cases if c.get("passed"))
     failed_cases = total_cases - passed_cases
     console.print(
-        f"[verdict.key]Total:[/verdict.key] {total_cases} cases, "
-        f"[verdict.pass]{passed_cases} passed[/verdict.pass], "
-        f"[verdict.fail]{failed_cases} failed[/verdict.fail]"
+        f"[llm_assert.key]Total:[/llm_assert.key] {total_cases} cases, "
+        f"[llm_assert.pass]{passed_cases} passed[/llm_assert.pass], "
+        f"[llm_assert.fail]{failed_cases} failed[/llm_assert.fail]"
     )
 
 
 def _render_junit_from_raw(raw: dict) -> None:
     """Convert a saved JSON report to JUnit XML and print it."""
-    suite_name = _xml_escape(raw.get("suite_name", "verdict"))
+    suite_name = _xml_escape(raw.get("suite_name", "llm-assert"))
     cases = raw.get("cases", raw.get("results", []))
     total = len(cases)
     failures = sum(1 for c in cases if not c.get("passed"))

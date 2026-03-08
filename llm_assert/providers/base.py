@@ -12,7 +12,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Sequence
 from typing import Any
 
-from verdict.core.types import ProviderResponse
+from llm_assert.core.types import ProviderResponse
 
 
 class BaseProvider(ABC):

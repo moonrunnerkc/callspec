@@ -1,28 +1,28 @@
 # Provider Guide
 
-Verdict works with any LLM provider through a thin adapter layer. Assertions are provider-agnostic: the same assertion chain works identically whether you use OpenAI, Anthropic, a local Ollama model, or a mock.
+LLMAssert works with any LLM provider through a thin adapter layer. Assertions are provider-agnostic: the same assertion chain works identically whether you use OpenAI, Anthropic, a local Ollama model, or a mock.
 
 ## Supported Providers
 
 | Provider | Install | Default Model | API Key Env Var |
 |----------|---------|---------------|-----------------|
-| OpenAI | `verdict[openai]` | `gpt-4o` | `OPENAI_API_KEY` |
-| Anthropic | `verdict[anthropic]` | `claude-sonnet-4-20250514` | `ANTHROPIC_API_KEY` |
-| Google | `verdict[google]` | `gemini-2.0-flash` | `GOOGLE_API_KEY` |
-| Mistral | `verdict[mistral]` | `mistral-large-latest` | (via SDK) |
-| Ollama | `verdict[ollama]` | `llama3` | None (local) |
-| LiteLLM | `verdict[litellm]` | `gpt-4o` | (per-provider) |
+| OpenAI | `llm-assert[openai]` | `gpt-4o` | `OPENAI_API_KEY` |
+| Anthropic | `llm-assert[anthropic]` | `claude-sonnet-4-20250514` | `ANTHROPIC_API_KEY` |
+| Google | `llm-assert[google]` | `gemini-2.0-flash` | `GOOGLE_API_KEY` |
+| Mistral | `llm-assert[mistral]` | `mistral-large-latest` | (via SDK) |
+| Ollama | `llm-assert[ollama]` | `llama3` | None (local) |
+| LiteLLM | `llm-assert[litellm]` | `gpt-4o` | (per-provider) |
 | Mock | (built-in) | `mock` | None |
 
 ## OpenAI
 
 ```bash
-pip install "verdict[openai]"
+pip install "llm-assert[openai]"
 export OPENAI_API_KEY="sk-..."
 ```
 
 ```python
-from verdict.providers.openai import OpenAIProvider
+from llm_assert.providers.openai import OpenAIProvider
 
 provider = OpenAIProvider(model="gpt-4o")
 ```
@@ -56,12 +56,12 @@ provider = OpenAIProvider(
 ## Anthropic
 
 ```bash
-pip install "verdict[anthropic]"
+pip install "llm-assert[anthropic]"
 export ANTHROPIC_API_KEY="sk-ant-..."
 ```
 
 ```python
-from verdict.providers.anthropic import AnthropicProvider
+from llm_assert.providers.anthropic import AnthropicProvider
 
 provider = AnthropicProvider(model="claude-sonnet-4-20250514")
 ```
@@ -82,12 +82,12 @@ The adapter automatically separates the `system` role from messages into Anthrop
 ## Google Generative AI
 
 ```bash
-pip install "verdict[google]"
+pip install "llm-assert[google]"
 export GOOGLE_API_KEY="AIza..."
 ```
 
 ```python
-from verdict.providers.google import GoogleProvider
+from llm_assert.providers.google import GoogleProvider
 
 provider = GoogleProvider(model="gemini-2.0-flash")
 ```
@@ -106,11 +106,11 @@ The adapter maps OpenAI-style roles to Google roles (`"assistant"` becomes `"mod
 ## Mistral
 
 ```bash
-pip install "verdict[mistral]"
+pip install "llm-assert[mistral]"
 ```
 
 ```python
-from verdict.providers.mistral import MistralProvider
+from llm_assert.providers.mistral import MistralProvider
 
 provider = MistralProvider(model="mistral-large-latest")
 ```
@@ -129,13 +129,13 @@ Mistral does not expose a seed parameter.
 ## Ollama (Local)
 
 ```bash
-pip install "verdict[ollama]"
+pip install "llm-assert[ollama]"
 # Ollama server must be running locally
 ollama pull llama3
 ```
 
 ```python
-from verdict.providers.ollama import OllamaProvider
+from llm_assert.providers.ollama import OllamaProvider
 
 provider = OllamaProvider(model="llama3")
 ```
@@ -157,11 +157,11 @@ No API key required. The model runs locally on your machine. Supports determinis
 LiteLLM routes to any provider via model string prefixes. Use this when you want a single adapter for multiple providers or when your provider is not directly supported.
 
 ```bash
-pip install "verdict[litellm]"
+pip install "llm-assert[litellm]"
 ```
 
 ```python
-from verdict.providers.litellm import LiteLLMProvider
+from llm_assert.providers.litellm import LiteLLMProvider
 
 # OpenAI via LiteLLM
 provider = LiteLLMProvider(model="gpt-4o", api_key="sk-...")
@@ -189,7 +189,7 @@ provider = LiteLLMProvider(model="together_ai/meta-llama/Llama-3-70b", api_key="
 The mock provider returns deterministic responses without network calls. Use it for testing assertion configurations, unit tests, and CI environments without API spend.
 
 ```python
-from verdict.providers.mock import MockProvider
+from llm_assert.providers.mock import MockProvider
 
 # Simple string response
 provider = MockProvider(
@@ -260,8 +260,8 @@ The `model` field contains the actual model identifier returned by the API, not 
 Implement `BaseProvider` for any LLM service:
 
 ```python
-from verdict.providers.base import BaseProvider
-from verdict.core.types import ProviderResponse
+from llm_assert.providers.base import BaseProvider
+from llm_assert.core.types import ProviderResponse
 
 class MyProvider(BaseProvider):
     @property
@@ -284,10 +284,10 @@ class MyProvider(BaseProvider):
 
 ```bash
 # Check all configured providers
-verdict check
+llm-assert check
 
 # List installed providers and their status
-verdict providers
+llm-assert providers
 ```
 
-The `verdict check` command verifies each configured provider is reachable and responds correctly. It is the first thing to run after installation.
+The `llm-assert check` command verifies each configured provider is reachable and responds correctly. It is the first thing to run after installation.

@@ -8,7 +8,7 @@ Mistral supports temperature control but does not expose a seed
 parameter for deterministic output. At temperature=0, outputs are
 near-deterministic.
 
-Requires: pip install verdict[mistral]
+Requires: pip install llm-assert[mistral]
 """
 
 from __future__ import annotations
@@ -17,8 +17,8 @@ import logging
 import time
 from typing import Any
 
-from verdict.core.types import ProviderResponse
-from verdict.providers.base import BaseProvider
+from llm_assert.core.types import ProviderResponse
+from llm_assert.providers.base import BaseProvider
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +59,7 @@ class MistralProvider(BaseProvider):
         except ImportError as import_error:
             raise ImportError(
                 "Mistral provider requires the mistralai package. "
-                "Install with: pip install verdict[mistral]"
+                "Install with: pip install llm-assert[mistral]"
             ) from import_error
 
         kwargs = {**self._client_kwargs}

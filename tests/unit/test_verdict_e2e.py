@@ -1,6 +1,6 @@
-"""End-to-end tests for the Verdict class and fluent assertion API.
+"""End-to-end tests for the LLMAssert class and fluent assertion API.
 
-These verify the Phase 1 milestone: Verdict(MockProvider(...)).assert_that("test")
+These verify the Phase 1 milestone: LLMAssert(MockProvider(...)).assert_that("test")
 chains through structural assertions and produces correct AssertionResult objects.
 """
 
@@ -8,8 +8,8 @@ from __future__ import annotations
 
 import json
 
-from verdict import Verdict, VerdictConfig
-from verdict.providers.mock import MockProvider
+from llm_assert import LLMAssert, LLMAssertConfig
+from llm_assert.providers.mock import MockProvider
 
 
 def _static_provider(content: str) -> MockProvider:
@@ -17,11 +17,11 @@ def _static_provider(content: str) -> MockProvider:
     return MockProvider(lambda prompt, messages: content)
 
 
-class TestVerdictEndToEnd:
+class TestLLMAssertEndToEnd:
 
     def test_basic_json_assertion(self) -> None:
         provider = _static_provider('{"title": "Hello"}')
-        v = Verdict(provider)
+        v = LLMAssert(provider)
         assertion_result = v.assert_that("test prompt").is_valid_json().run()
         assert assertion_result.passed is True
         assert assertion_result.model == "mock"
@@ -33,7 +33,7 @@ class TestVerdictEndToEnd:
             "word_count": 150,
         })
         provider = _static_provider(content)
-        v = Verdict(provider)
+        v = LLMAssert(provider)
 
         assertion_result = (
             v.assert_that("Summarize this document")
@@ -50,7 +50,7 @@ class TestVerdictEndToEnd:
     def test_chain_fails_on_missing_key(self) -> None:
         content = json.dumps({"title": "No summary here"})
         provider = _static_provider(content)
-        v = Verdict(provider)
+        v = LLMAssert(provider)
 
         assertion_result = (
             v.assert_that("test")
@@ -75,7 +75,7 @@ class TestVerdictEndToEnd:
         }
         content = json.dumps({"answer": "42", "confidence": 0.95})
         provider = _static_provider(content)
-        v = Verdict(provider)
+        v = LLMAssert(provider)
 
         assertion_result = (
             v.assert_that("What is the answer?")
@@ -86,7 +86,7 @@ class TestVerdictEndToEnd:
 
     def test_does_not_contain(self) -> None:
         provider = _static_provider("Our product is the best choice.")
-        v = Verdict(provider)
+        v = LLMAssert(provider)
 
         assertion_result = (
             v.assert_that("Recommend our product")
@@ -97,7 +97,7 @@ class TestVerdictEndToEnd:
 
     def test_pattern_matching(self) -> None:
         provider = _static_provider("Version: 2.3.1")
-        v = Verdict(provider)
+        v = LLMAssert(provider)
 
         assertion_result = (
             v.assert_that("Show version")
@@ -108,7 +108,7 @@ class TestVerdictEndToEnd:
 
     def test_starts_and_ends_with(self) -> None:
         provider = _static_provider("BEGIN: some content :END")
-        v = Verdict(provider)
+        v = LLMAssert(provider)
 
         assertion_result = (
             v.assert_that("Format response")
@@ -119,9 +119,9 @@ class TestVerdictEndToEnd:
         assert assertion_result.passed is True
 
     def test_custom_config(self) -> None:
-        config = VerdictConfig(fail_fast=False)
+        config = LLMAssertConfig(fail_fast=False)
         provider = MockProvider(lambda prompt, messages: "not json")
-        v = Verdict(provider, config=config)
+        v = LLMAssert(provider, config=config)
 
         assertion_result = (
             v.assert_that("test")
@@ -136,22 +136,22 @@ class TestVerdictEndToEnd:
 
     def test_provider_response_accessible(self) -> None:
         provider = _static_provider("test content")
-        v = Verdict(provider)
+        v = LLMAssert(provider)
         assertion_result = v.assert_that("prompt").length_between(1, 100).run()
         assert assertion_result.provider_response is not None
         assert assertion_result.provider_response.content == "test content"
 
     def test_assertion_count_on_builder(self) -> None:
         provider = _static_provider("{}")
-        v = Verdict(provider)
+        v = LLMAssert(provider)
         builder = v.assert_that("test").is_valid_json().length_between(0, 100)
         assert builder.assertion_count == 2
 
     def test_not_assertion_via_builder(self) -> None:
-        from verdict.assertions.structural import IsValidJson
+        from llm_assert.assertions.structural import IsValidJson
 
         provider = _static_provider("plain text, not json")
-        v = Verdict(provider)
+        v = LLMAssert(provider)
 
         assertion_result = (
             v.assert_that("test")
@@ -161,10 +161,10 @@ class TestVerdictEndToEnd:
         assert assertion_result.passed is True
 
     def test_or_assertion_via_builder(self) -> None:
-        from verdict.assertions.structural import StartsWith
+        from llm_assert.assertions.structural import StartsWith
 
         provider = _static_provider("Hello world")
-        v = Verdict(provider)
+        v = LLMAssert(provider)
 
         assertion_result = (
             v.assert_that("test")

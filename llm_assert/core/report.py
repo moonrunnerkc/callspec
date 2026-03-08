@@ -1,4 +1,4 @@
-"""ReportFormatter: JSON, plaintext, Rich, and JUnit XML output for Verdict results.
+"""ReportFormatter: JSON, plaintext, Rich, and JUnit XML output for LLMAssert results.
 
 Formats AssertionResult and SuiteResult into structured output for
 terminal display, CI integration, and verdict.run ingestion.
@@ -10,12 +10,12 @@ import json
 from datetime import datetime, timezone
 from typing import Any
 
-from verdict.core.types import AssertionResult, SuiteResult
-from verdict.version import __version__
+from llm_assert.core.types import AssertionResult, SuiteResult
+from llm_assert.version import __version__
 
 
 class ReportFormatter:
-    """Converts Verdict results into human-readable and machine-readable formats."""
+    """Converts LLMAssert results into human-readable and machine-readable formats."""
 
     @staticmethod
     def to_json(
@@ -25,7 +25,7 @@ class ReportFormatter:
     ) -> str:
         """Serialize results to JSON for verdict.run ingestion or file storage."""
         report: dict[str, Any] = {
-            "verdict_version": __version__,
+            "llm_assert_version": __version__,
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "suite_name": suite_name,
         }
@@ -58,7 +58,7 @@ class ReportFormatter:
     ) -> str:
         """Format results as human-readable plaintext for terminal output."""
         lines: list[str] = []
-        lines.append(f"Verdict Report: {suite_name}")
+        lines.append(f"LLMAssert Report: {suite_name}")
         lines.append("=" * 60)
         lines.append("")
 
@@ -194,19 +194,19 @@ def render_rich_report(
     from rich.table import Table
     from rich.text import Text
 
-    from verdict.cli.console import (
+    from llm_assert.cli.console import (
         console,
     )
 
     if suite_result:
         # Suite header panel
         if suite_result.passed:
-            status_text = Text("PASSED", style="verdict.pass")
+            status_text = Text("PASSED", style="llm_assert.pass")
         else:
-            status_text = Text("FAILED", style="verdict.fail")
+            status_text = Text("FAILED", style="llm_assert.fail")
 
         summary = Table.grid(padding=(0, 2))
-        summary.add_column(style="verdict.key")
+        summary.add_column(style="llm_assert.key")
         summary.add_column()
         summary.add_row("Status", status_text)
         summary.add_row(
@@ -217,8 +217,8 @@ def render_rich_report(
 
         console.print(Panel(
             summary,
-            title=f"[verdict.header]{suite_name}[/verdict.header]",
-            border_style="verdict.header",
+            title=f"[llm_assert.header]{suite_name}[/llm_assert.header]",
+            border_style="llm_assert.header",
             padding=(0, 1),
         ))
         console.print()
@@ -236,7 +236,7 @@ def _render_rich_case(case_name: str, result: AssertionResult) -> None:
     from rich.markup import escape
     from rich.tree import Tree
 
-    from verdict.cli.console import (
+    from llm_assert.cli.console import (
         FAIL_MARKER,
         PASS_MARKER,
         console,
@@ -245,8 +245,8 @@ def _render_rich_case(case_name: str, result: AssertionResult) -> None:
 
     marker = PASS_MARKER if result.passed else FAIL_MARKER
     tree = Tree(
-        f"{marker} [verdict.key]{escape(case_name)}[/verdict.key]"
-        f"  [verdict.muted]({result.execution_time_ms}ms, {escape(result.model)})[/verdict.muted]"
+        f"{marker} [llm_assert.key]{escape(case_name)}[/llm_assert.key]"
+        f"  [llm_assert.muted]({result.execution_time_ms}ms, {escape(result.model)})[/llm_assert.muted]"
     )
 
     for individual in result.assertions:
@@ -260,13 +260,13 @@ def _render_rich_case(case_name: str, result: AssertionResult) -> None:
             )
             if individual.threshold is not None:
                 label_parts.append(
-                    f" [verdict.muted](threshold {individual.threshold:.4f})[/verdict.muted]"
+                    f" [llm_assert.muted](threshold {individual.threshold:.4f})[/llm_assert.muted]"
                 )
 
         node = tree.add("".join(label_parts))
 
         if not individual.passed and individual.message:
-            node.add(f"[verdict.muted]{escape(individual.message)}[/verdict.muted]")
+            node.add(f"[llm_assert.muted]{escape(individual.message)}[/llm_assert.muted]")
 
     console.print(tree)
 

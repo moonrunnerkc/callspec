@@ -139,8 +139,8 @@ def count_with_patched_http(run_fn) -> dict:
 
 
 def run_verdict_suite():
-    """Run Verdict's 3-case YAML suite against the Anthropic provider."""
-    from verdict.cli.main import cli as verdict_cli
+    """Run LLMAssert's 3-case YAML suite against the Anthropic provider."""
+    from llm_assert.cli.main import cli as verdict_cli
     suite_path = str(BENCHMARK_ROOT / "suites" / "verdict" / "regression_suite.yml")
     try:
         verdict_cli(["run", suite_path, "-p", "anthropic"])

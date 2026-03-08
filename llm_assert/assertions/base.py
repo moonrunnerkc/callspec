@@ -10,12 +10,12 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from verdict.core.config import VerdictConfig
-from verdict.core.types import IndividualAssertionResult
+from llm_assert.core.config import LLMAssertConfig
+from llm_assert.core.types import IndividualAssertionResult
 
 
 class BaseAssertion(ABC):
-    """Interface for all Verdict assertions.
+    """Interface for all LLMAssert assertions.
 
     Subclasses implement `evaluate`, which receives the response content
     as a string and returns a structured result. The assertion type
@@ -27,12 +27,12 @@ class BaseAssertion(ABC):
     assertion_name: str = "unknown"
 
     @abstractmethod
-    def evaluate(self, content: str, config: VerdictConfig) -> IndividualAssertionResult:
+    def evaluate(self, content: str, config: LLMAssertConfig) -> IndividualAssertionResult:
         """Evaluate this assertion against the given content.
 
         Args:
             content: The provider response text to evaluate.
-            config: The active VerdictConfig for threshold and behavior overrides.
+            config: The active LLMAssertConfig for threshold and behavior overrides.
 
         Returns:
             IndividualAssertionResult with pass/fail, score, and diagnostic message.

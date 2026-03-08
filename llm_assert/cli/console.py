@@ -1,4 +1,4 @@
-"""Shared Rich console and style constants for Verdict CLI output.
+"""Shared Rich console and style constants for LLMAssert CLI output.
 
 All CLI commands import the console from here so terminal detection,
 style choices, and markup behavior stay consistent across every surface.
@@ -11,31 +11,31 @@ from __future__ import annotations
 from rich.console import Console
 from rich.theme import Theme
 
-# Verdict-specific semantic styles. Every color choice in the CLI
+# LLMAssert-specific semantic styles. Every color choice in the CLI
 # traces back to this theme, so rebranding is a single-file edit.
-VERDICT_THEME = Theme({
-    "verdict.pass": "bold green",
-    "verdict.fail": "bold red",
-    "verdict.warn": "bold yellow",
-    "verdict.skip": "dim",
-    "verdict.score.good": "green",
-    "verdict.score.borderline": "yellow",
-    "verdict.score.bad": "red",
-    "verdict.header": "bold cyan",
-    "verdict.model": "dim",
-    "verdict.key": "bold",
-    "verdict.muted": "dim",
+LLM_ASSERT_THEME = Theme({
+    "llm_assert.pass": "bold green",
+    "llm_assert.fail": "bold red",
+    "llm_assert.warn": "bold yellow",
+    "llm_assert.skip": "dim",
+    "llm_assert.score.good": "green",
+    "llm_assert.score.borderline": "yellow",
+    "llm_assert.score.bad": "red",
+    "llm_assert.header": "bold cyan",
+    "llm_assert.model": "dim",
+    "llm_assert.key": "bold",
+    "llm_assert.muted": "dim",
 })
 
 # Singleton console used by all CLI commands. The force_terminal
 # kwarg is omitted so Rich auto-detects TTY vs pipe.
-console = Console(theme=VERDICT_THEME)
+console = Console(theme=LLM_ASSERT_THEME)
 
 # Unicode markers for pass/fail/skip status
-PASS_MARKER = "[verdict.pass]\u2713[/verdict.pass]"
-FAIL_MARKER = "[verdict.fail]\u2717[/verdict.fail]"
-SKIP_MARKER = "[verdict.skip]--[/verdict.skip]"
-WARN_MARKER = "[verdict.warn]![/verdict.warn]"
+PASS_MARKER = "[llm_assert.pass]\u2713[/llm_assert.pass]"
+FAIL_MARKER = "[llm_assert.fail]\u2717[/llm_assert.fail]"
+SKIP_MARKER = "[llm_assert.skip]--[/llm_assert.skip]"
+WARN_MARKER = "[llm_assert.warn]![/llm_assert.warn]"
 
 
 def score_style(score: float, threshold: float) -> str:
@@ -45,11 +45,11 @@ def score_style(score: float, threshold: float) -> str:
     red if below threshold.
     """
     if score < threshold:
-        return "verdict.score.bad"
+        return "llm_assert.score.bad"
     margin = threshold * 0.05
     if score < threshold + margin:
-        return "verdict.score.borderline"
-    return "verdict.score.good"
+        return "llm_assert.score.borderline"
+    return "llm_assert.score.good"
 
 
 def format_score(score: float, threshold: float | None = None) -> str:

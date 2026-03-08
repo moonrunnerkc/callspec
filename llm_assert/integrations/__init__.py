@@ -1,1 +1,1 @@
-"""Verdict integrations with external tools and CI platforms."""
+"""LLMAssert integrations with external tools and CI platforms."""

@@ -14,27 +14,27 @@ BENCHMARK_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 RESULTS_DIR="$BENCHMARK_ROOT/results"
 mkdir -p "$RESULTS_DIR"
 
-# Verdict has three install tiers:
+# LLMAssert has three install tiers:
 #   base:          pip install verdict (jsonschema, pyyaml, click, rich)
-#   with_provider: pip install "verdict[anthropic]" (adds anthropic SDK)
-#   full:          pip install "verdict[anthropic,semantic]" (adds sentence-transformers, scipy, PyTorch)
+#   with_provider: pip install "llm-assert[anthropic]" (adds anthropic SDK)
+#   full:          pip install "llm-assert[anthropic,semantic]" (adds sentence-transformers, scipy, PyTorch)
 
 VERDICT_TEST_SNIPPET='
-from verdict.providers.mock import MockProvider
-from verdict.verdict import Verdict
+from llm_assert.providers.mock import MockProvider
+from llm_assert.verdict import LLMAssert
 
 provider = MockProvider(response_fn=lambda prompt, messages=None: '"'"'{"status": "ok"}'"'"')
-v = Verdict(provider)
+v = LLMAssert(provider)
 result = v.assert_that("test").is_valid_json().run()
 assert result.passed, "First assertion did not pass"
-print("PASS: First Verdict assertion passed")
+print("PASS: First LLMAssert assertion passed")
 '
 
 measure_verdict_tier() {
     local tier="$1"
     local pip_extras="$2"
     local cache_flag="$3"  # "--no-cache-dir" for cold, "" for warm
-    echo "=== Verdict ($tier): $([ -n "$cache_flag" ] && echo 'Cold' || echo 'Warm') Cache ==="
+    echo "=== LLMAssert ($tier): $([ -n "$cache_flag" ] && echo 'Cold' || echo 'Warm') Cache ==="
 
     local venv_dir
     venv_dir=$(mktemp -d)/verdict-${tier}
@@ -161,7 +161,7 @@ data['verdict_base'] = {
     'warm_ms': int('$BASE_TOTAL'),
 }
 data['verdict_with_provider'] = {
-    'pip_install': 'pip install \"verdict[anthropic]\"',
+    'pip_install': 'pip install \"llm-assert[anthropic]\"',
     'install_ms': int('$PROV_INSTALL'),
     'first_test_ms': int('$PROV_TEST'),
     'warm_ms': int('$PROV_TOTAL'),
@@ -174,7 +174,7 @@ data['verdict_full'] = {
 }
 with open(results_path, 'w') as f:
     json.dump(data, f, indent=2)
-print(json.dumps({k: v for k, v in data.items() if k.startswith('verdict')}, indent=2))
+print(json.dumps({k: v for k, v in data.items() if k.startswith('llm-assert')}, indent=2))
 "
         ;;
     deepeval)

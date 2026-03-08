@@ -1,6 +1,6 @@
 # Promptfoo Benchmark: Regression Detection Configuration
 #
-# Equivalent test to the Verdict regression suite, expressed in
+# Equivalent test to the LLMAssert regression suite, expressed in
 # Promptfoo's YAML configuration format.
 #
 # Run with:
@@ -57,7 +57,7 @@ tests:
       # Structural: valid JSON check
       - type: is-json
         # NOTE: Promptfoo's is-json assertion is a structural check, equivalent
-        # to Verdict's is_valid_json(). This works well.
+        # to LLMAssert's is_valid_json(). This works well.
 
       # Content: check for expected patterns
       - type: contains
@@ -68,13 +68,13 @@ tests:
         value: "Fixed"
 
       # Semantic: Promptfoo uses LLM-as-judge (llm-rubric) for semantic checks.
-      # Unlike Verdict's embedding-based similarity, this incurs an additional
+      # Unlike LLMAssert's embedding-based similarity, this incurs an additional
       # LLM API call per assertion.
       - type: llm-rubric
         value: "The response should be a well-formatted changelog entry for version 2.4.0"
 
       # NOTE: Promptfoo has no built-in regression/baseline comparison.
-      # There is no equivalent to Verdict's semantic_drift_is_below() or
+      # There is no equivalent to LLMAssert's semantic_drift_is_below() or
       # matches_baseline(). Drift detection requires external scripting.
 
       # NOTE: Promptfoo has no confidence intervals or Wilson score

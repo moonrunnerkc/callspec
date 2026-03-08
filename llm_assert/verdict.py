@@ -1,26 +1,26 @@
-"""Verdict: top-level class that ties providers, config, and assertions together.
+"""LLMAssert: top-level class that ties providers, config, and assertions together.
 
-This is the entry point developers interact with. A Verdict instance is
+This is the entry point developers interact with. A LLMAssert instance is
 constructed with a provider and optional config, then used to build
 assertion chains via assert_that().
 """
 
 from __future__ import annotations
 
-from verdict.core.builder import AssertionBuilder
-from verdict.core.config import VerdictConfig
-from verdict.core.runner import AssertionRunner
-from verdict.providers.base import BaseProvider
+from llm_assert.core.builder import AssertionBuilder
+from llm_assert.core.config import LLMAssertConfig
+from llm_assert.core.runner import AssertionRunner
+from llm_assert.providers.base import BaseProvider
 
 
-class Verdict:
+class LLMAssert:
     """The top-level object for behavioral assertion testing.
 
     Takes a configured provider instance and optional config. Returns
     a runner that builds assertion chains via the fluent assert_that() API.
 
     Usage:
-        v = Verdict(provider)
+        v = LLMAssert(provider)
         result = v.assert_that("Summarize this").is_valid_json().run()
         assert result.passed
     """
@@ -28,13 +28,13 @@ class Verdict:
     def __init__(
         self,
         provider: BaseProvider,
-        config: VerdictConfig | None = None,
+        config: LLMAssertConfig | None = None,
     ) -> None:
-        self._config = config or VerdictConfig()
+        self._config = config or LLMAssertConfig()
         self._runner = AssertionRunner(provider=provider, config=self._config)
 
     @property
-    def config(self) -> VerdictConfig:
+    def config(self) -> LLMAssertConfig:
         return self._config
 
     @property

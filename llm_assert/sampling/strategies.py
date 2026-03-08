@@ -15,8 +15,8 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
-from verdict.sampling.sampler import BaseSampler, InputItem
-from verdict.sampling.seed import SeedManager
+from llm_assert.sampling.sampler import BaseSampler, InputItem
+from llm_assert.sampling.seed import SeedManager
 
 logger = logging.getLogger(__name__)
 
@@ -159,7 +159,7 @@ class SemanticVariantSampler(BaseSampler):
     """
 
     # Directory for cached variant files, relative to the project root
-    DEFAULT_CACHE_DIR = ".verdict_cache/semantic_variants"
+    DEFAULT_CACHE_DIR = ".llm_assert_cache/semantic_variants"
 
     def __init__(
         self,

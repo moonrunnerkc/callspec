@@ -1,9 +1,9 @@
-"""Pytest report hook: adds Verdict-specific metadata to test reports.
+"""Pytest report hook: adds LLMAssert-specific metadata to test reports.
 
-When a test uses Verdict assertions, the report hook attaches the
+When a test uses LLMAssert assertions, the report hook attaches the
 assertion type, score, threshold, provider, and model version to
 the test report. This metadata appears in the JSON and JUnit reports
-produced by --verdict-report.
+produced by --llm-assert-report.
 """
 
 from __future__ import annotations
@@ -14,32 +14,32 @@ from typing import Any
 
 import pytest
 
-from verdict.core.types import AssertionResult
+from llm_assert.core.types import AssertionResult
 
-# Stored per-test Verdict results, keyed by node ID
-_verdict_results: dict[str, list[AssertionResult]] = {}
+# Stored per-test LLMAssert results, keyed by node ID
+_llm_assert_results: dict[str, list[AssertionResult]] = {}
 
 
-def record_verdict_result(node_id: str, result: AssertionResult) -> None:
-    """Record a Verdict result for inclusion in the test report.
+def record_llm_assert_result(node_id: str, result: AssertionResult) -> None:
+    """Record a LLMAssert result for inclusion in the test report.
 
-    Called automatically by the assert_verdict_pass helper, or
+    Called automatically by the assert_llm_assert_pass helper, or
     manually by developers who want result tracking without the
     helper function.
     """
-    if node_id not in _verdict_results:
-        _verdict_results[node_id] = []
-    _verdict_results[node_id].append(result)
+    if node_id not in _llm_assert_results:
+        _llm_assert_results[node_id] = []
+    _llm_assert_results[node_id].append(result)
 
 
-def get_verdict_results(node_id: str) -> list[AssertionResult]:
-    """Retrieve recorded Verdict results for a test node."""
-    return _verdict_results.get(node_id, [])
+def get_llm_assert_results(node_id: str) -> list[AssertionResult]:
+    """Retrieve recorded LLMAssert results for a test node."""
+    return _llm_assert_results.get(node_id, [])
 
 
-def clear_verdict_results() -> None:
-    """Clear all recorded Verdict results. Called at session end."""
-    _verdict_results.clear()
+def clear_llm_assert_results() -> None:
+    """Clear all recorded LLMAssert results. Called at session end."""
+    _llm_assert_results.clear()
 
 
 def _serialize_assertion_result(result: AssertionResult) -> dict[str, Any]:
@@ -67,10 +67,10 @@ def _serialize_assertion_result(result: AssertionResult) -> dict[str, Any]:
     return serialized
 
 
-class VerdictReportPlugin:
-    """Pytest plugin that collects Verdict results and writes reports.
+class LLMAssertReportPlugin:
+    """Pytest plugin that collects LLMAssert results and writes reports.
 
-    Activated by --verdict-report <format>. Supported formats:
+    Activated by --llm-assert-report <format>. Supported formats:
     json, junit. The JSON format is designed for ingestion by
     verdict.run for historical tracking.
     """
@@ -81,8 +81,8 @@ class VerdictReportPlugin:
 
     @pytest.hookimpl(trylast=True)
     def pytest_sessionfinish(self, session: pytest.Session) -> None:
-        """Write the Verdict report after all tests complete."""
-        if not _verdict_results:
+        """Write the LLMAssert report after all tests complete."""
+        if not _llm_assert_results:
             return
 
         if self._format == "json":
@@ -91,48 +91,48 @@ class VerdictReportPlugin:
             self._write_junit_report(session)
 
     def _write_json_report(self, session: pytest.Session) -> None:
-        """Produce a JSON report with all Verdict assertion results."""
+        """Produce a JSON report with all LLMAssert assertion results."""
         report: dict[str, Any] = {
-            "verdict_version": "0.1.0",
-            "total_tests": len(_verdict_results),
+            "llm_assert_version": "0.1.0",
+            "total_tests": len(_llm_assert_results),
             "tests": {},
         }
 
-        for node_id, results in _verdict_results.items():
+        for node_id, results in _llm_assert_results.items():
             report["tests"][node_id] = [
                 _serialize_assertion_result(r) for r in results
             ]
 
-        output_path = self._report_path or "verdict_report.json"
+        output_path = self._report_path or "llm_assert_report.json"
         Path(output_path).write_text(json.dumps(report, indent=2))
 
     def _write_junit_report(self, session: pytest.Session) -> None:
-        """Produce a JUnit XML report with Verdict metadata in properties."""
+        """Produce a JUnit XML report with LLMAssert metadata in properties."""
         lines = ['<?xml version="1.0" encoding="UTF-8"?>']
-        lines.append('<testsuites name="verdict">')
+        lines.append('<testsuites name="llm-assert">')
 
         total_tests = 0
         total_failures = 0
 
-        for node_id, results in _verdict_results.items():
+        for node_id, results in _llm_assert_results.items():
             for result in results:
                 total_tests += 1
                 if not result.passed:
                     total_failures += 1
 
         lines.append(
-            f'  <testsuite name="verdict" tests="{total_tests}" '
+            f'  <testsuite name="llm-assert" tests="{total_tests}" '
             f'failures="{total_failures}">'
         )
 
-        for node_id, results in _verdict_results.items():
+        for node_id, results in _llm_assert_results.items():
             for result in results:
                 lines.append(
                     f'    <testcase name="{_xml_escape(node_id)}" '
                     f'time="{result.execution_time_ms / 1000:.3f}">'
                 )
 
-                # Verdict metadata as properties
+                # LLMAssert metadata as properties
                 lines.append("      <properties>")
                 lines.append(
                     f'        <property name="model" '
@@ -163,7 +163,7 @@ class VerdictReportPlugin:
         lines.append("  </testsuite>")
         lines.append("</testsuites>")
 
-        output_path = self._report_path or "verdict_report.xml"
+        output_path = self._report_path or "llm_assert_report.xml"
         Path(output_path).write_text("\n".join(lines))
 
 

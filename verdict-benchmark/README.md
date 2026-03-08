@@ -1,6 +1,6 @@
-# Verdict Benchmark: Reproducible Evidence That LLM Behavioral Testing Works
+# LLMAssert Benchmark: Reproducible Evidence That LLM Behavioral Testing Works
 
-This repository contains a reproducible benchmark comparing Verdict against existing LLM evaluation tools. Every claim is backed by runnable scripts that produce verifiable numbers.
+This repository contains a reproducible benchmark comparing LLMAssert against existing LLM evaluation tools. Every claim is backed by runnable scripts that produce verifiable numbers.
 
 ## Thesis
 
@@ -10,7 +10,7 @@ The most credible thing a test framework can do is reproduce a failure that exis
 
 ```bash
 # From the verdict project root:
-cd verdict-benchmark
+cd llm-assert-benchmark
 
 # Record baselines from dated model versions (requires API keys)
 export OPENAI_API_KEY="your-key"
@@ -43,7 +43,7 @@ make measure-flakiness
 
 Run `make compare` to populate these results from your own environment.
 
-| Metric | Verdict | DeepEval | Promptfoo | LangSmith | Braintrust |
+| Metric | LLMAssert | DeepEval | Promptfoo | LangSmith | Braintrust |
 |--------|---------|----------|-----------|-----------|------------|
 | Account required | No | Partial | No | Yes | Yes |
 | Language | Python | Python | Node.js | Python | Python |
@@ -68,7 +68,7 @@ These are production model versions that exhibit real behavioral differences. We
 
 The OpenAI pair demonstrates **silent version drift** within the same model family. The models share an API alias (`gpt-4o`), and the behavioral differences (especially in code generation and format compliance) are invisible without explicit version-pinning and drift testing. This is the scenario that catches production teams off guard.
 
-The Anthropic pair demonstrates **model migration testing**: when a team upgrades from a smaller, faster model (Haiku) to a more capable one (Sonnet), semantic behavior changes substantially. Verdict's drift detection quantifies exactly how much the output changes, per prompt category, so the team knows which downstream behaviors to re-validate before deploying the migration.
+The Anthropic pair demonstrates **model migration testing**: when a team upgrades from a smaller, faster model (Haiku) to a more capable one (Sonnet), semantic behavior changes substantially. LLMAssert's drift detection quantifies exactly how much the output changes, per prompt category, so the team knows which downstream behaviors to re-validate before deploying the migration.
 
 **Citation:** Lingjiao Chen et al., "How Is ChatGPT's Behavior Changing over Time?" (Stanford/Berkeley, October 2023) documented that GPT-4's prime number identification dropped from 97.6% to 2.4% between March and June 2023 model updates.
 
@@ -77,12 +77,12 @@ The Anthropic pair demonstrates **model migration testing**: when a team upgrade
 This benchmark explicitly acknowledges competitor strengths:
 
 **Promptfoo** is a legitimate tool with a mature ecosystem:
-- No account required (matches Verdict on this axis)
+- No account required (matches LLMAssert on this axis)
 - Browser-based result viewer for manual inspection
 - Active community with extensive documentation
 - More built-in LLM-as-judge assertion types
 
-**Verdict's differentiators** over Promptfoo and other tools:
+**LLMAssert's differentiators** over Promptfoo and other tools:
 - Native Python (no Node.js runtime in Python CI)
 - pytest plugin (assertions in your existing test files)
 - Wilson score confidence intervals (statistical flakiness reduction)
@@ -97,7 +97,7 @@ Both sides are in this README because the benchmark's credibility depends on it.
 prompts/            Prompt fixtures for all test cases
 baselines/          Recorded responses from dated model versions
 suites/
-  verdict/          Verdict YAML and pytest regression suites
+  llm_assert/          LLMAssert YAML and pytest regression suites
   deepeval/         DeepEval equivalent tests + setup notes
   promptfoo/        Promptfoo equivalent config + setup notes
   langsmith/        LangSmith equivalent tests + setup notes

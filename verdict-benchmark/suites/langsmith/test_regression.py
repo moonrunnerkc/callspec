@@ -91,7 +91,7 @@ class TestLangSmithDrift:
         def drift_evaluator(run, example) -> dict:
             """Custom evaluator to check semantic drift.
 
-            This is the manual equivalent of Verdict's semantic_drift_is_below().
+            This is the manual equivalent of LLMAssert's semantic_drift_is_below().
             LangSmith has no built-in version.
             """
             from sentence_transformers import SentenceTransformer
@@ -114,7 +114,7 @@ class TestLangSmithDrift:
 
         # LangSmith requires a dataset. For inline use, create one:
         client = Client()
-        dataset_name = "verdict-benchmark-structured-output"
+        dataset_name = "llm-assert-benchmark-structured-output"
 
         # Create dataset if it does not already exist
         try:

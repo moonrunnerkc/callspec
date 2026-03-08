@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 # Lazy-loaded singleton to avoid importing sentence-transformers at module level.
-# This keeps `import verdict` fast when semantic features are not used.
+# This keeps `import llm_assert` fast when semantic features are not used.
 _model_cache: dict = {}
 
 
@@ -35,7 +35,7 @@ def _get_model(model_name: str):
     except ImportError as import_error:
         raise ImportError(
             "Semantic assertions require sentence-transformers. "
-            "Install with: pip install verdict[semantic]"
+            "Install with: pip install llm-assert[semantic]"
         ) from import_error
 
     try:

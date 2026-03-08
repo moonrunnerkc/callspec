@@ -1,8 +1,8 @@
 """Snapshot system: baseline recording, comparison, and diff for regression assertions."""
 
-from verdict.snapshots.diff import DiffResult, SnapshotDiff
-from verdict.snapshots.manager import SnapshotManager
-from verdict.snapshots.serializer import (
+from llm_assert.snapshots.diff import DiffResult, SnapshotDiff
+from llm_assert.snapshots.manager import SnapshotManager
+from llm_assert.snapshots.serializer import (
     SNAPSHOT_SCHEMA_VERSION,
     SnapshotEntry,
     SnapshotFile,

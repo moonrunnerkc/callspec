@@ -11,17 +11,17 @@ Always-available:
     NormalizedResponse / ProviderResponse - common response type
 
 Require optional extras:
-    OpenAIProvider      - pip install verdict[openai]
-    AnthropicProvider   - pip install verdict[anthropic]
-    GoogleProvider      - pip install verdict[google]
-    MistralProvider     - pip install verdict[mistral]
-    OllamaProvider      - pip install verdict[ollama]
-    LiteLLMProvider     - pip install verdict[litellm]
+    OpenAIProvider      - pip install llm-assert[openai]
+    AnthropicProvider   - pip install llm-assert[anthropic]
+    GoogleProvider      - pip install llm-assert[google]
+    MistralProvider     - pip install llm-assert[mistral]
+    OllamaProvider      - pip install llm-assert[ollama]
+    LiteLLMProvider     - pip install llm-assert[litellm]
 """
 
-from verdict.providers.base import BaseProvider
-from verdict.providers.mock import MockProvider
-from verdict.providers.response import NormalizedResponse
+from llm_assert.providers.base import BaseProvider
+from llm_assert.providers.mock import MockProvider
+from llm_assert.providers.response import NormalizedResponse
 
 __all__ = [
     "BaseProvider",
@@ -39,12 +39,12 @@ __all__ = [
 def __getattr__(name: str):
     """Lazy-load provider classes to avoid importing SDK packages at module level."""
     _provider_map = {
-        "OpenAIProvider": "verdict.providers.openai",
-        "AnthropicProvider": "verdict.providers.anthropic",
-        "GoogleProvider": "verdict.providers.google",
-        "MistralProvider": "verdict.providers.mistral",
-        "OllamaProvider": "verdict.providers.ollama",
-        "LiteLLMProvider": "verdict.providers.litellm",
+        "OpenAIProvider": "llm_assert.providers.openai",
+        "AnthropicProvider": "llm_assert.providers.anthropic",
+        "GoogleProvider": "llm_assert.providers.google",
+        "MistralProvider": "llm_assert.providers.mistral",
+        "OllamaProvider": "llm_assert.providers.ollama",
+        "LiteLLMProvider": "llm_assert.providers.litellm",
     }
 
     if name in _provider_map:
@@ -52,4 +52,4 @@ def __getattr__(name: str):
         module = importlib.import_module(_provider_map[name])
         return getattr(module, name)
 
-    raise AttributeError(f"module 'verdict.providers' has no attribute {name!r}")
+    raise AttributeError(f"module 'llm_assert.providers' has no attribute {name!r}")

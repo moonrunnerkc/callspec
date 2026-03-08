@@ -1,5 +1,5 @@
-name: 'Verdict LLM Assertion Testing'
-description: 'Run Verdict behavioral assertions against your LLM application in CI. Annotates PRs with failure details.'
+name: 'LLMAssert LLM Assertion Testing'
+description: 'Run LLMAssert behavioral assertions against your LLM application in CI. Annotates PRs with failure details.'
 author: 'Aftermath Technologies Ltd.'
 branding:
   icon: 'check-circle'
@@ -7,7 +7,7 @@ branding:
 
 inputs:
   command:
-    description: 'Verdict command to run. Default runs a YAML suite file.'
+    description: 'LLMAssert command to run. Default runs a YAML suite file.'
     required: false
     default: 'run'
   suite:
@@ -21,17 +21,17 @@ inputs:
   report-path:
     description: 'Output path for the report file.'
     required: false
-    default: 'verdict-report.json'
+    default: 'llm-assert-report.json'
   python-version:
     description: 'Python version to use. Defaults to 3.12.'
     required: false
     default: '3.12'
-  verdict-extras:
-    description: 'Verdict extras to install (e.g. "openai,semantic").'
+  llm-assert-extras:
+    description: 'LLMAssert extras to install (e.g. "openai,semantic").'
     required: false
     default: ''
   working-directory:
-    description: 'Working directory for running Verdict.'
+    description: 'Working directory for running LLMAssert.'
     required: false
     default: '.'
   strict:
@@ -42,16 +42,16 @@ inputs:
 outputs:
   passed:
     description: 'Whether all assertions passed (true/false).'
-    value: ${{ steps.verdict-run.outputs.verdict_passed }}
+    value: ${{ steps.llm-assert-run.outputs.llm_assert_passed }}
   passed-cases:
     description: 'Number of passing cases.'
-    value: ${{ steps.verdict-run.outputs.verdict_passed_cases }}
+    value: ${{ steps.llm-assert-run.outputs.llm_assert_passed_cases }}
   failed-cases:
     description: 'Number of failing cases.'
-    value: ${{ steps.verdict-run.outputs.verdict_failed_cases }}
+    value: ${{ steps.llm-assert-run.outputs.llm_assert_failed_cases }}
   total-cases:
     description: 'Total number of cases.'
-    value: ${{ steps.verdict-run.outputs.verdict_total_cases }}
+    value: ${{ steps.llm-assert-run.outputs.llm_assert_total_cases }}
   report-path:
     description: 'Path to the generated report file.'
     value: ${{ inputs.report-path }}
@@ -64,13 +64,13 @@ runs:
       with:
         python-version: ${{ inputs.python-version }}
 
-    - name: Install Verdict
+    - name: Install LLMAssert
       shell: bash
       run: |
-        if [ -n "${{ inputs.verdict-extras }}" ]; then
-          pip install "verdict[${{ inputs.verdict-extras }}]"
+        if [ -n "${{ inputs.llm-assert-extras }}" ]; then
+          pip install "llm-assert[${{ inputs.llm-assert-extras }}]"
         else
-          pip install verdict
+          pip install llm-assert
         fi
 
     - name: Install project dependencies
@@ -83,30 +83,30 @@ runs:
           pip install .
         fi
 
-    - name: Run Verdict
-      id: verdict-run
+    - name: Run LLMAssert
+      id: llm-assert-run
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
         set +e
         if [ "${{ inputs.command }}" = "run" ] && [ -n "${{ inputs.suite }}" ]; then
-          verdict run "${{ inputs.suite }}" \
+          llm-assert run "${{ inputs.suite }}" \
             --report-format "${{ inputs.report-format }}" \
             --report-path "${{ inputs.report-path }}" \
             --github-annotations
           EXIT_CODE=$?
         elif [ "${{ inputs.command }}" = "pytest" ]; then
-          pytest --verdict-report "${{ inputs.report-format }}" \
-            --verdict-report-path "${{ inputs.report-path }}"
+          pytest --llm-assert-report "${{ inputs.report-format }}" \
+            --llm-assert-report-path "${{ inputs.report-path }}"
           EXIT_CODE=$?
         else
-          verdict ${{ inputs.command }}
+          llm-assert ${{ inputs.command }}
           EXIT_CODE=$?
         fi
 
         if [ $EXIT_CODE -ne 0 ]; then
-          echo "verdict_passed=false" >> "$GITHUB_OUTPUT"
+          echo "llm_assert_passed=false" >> "$GITHUB_OUTPUT"
           exit $EXIT_CODE
         else
-          echo "verdict_passed=true" >> "$GITHUB_OUTPUT"
+          echo "llm_assert_passed=true" >> "$GITHUB_OUTPUT"
         fi

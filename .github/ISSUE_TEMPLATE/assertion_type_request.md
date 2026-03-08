@@ -1,6 +1,6 @@
 ---
 name: Assertion Type Request
-about: Propose a new assertion type for Verdict
+about: Propose a new assertion type for LLMAssert
 title: '[ASSERTION] '
 labels: assertion-type
 assignees: ''

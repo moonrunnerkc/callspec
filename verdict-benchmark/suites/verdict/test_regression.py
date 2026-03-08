@@ -1,6 +1,6 @@
-"""Verdict pytest integration: regression detection against dated model versions.
+"""LLMAssert pytest integration: regression detection against dated model versions.
 
-This test file demonstrates Verdict's pytest plugin for detecting
+This test file demonstrates LLMAssert's pytest plugin for detecting
 behavioral drift between model versions. It uses recorded baselines
 and live model calls to measure semantic drift.
 
@@ -47,12 +47,12 @@ class TestOpenAIDrift:
     """Detect behavioral drift between gpt-4o-2024-05-13 and gpt-4o-2024-11-20."""
 
     def _get_provider(self, model: str):
-        from verdict.providers.openai import OpenAIProvider
+        from llm_assert.providers.openai import OpenAIProvider
         return OpenAIProvider(model=model, temperature=0.0, seed=42)
 
     def _run_and_compare(self, prompt_name: str, baseline_model_dir: str, current_model: str):
         """Run prompt against current model and compare to recorded baseline."""
-        from verdict.scoring.embeddings import score_similarity
+        from llm_assert.scoring.embeddings import score_similarity
 
         baseline = load_baseline(baseline_model_dir, prompt_name)
         baseline_content = baseline["response_content"]
@@ -196,11 +196,11 @@ class TestAnthropicDrift:
     """Detect behavioral drift between claude-3-haiku-20240307 and claude-sonnet-4-20250514."""
 
     def _get_provider(self, model: str):
-        from verdict.providers.anthropic import AnthropicProvider
+        from llm_assert.providers.anthropic import AnthropicProvider
         return AnthropicProvider(model=model, temperature=0.0)
 
     def _run_and_compare(self, prompt_name: str, baseline_model_dir: str, current_model: str):
-        from verdict.scoring.embeddings import score_similarity
+        from llm_assert.scoring.embeddings import score_similarity
 
         baseline = load_baseline(baseline_model_dir, prompt_name)
         baseline_content = baseline["response_content"]

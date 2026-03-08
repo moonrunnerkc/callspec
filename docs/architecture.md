@@ -1,10 +1,10 @@
 # Architecture
 
-Design decisions, rationale, and technical structure of Verdict.
+Design decisions, rationale, and technical structure of LLMAssert.
 
 ## Core Design Decision
 
-Verdict is an assertion library, not an observability platform. Tracing tools (LangSmith, Braintrust, Arize Phoenix) monitor what happened after deployment. Verdict defines what should happen and fails the build if it does not. This positioning is deliberate: competing with platforms is a losing position; positioning as their complement opens the door for integration rather than conflict.
+LLMAssert is an assertion library, not an observability platform. Tracing tools (LangSmith, Braintrust, Arize Phoenix) monitor what happened after deployment. LLMAssert defines what should happen and fails the build if it does not. This positioning is deliberate: competing with platforms is a losing position; positioning as their complement opens the door for integration rather than conflict.
 
 ## Assertion Taxonomy
 
@@ -12,7 +12,7 @@ The four-layer taxonomy is grounded in what LLM behavioral failures actually loo
 
 **Structural assertions** verify form. Does the response parse as JSON? Does it match a schema? These are deterministic, cheap, and catch the most common class of LLM failure: malformed output. Every LLM application that expects structured output should have structural assertions.
 
-**Semantic assertions** verify meaning. Does the response address the user's intent? Does it avoid prohibited topics? Semantic assertions are inherently probabilistic: the same output might score slightly differently due to floating point variance. Verdict handles this with thresholds calibrated against STS-B benchmarks, not binary pass/fail.
+**Semantic assertions** verify meaning. Does the response address the user's intent? Does it avoid prohibited topics? Semantic assertions are inherently probabilistic: the same output might score slightly differently due to floating point variance. LLMAssert handles this with thresholds calibrated against STS-B benchmarks, not binary pass/fail.
 
 **Behavioral assertions** verify patterns across multiple outputs. They run the model N times and assess the distribution. A single-call assertion on a behavioral property is not statistically meaningful for stochastic systems. Behavioral assertions make this explicit with configurable sample sizes and Wilson confidence intervals.
 
@@ -22,9 +22,9 @@ The four-layer taxonomy is grounded in what LLM behavioral failures actually loo
 
 Every provider is a thin adapter implementing `BaseProvider.call()`. The response is normalized into `ProviderResponse` regardless of which provider produced it. The `model` field contains the actual model identifier from the API response, not the alias requested.
 
-Providers ship as optional extras (`verdict[openai]`, `verdict[anthropic]`). The core library has zero provider dependencies. This keeps the base install small and avoids forcing developers to install SDKs they do not use.
+Providers ship as optional extras (`llm-assert[openai]`, `llm-assert[anthropic]`). The core library has zero provider dependencies. This keeps the base install small and avoids forcing developers to install SDKs they do not use.
 
-The mock provider takes a deterministic function and enables testing assertion logic without API calls. This matters for Verdict's own test suite and for teams validating assertion configurations without spending credentials.
+The mock provider takes a deterministic function and enables testing assertion logic without API calls. This matters for LLMAssert's own test suite and for teams validating assertion configurations without spending credentials.
 
 ## Scoring Architecture
 
@@ -38,7 +38,7 @@ The mock provider takes a deterministic function and enables testing assertion l
 
 ## Statistical Reliability
 
-LLMs are stochastic. A test suite that fails 5% of the time randomly is noise. Verdict's reliability design:
+LLMs are stochastic. A test suite that fails 5% of the time randomly is noise. LLMAssert's reliability design:
 
 1. **Deterministic seeds.** Every provider call sets `temperature=0` and `seed=42` when supported. The docs are explicit about which providers offer true deterministic output.
 
@@ -56,14 +56,14 @@ Baselines are versioned JSON files in the repository. The design mirrors pytest-
 
 ## Plugin Architecture
 
-The pytest plugin registers via `pytest11` entry points: fixtures (`verdict_runner`, `verdict_provider`, `verdict_config`), marks (`verdict_behavioral`), CLI flags (`--verdict-report`, `--verdict-strict`, `--verdict-skip-behavioral`, `--verdict-snapshot`), and a report hook for structured output.
+The pytest plugin registers via `pytest11` entry points: fixtures (`llm_assert_runner`, `llm_assert_provider`, `llm_assert_config`), marks (`llm_assert_behavioral`), CLI flags (`--llm-assert-report`, `--llm-assert-strict`, `--llm-assert-skip-behavioral`, `--llm-assert-snapshot`), and a report hook for structured output.
 
-The CLI uses click with subcommands: `verdict run`, `verdict check`, `verdict snapshot`, `verdict report`, `verdict providers`. Both the YAML format and the Python API compile to the same `AssertionSuite` internal representation.
+The CLI uses click with subcommands: `llm-assert run`, `llm-assert check`, `llm-assert snapshot`, `llm-assert report`, `llm-assert providers`. Both the YAML format and the Python API compile to the same `AssertionSuite` internal representation.
 
 ## File Organization
 
 ```
-verdict/
+llm_assert/
   core/           # Runner, builder, suite, config, types, report, yaml parser
   assertions/     # One module per taxonomy layer + composite + refusal patterns
   providers/      # One module per provider + base + mock + response alias

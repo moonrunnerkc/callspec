@@ -20,15 +20,15 @@ from tests.fixtures.semantic_pairs import (
     TOPIC_AVOIDANCE_BAD_PAIRS,
     TOPIC_AVOIDANCE_GOOD_PAIRS,
 )
-from verdict.assertions.semantic import (
+from llm_assert.assertions.semantic import (
     DoesNotDiscuss,
     IsFactuallyConsistentWith,
     SemanticIntentMatches,
     UsesLanguageAtGradeLevel,
 )
-from verdict.core.config import VerdictConfig
+from llm_assert.core.config import LLMAssertConfig
 
-CONFIG = VerdictConfig()
+CONFIG = LLMAssertConfig()
 
 
 # -- SemanticIntentMatches --

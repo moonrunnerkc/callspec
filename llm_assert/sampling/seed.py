@@ -7,7 +7,7 @@ sequence of seeds derived from a single root seed, so the same root seed
 always produces the same sequence of provider calls and input selections.
 
 This is separate from the provider-level seed (which controls the LLM's
-own randomness). The SeedManager controls Verdict's sampling randomness.
+own randomness). The SeedManager controls LLMAssert's sampling randomness.
 """
 
 from __future__ import annotations

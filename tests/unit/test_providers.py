@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from verdict.core.types import ProviderResponse
-from verdict.providers.mock import MockProvider
+from llm_assert.core.types import ProviderResponse
+from llm_assert.providers.mock import MockProvider
 
 
 class TestMockProvider:

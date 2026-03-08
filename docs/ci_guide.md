@@ -1,10 +1,10 @@
 # CI Guide
 
-Integration recipes for running Verdict in continuous integration pipelines.
+Integration recipes for running LLMAssert in continuous integration pipelines.
 
 ## GitHub Actions
 
-### Using the Verdict Action
+### Using the LLMAssert Action
 
 The simplest setup uses the composite action:
 
@@ -13,22 +13,22 @@ name: LLM Tests
 on: [push, pull_request]
 
 jobs:
-  verdict:
+  llm-assert:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: moonrunnerkc/verdict@v1
+      - uses: moonrunnerkc/llm-assert@v1
         with:
-          suite: tests/verdict_suite.yml
-          verdict-extras: openai,semantic
+          suite: tests/llm_assert_suite.yml
+          llm-assert-extras: openai,semantic
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 ```
 
 The action:
 1. Sets up Python
-2. Installs Verdict with specified extras
+2. Installs LLMAssert with specified extras
 3. Runs the assertion suite
 4. Annotates the PR with failures (inline on the diff)
 5. Writes a step summary to the workflow run UI
@@ -38,12 +38,12 @@ The action:
 
 | Input | Default | Description |
 |-------|---------|-------------|
-| `command` | `run` | Verdict command (`run`, `pytest`, `check`) |
+| `command` | `run` | LLMAssert command (`run`, `pytest`, `check`) |
 | `suite` | `""` | Path to YAML suite file |
 | `report-format` | `json` | `json`, `junit`, or `plaintext` |
-| `report-path` | `verdict-report.json` | Output path for the report |
+| `report-path` | `llm-assert-report.json` | Output path for the report |
 | `python-version` | `3.12` | Python version |
-| `verdict-extras` | `""` | Comma-separated extras (e.g., `openai,semantic`) |
+| `llm-assert-extras` | `""` | Comma-separated extras (e.g., `openai,semantic`) |
 | `working-directory` | `.` | Working directory |
 | `strict` | `false` | Enable strict mode |
 
@@ -59,7 +59,7 @@ The action:
 
 ### Using pytest Instead
 
-Run Verdict as part of your existing pytest suite:
+Run LLMAssert as part of your existing pytest suite:
 
 ```yaml
 name: Tests
@@ -79,7 +79,7 @@ jobs:
         run: pip install -e ".[openai,semantic,dev]"
 
       - name: Run tests
-        run: pytest --verdict-report json --verdict-report-path verdict-report.json
+        run: pytest --llm-assert-report json --llm-assert-report-path llm-assert-report.json
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
@@ -87,23 +87,23 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: verdict-report
-          path: verdict-report.json
+          name: llm-assert-report
+          path: llm-assert-report.json
 ```
 
 ### PR Annotations
 
-When running in GitHub Actions, Verdict can emit workflow command annotations that appear directly on the PR diff:
+When running in GitHub Actions, LLMAssert can emit workflow command annotations that appear directly on the PR diff:
 
 ```
-::error file=tests/test_summarizer.py,line=15,title=Verdict: semantic_intent_matches::
+::error file=tests/test_summarizer.py,line=15,title=LLMAssert: semantic_intent_matches::
 SemanticAssertion failed: score 0.6823 below threshold 0.7500 using all-MiniLM-L6-v2
 ```
 
 To enable annotations programmatically:
 
 ```python
-from verdict.integrations.github_actions import is_github_actions, emit_suite_result
+from llm_assert.integrations.github_actions import is_github_actions, emit_suite_result
 
 if is_github_actions():
     emit_suite_result(suite_result, suite_name="my_suite", file="tests/test_llm.py")
@@ -137,7 +137,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: pip install -e ".[openai,semantic,dev]"
-      - run: pytest --verdict-skip-behavioral
+      - run: pytest --llm-assert-skip-behavioral
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 ```
@@ -154,7 +154,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: pip install -e ".[openai,semantic,dev]"
-      - run: pytest -m verdict_behavioral -v
+      - run: pytest -m llm_assert_behavioral -v
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 ```
@@ -163,16 +163,16 @@ jobs:
 
 ```yaml
 # .gitlab-ci.yml
-verdict:
+llm-assert:
   image: python:3.12
   stage: test
   script:
-    - pip install "verdict[openai,semantic]"
+    - pip install "llm-assert[openai,semantic]"
     - pip install -e .
-    - verdict run tests/verdict_suite.yml --report-format junit --report-path verdict.xml
+    - llm-assert run tests/llm_assert_suite.yml --report-format junit --report-path llm-assert.xml
   artifacts:
     reports:
-      junit: verdict.xml
+      junit: llm-assert.xml
   variables:
     OPENAI_API_KEY: $OPENAI_API_KEY
 ```
@@ -183,24 +183,24 @@ verdict:
 # .circleci/config.yml
 version: 2.1
 jobs:
-  verdict:
+  llm-assert:
     docker:
       - image: cimg/python:3.12
     steps:
       - checkout
       - run:
           name: Install
-          command: pip install "verdict[openai,semantic]" -e .
+          command: pip install "llm-assert[openai,semantic]" -e .
       - run:
-          name: Run Verdict
-          command: verdict run tests/verdict_suite.yml --report-format junit --report-path test-results/verdict.xml
+          name: Run LLMAssert
+          command: llm-assert run tests/llm_assert_suite.yml --report-format junit --report-path test-results/llm-assert.xml
       - store_test_results:
           path: test-results
 
 workflows:
   test:
     jobs:
-      - verdict
+      - llm-assert
 ```
 
 ## Jenkins
@@ -215,16 +215,16 @@ pipeline {
     stages {
         stage('Install') {
             steps {
-                sh 'pip install "verdict[openai,semantic]" -e .'
+                sh 'pip install "llm-assert[openai,semantic]" -e .'
             }
         }
         stage('Test') {
             steps {
-                sh 'verdict run tests/verdict_suite.yml --report-format junit --report-path verdict.xml'
+                sh 'llm-assert run tests/llm_assert_suite.yml --report-format junit --report-path llm-assert.xml'
             }
             post {
                 always {
-                    junit 'verdict.xml'
+                    junit 'llm_assert.xml'
                 }
             }
         }
@@ -234,11 +234,11 @@ pipeline {
 
 ## General CI Best Practices
 
-**Exit codes:** `verdict run` exits with code 0 on success, 1 on assertion failure. CI pipelines can use this directly.
+**Exit codes:** `llm-assert run` exits with code 0 on success, 1 on assertion failure. CI pipelines can use this directly.
 
 **API key management:** Store API keys in CI secrets. Never commit keys to the repository.
 
-**Cost control:** Behavioral assertions make N provider calls per assertion. Use `--verdict-skip-behavioral` on every-commit runs. Reserve behavioral tests for nightly or pre-release pipelines.
+**Cost control:** Behavioral assertions make N provider calls per assertion. Use `--llm-assert-skip-behavioral` on every-commit runs. Reserve behavioral tests for nightly or pre-release pipelines.
 
 **Offline testing:** Use `MockProvider` for tests that validate assertion configuration without API spend. Real provider tests run only when keys are available.
 

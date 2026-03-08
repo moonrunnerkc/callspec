@@ -1,6 +1,6 @@
 """GitHub Actions annotation formatter for CI failure output.
 
-Converts Verdict assertion results into GitHub workflow commands that
+Converts LLMAssert assertion results into GitHub workflow commands that
 appear as annotations directly on the PR diff view. This is the highest-
 leverage CI integration: a failing assertion annotates the exact test
 file with structured failure context.
@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import os
 
-from verdict.core.types import (
+from llm_assert.core.types import (
     AssertionResult,
     IndividualAssertionResult,
     SuiteResult,
@@ -86,7 +86,7 @@ def annotate_individual_result(
                 ),
                 file=file,
                 line=line,
-                title=f"Verdict: {result.assertion_name} (borderline)",
+                title=f"LLMAssert: {result.assertion_name} (borderline)",
             )
         return ""
 
@@ -95,7 +95,7 @@ def annotate_individual_result(
         message=result.message,
         file=file,
         line=line,
-        title=f"Verdict: {result.assertion_name}",
+        title=f"LLMAssert: {result.assertion_name}",
     )
 
 
@@ -142,7 +142,7 @@ def annotate_suite_result(
     status = "passed" if suite_result.passed else "FAILED"
     summary_level = _SEVERITY_NOTICE if suite_result.passed else _SEVERITY_ERROR
     summary = (
-        f"Verdict suite {status}: "
+        f"LLMAssert suite {status}: "
         f"{suite_result.passed_cases}/{suite_result.total_cases} cases passed "
         f"({suite_result.execution_time_ms}ms)"
     )
@@ -151,7 +151,7 @@ def annotate_suite_result(
             level=summary_level,
             message=summary,
             file=file,
-            title="Verdict Summary",
+            title="LLMAssert Summary",
         )
     )
 
@@ -181,7 +181,7 @@ def write_step_summary(suite_result: SuiteResult, suite_name: str = "default") -
 
     lines: list[str] = []
     status_emoji = "Pass" if suite_result.passed else "Fail"
-    lines.append(f"## Verdict: {suite_name} ({status_emoji})")
+    lines.append(f"## LLMAssert: {suite_name} ({status_emoji})")
     lines.append("")
     lines.append(
         f"**{suite_result.passed_cases}/{suite_result.total_cases}** cases passed "
@@ -234,7 +234,7 @@ def emit_suite_result(
 ) -> None:
     """Complete GitHub Actions integration: annotations, summary, and outputs.
 
-    Call this once at the end of a Verdict run in CI. It handles all three
+    Call this once at the end of a LLMAssert run in CI. It handles all three
     output channels: workflow command annotations (inline on the PR),
     step summary (Markdown in the run UI), and output parameters (for
     downstream steps).
@@ -243,10 +243,10 @@ def emit_suite_result(
     emit_annotations(annotations)
     write_step_summary(suite_result, suite_name)
 
-    set_output("verdict_passed", str(suite_result.passed).lower())
-    set_output("verdict_passed_cases", str(suite_result.passed_cases))
-    set_output("verdict_failed_cases", str(suite_result.failed_cases))
-    set_output("verdict_total_cases", str(suite_result.total_cases))
+    set_output("llm_assert_passed", str(suite_result.passed).lower())
+    set_output("llm_assert_passed_cases", str(suite_result.passed_cases))
+    set_output("llm_assert_failed_cases", str(suite_result.failed_cases))
+    set_output("llm_assert_total_cases", str(suite_result.total_cases))
 
 
 def _is_borderline_pass(result: IndividualAssertionResult) -> bool:

@@ -4,25 +4,25 @@ Common questions about cost, flakiness, scoring, and tradeoffs.
 
 ## General
 
-### What is Verdict?
+### What is LLMAssert?
 
 A Python assertion library for verifying LLM output. It drops into your existing pytest suite and gives you pass/fail on whether your AI system behaves correctly. It is not a tracing platform, dashboard, or observability tool.
 
-### How is Verdict different from LangSmith / Braintrust / Arize?
+### How is LLMAssert different from LangSmith / Braintrust / Arize?
 
-Those tools monitor what happened in production. Verdict defines what *should* happen and fails your build if it does not. They are observability platforms. Verdict is a test library. They complement each other: you trace in LangSmith, you define behavioral contracts in Verdict.
+Those tools monitor what happened in production. LLMAssert defines what *should* happen and fails your build if it does not. They are observability platforms. LLMAssert is a test library. They complement each other: you trace in LangSmith, you define behavioral contracts in LLMAssert.
 
-### Does Verdict work with any LLM?
+### Does LLMAssert work with any LLM?
 
-Yes. The provider layer is a thin adapter. Verdict ships adapters for OpenAI, Anthropic, Google, Mistral, Ollama, and LiteLLM (which routes to any provider). Writing a custom adapter requires implementing one method.
+Yes. The provider layer is a thin adapter. LLMAssert ships adapters for OpenAI, Anthropic, Google, Mistral, Ollama, and LiteLLM (which routes to any provider). Writing a custom adapter requires implementing one method.
 
-### Does Verdict require an account?
+### Does LLMAssert require an account?
 
 No. The open-source library has no account requirement, no telemetry, no license checks, and no network calls that benefit the hosted tier.
 
 ## Cost
 
-### How much does Verdict cost to run?
+### How much does LLMAssert cost to run?
 
 **Structural assertions:** Zero. They parse the response string locally.
 
@@ -34,7 +34,7 @@ No. The open-source library has no account requirement, no telemetry, no license
 
 ### How do I control cost?
 
-1. Use `--verdict-skip-behavioral` on every-commit CI runs. Reserve behavioral tests for nightly or pre-release.
+1. Use `--llm-assert-skip-behavioral` on every-commit CI runs. Reserve behavioral tests for nightly or pre-release.
 2. Use `MockProvider` for tests that validate assertion configuration.
 3. Start with `n_samples=20` for behavioral assertions and increase only when you need tighter confidence intervals.
 4. Use `FixedSetSampler` instead of `SemanticVariantSampler` when hand-written inputs are sufficient.
@@ -53,7 +53,7 @@ To diagnose:
 
 ### My behavioral test is flaky at 20 samples.
 
-At 20 samples, the 95% confidence interval for a 0.95 pass rate is approximately +/-0.095. This is statistical reality, not a Verdict bug. Options:
+At 20 samples, the 95% confidence interval for a 0.95 pass rate is approximately +/-0.095. This is statistical reality, not a LLMAssert bug. Options:
 
 1. Increase `n_samples` to 50 or 100 for tighter confidence intervals.
 2. Lower `min_rate` to 0.90 if 95% is stricter than your application requires.
@@ -61,14 +61,14 @@ At 20 samples, the 95% confidence interval for a 0.95 pass rate is approximately
 
 ### How do I prevent flaky tests in CI?
 
-- Set `temperature=0` and `seed=42` (the defaults in VerdictConfig).
+- Set `temperature=0` and `seed=42` (the defaults in LLMAssertConfig).
 - Use structural assertions wherever possible (they are deterministic).
 - For semantic assertions, test against `MockProvider` first to confirm threshold calibration.
 - For behavioral assertions, use adequate sample sizes and consider the confidence interval width.
 
 ## Scoring
 
-### Why does Verdict use embedding similarity instead of LLM-as-judge?
+### Why does LLMAssert use embedding similarity instead of LLM-as-judge?
 
 Three reasons:
 
@@ -78,17 +78,17 @@ Three reasons:
 
 LLM-as-judge is available via `LLMJudgeScorer` for cases where embeddings genuinely cannot capture the quality dimension you need.
 
-### What embedding model does Verdict use?
+### What embedding model does LLMAssert use?
 
-`sentence-transformers/all-MiniLM-L6-v2` (22MB, CPU-native, no API key). It is the best tradeoff between size and semantic quality on the MTEB benchmark. Configurable via `VerdictConfig.embedding_model`.
+`sentence-transformers/all-MiniLM-L6-v2` (22MB, CPU-native, no API key). It is the best tradeoff between size and semantic quality on the MTEB benchmark. Configurable via `LLMAssertConfig.embedding_model`.
 
 ### Can I use a different embedding model?
 
 Yes:
 
 ```python
-from verdict import VerdictConfig
-config = VerdictConfig(embedding_model="sentence-transformers/all-mpnet-base-v2")
+from llm_assert import LLMAssertConfig
+config = LLMAssertConfig(embedding_model="sentence-transformers/all-mpnet-base-v2")
 ```
 
 Note that different models produce different similarity scores. Thresholds calibrated for all-MiniLM-L6-v2 may need adjustment for other models.
@@ -107,7 +107,7 @@ In the all-MiniLM-L6-v2 embedding space, 0.75 cosine similarity corresponds appr
 
 ## Technical
 
-### What Python versions does Verdict support?
+### What Python versions does LLMAssert support?
 
 Python 3.9 through 3.13.
 
@@ -125,7 +125,7 @@ python -c "from sentence_transformers import SentenceTransformer; SentenceTransf
 
 Or cache `~/.cache/huggingface` as a CI artifact.
 
-### Can I run Verdict offline?
+### Can I run LLMAssert offline?
 
 Structural assertions work offline. Semantic assertions work offline after the embedding model is cached. Behavioral and regression assertions (that need the provider) require network access to the LLM provider. Use `MockProvider` for fully offline testing.
 
@@ -134,10 +134,10 @@ Structural assertions work offline. Semantic assertions work offline after the e
 Use `MockProvider`:
 
 ```python
-from verdict import Verdict
-from verdict.providers.mock import MockProvider
+from llm_assert import LLMAssert
+from llm_assert.providers.mock import MockProvider
 
 provider = MockProvider(lambda prompt, messages: '{"title": "Test"}')
-v = Verdict(provider)
+v = LLMAssert(provider)
 result = v.assert_that("test").is_valid_json().run()
 ```

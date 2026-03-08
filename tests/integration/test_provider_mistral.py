@@ -14,8 +14,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from tests.fixtures.recorded_responses import MISTRAL_CHAT_RESPONSE
-from verdict.core.types import ProviderResponse
-from verdict.providers.mistral import MistralProvider
+from llm_assert.core.types import ProviderResponse
+from llm_assert.providers.mistral import MistralProvider
 
 # ---- Mock objects mirroring Mistral SDK response shape ----
 
@@ -61,7 +61,7 @@ class TestMistralProviderOffline:
     def test_import_error_gives_actionable_message(self) -> None:
         provider = MistralProvider()
         with patch.dict("sys.modules", {"mistralai": None}):
-            with pytest.raises(ImportError, match="pip install verdict\\[mistral\\]"):
+            with pytest.raises(ImportError, match="pip install llm-assert\\[mistral\\]"):
                 provider._get_client()
 
     def test_response_normalization(self) -> None:

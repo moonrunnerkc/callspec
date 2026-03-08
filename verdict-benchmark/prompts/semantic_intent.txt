@@ -1,0 +1,1 @@
+Explain the concept of database normalization to a junior software developer who has only worked with NoSQL databases. Cover what normalization is, why it matters, and the first three normal forms (1NF, 2NF, 3NF). Use a concrete example involving a library book tracking system. Keep the explanation under 300 words.

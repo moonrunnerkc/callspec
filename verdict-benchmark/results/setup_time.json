@@ -1,0 +1,34 @@
+{
+  "verdict_base": {
+    "cold_ms": null,
+    "warm_ms": 3249,
+    "install_ms": 3147,
+    "first_test_ms": 102,
+    "pip_install": "pip install verdict",
+    "note": "Base install: structural assertions only. No numpy, no PyTorch."
+  },
+  "verdict_with_provider": {
+    "cold_ms": null,
+    "warm_ms": 5460,
+    "install_ms": 5355,
+    "first_test_ms": 105,
+    "pip_install": "pip install verdict[anthropic]",
+    "note": "Base + Anthropic provider. Still no numpy or PyTorch."
+  },
+  "verdict_full": {
+    "cold_ms": null,
+    "warm_ms": 85392,
+    "install_ms": 85279,
+    "first_test_ms": 113,
+    "pip_install": "pip install verdict[anthropic,semantic]",
+    "note": "Full install with sentence-transformers (includes PyTorch). Required for semantic assertions."
+  },
+  "deepeval": {
+    "cold_ms": null,
+    "warm_ms": 13848,
+    "install_ms": 12357,
+    "first_test_ms": 1491,
+    "pip_install": "pip install deepeval openai",
+    "note": "Lighter install, but semantic scoring requires LLM-as-judge API calls at runtime."
+  }
+}

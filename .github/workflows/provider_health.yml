@@ -1,0 +1,37 @@
+name: Provider Health
+
+on:
+  schedule:
+    # Run nightly at 03:00 UTC
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  provider-health:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        provider: [openai, anthropic]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install -e ".[${{ matrix.provider }},semantic,dev]"
+
+      - name: Run provider integration tests
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          pytest tests/integration/test_provider_${{ matrix.provider }}.py -v --tb=short

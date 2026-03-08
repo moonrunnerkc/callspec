@@ -1,0 +1,14 @@
+{
+  "model_requested": "claude-3-haiku-20240307",
+  "model_returned": "claude-3-haiku-20240307",
+  "provider": "anthropic",
+  "prompt_file": "instruction_following.txt",
+  "prompt_text": "You are a technical writer. Write exactly 5 bullet points summarizing the key differences between REST and GraphQL APIs. Each bullet point must:\n1. Start with a bold keyword (using markdown **bold** syntax)\n2. Be exactly one sentence\n3. Be no longer than 25 words\n4. Not use the word \"however\" or \"additionally\"\n\nNumber the bullet points 1 through 5. Do not include any introduction or conclusion text.",
+  "response_content": "1. **Architecture**: REST APIs use a predefined set of endpoints, while GraphQL APIs have a single endpoint that allows clients to request only the data they need.\n\n2. **Flexibility**: REST APIs have a fixed set of resources, while GraphQL APIs allow clients to request specific fields and nested data, reducing over-fetching and under-fetching.\n\n3. **Performance**: REST APIs may require multiple requests to fetch all the necessary data, while GraphQL APIs can fetch all the required data in a single request.\n\n4. **Caching**: Caching in REST APIs is typically done at the resource level, while GraphQL APIs allow for more granular caching at the field level.\n\n5. **Learning Curve**: REST APIs have a simpler learning curve, as they follow a well-established set of conventions, while GraphQL APIs require understanding the query language and schema.",
+  "latency_ms": 1835,
+  "prompt_tokens": 106,
+  "completion_tokens": 191,
+  "finish_reason": "end_turn",
+  "temperature": 0,
+  "recorded_at": "2026-03-08T05:36:14.195691+00:00"
+}

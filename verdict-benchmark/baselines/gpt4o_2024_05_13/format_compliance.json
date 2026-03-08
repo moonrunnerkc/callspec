@@ -1,0 +1,15 @@
+{
+  "model_requested": "gpt-4o-2024-05-13",
+  "model_returned": "gpt-4o-2024-05-13",
+  "provider": "openai",
+  "prompt_file": "format_compliance.txt",
+  "prompt_text": "Generate a changelog entry for a software release. Use this exact format:\n\n## [version] - YYYY-MM-DD\n\n### Added\n- item\n\n### Changed\n- item\n\n### Fixed\n- item\n\nThe version is 2.4.0, the date is 2025-01-15. Include exactly 2 items under Added, 1 under Changed, and 3 under Fixed. Items should be about a Python web framework. Each item must start with a capital letter and end with a period. Do not include any text before or after the changelog entry.",
+  "response_content": "## [2.4.0] - 2025-01-15\n\n### Added\n- Support for asynchronous request handling.\n- New middleware for enhanced security features.\n\n### Changed\n- Improved performance of the template rendering engine.\n\n### Fixed\n- Resolved issue with session management in multi-threaded environments.\n- Fixed bug causing incorrect URL routing in nested blueprints.\n- Addressed memory leak in the database connection pool.",
+  "latency_ms": 781,
+  "prompt_tokens": 125,
+  "completion_tokens": 86,
+  "finish_reason": "stop",
+  "temperature": 0,
+  "seed": 42,
+  "recorded_at": "2026-03-08T05:35:36.630125+00:00"
+}

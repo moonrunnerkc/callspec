@@ -1,0 +1,65 @@
+{
+  "verdict": {
+    "tool": "verdict",
+    "assertions_per_suite": 34,
+    "provider_api_calls_per_run": 7,
+    "judge_api_calls_per_run": 0,
+    "total_api_calls_per_run": 7,
+    "cost_per_run_usd": 0.0298,
+    "monthly_runs": 900,
+    "monthly_cost_usd": 26.78,
+    "semantic_scoring_method": "local_embeddings",
+    "embedding_api_calls": 0,
+    "note": "Semantic assertions use sentence-transformers locally. Zero external API calls for scoring."
+  },
+  "deepeval": {
+    "tool": "deepeval",
+    "assertions_per_suite": 34,
+    "provider_api_calls_per_run": 7,
+    "judge_api_calls_per_run": 21,
+    "total_api_calls_per_run": 28,
+    "cost_per_run_usd": 0.0348,
+    "monthly_runs": 900,
+    "monthly_cost_usd": 31.31,
+    "semantic_scoring_method": "llm_as_judge",
+    "note": "Each semantic metric makes an additional LLM call for judging."
+  },
+  "promptfoo": {
+    "tool": "promptfoo",
+    "assertions_per_suite": 34,
+    "provider_api_calls_per_run": 7,
+    "judge_api_calls_per_run": 10,
+    "total_api_calls_per_run": 17,
+    "cost_per_run_usd": 0.0322,
+    "monthly_runs": 900,
+    "monthly_cost_usd": 28.94,
+    "semantic_scoring_method": "llm_as_judge",
+    "note": "llm-rubric assertions invoke an LLM judge. Structural assertions (contains, is-json) are free."
+  },
+  "langsmith": {
+    "tool": "langsmith",
+    "assertions_per_suite": 34,
+    "provider_api_calls_per_run": 7,
+    "judge_api_calls_per_run": 14,
+    "total_api_calls_per_run": 21,
+    "cost_per_run_usd": 0.0331,
+    "monthly_runs": 900,
+    "monthly_cost_usd": 29.8,
+    "semantic_scoring_method": "custom_evaluators",
+    "additional_cost": "LangSmith platform subscription may apply",
+    "note": "Cost depends on evaluator choice. Custom embedding evaluators are possible but not default."
+  },
+  "braintrust": {
+    "tool": "braintrust",
+    "assertions_per_suite": 34,
+    "provider_api_calls_per_run": 7,
+    "judge_api_calls_per_run": 14,
+    "total_api_calls_per_run": 21,
+    "cost_per_run_usd": 0.0331,
+    "monthly_runs": 900,
+    "monthly_cost_usd": 29.8,
+    "semantic_scoring_method": "built_in_scorers_llm_judge",
+    "additional_cost": "Braintrust platform subscription",
+    "note": "Built-in scorers (Factuality, etc.) use LLM-as-judge."
+  }
+}

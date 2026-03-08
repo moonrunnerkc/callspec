@@ -1,0 +1,14 @@
+{
+  "model_requested": "claude-3-haiku-20240307",
+  "model_returned": "claude-3-haiku-20240307",
+  "provider": "anthropic",
+  "prompt_file": "chain_of_thought.txt",
+  "prompt_text": "I have a list of 8 tasks with dependencies. Each task has a duration in days. Determine the critical path and the minimum total project duration.\n\nTasks:\n- A: 3 days, no dependencies\n- B: 5 days, no dependencies\n- C: 2 days, depends on A\n- D: 4 days, depends on A\n- E: 3 days, depends on B and C\n- F: 2 days, depends on D\n- G: 4 days, depends on E and F\n- H: 1 day, depends on G\n\nReturn your answer as a JSON object with three keys:\n- \"critical_path\": a list of task letters in order (e.g. [\"A\", \"C\", \"E\", \"G\", \"H\"])\n- \"project_duration_days\": an integer\n- \"reasoning\": a string explaining why this is the critical path, in under 50 words",
+  "response_content": "{\n  \"critical_path\": [\"A\", \"D\", \"F\", \"G\", \"H\"],\n  \"project_duration_days\": 14,\n  \"reasoning\": \"The critical path is the longest sequence of dependent tasks, which in this case is A -> D -> F -> G -> H, taking a total of 14 days.\"\n}",
+  "latency_ms": 957,
+  "prompt_tokens": 218,
+  "completion_tokens": 81,
+  "finish_reason": "end_turn",
+  "temperature": 0,
+  "recorded_at": "2026-03-08T05:36:15.154034+00:00"
+}

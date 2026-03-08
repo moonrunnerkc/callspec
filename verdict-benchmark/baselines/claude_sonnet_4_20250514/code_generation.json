@@ -1,0 +1,14 @@
+{
+  "model_requested": "claude-sonnet-4-20250514",
+  "model_returned": "claude-sonnet-4-20250514",
+  "provider": "anthropic",
+  "prompt_file": "code_generation.txt",
+  "prompt_text": "Write a Python function called `parse_duration` that takes a string like \"2h30m15s\" and returns the total number of seconds as an integer. The function must handle hours (h), minutes (m), and seconds (s) in any order. If a component is missing, treat it as zero. If the input format is invalid, raise a ValueError with a descriptive message. Include a docstring and type hints. Do not import any external libraries. Return only the function definition, no examples or tests.",
+  "response_content": "```python\ndef parse_duration(duration_str: str) -> int:\n    \"\"\"\n    Parse a duration string and return the total number of seconds.\n    \n    Args:\n        duration_str: A string representing duration in format like \"2h30m15s\".\n                     Components can be in any order and any component can be missing.\n                     Valid units are 'h' (hours), 'm' (minutes), 's' (seconds).\n    \n    Returns:\n        int: Total duration in seconds.\n    \n    Raises:\n        ValueError: If the input format is invalid or contains invalid characters.\n    \"\"\"\n    if not isinstance(duration_str, str):\n        raise ValueError(\"Input must be a string\")\n    \n    duration_str = duration_str.strip()\n    if not duration_str:\n        raise ValueError(\"Duration string cannot be empty\")\n    \n    hours = 0\n    minutes = 0\n    seconds = 0\n    \n    # Track which units we've seen to prevent duplicates\n    seen_units = set()\n    \n    i = 0\n    while i < len(duration_str):\n        # Extract number\n        num_start = i\n        while i < len(duration_str) and duration_str[i].isdigit():\n            i += 1\n        \n        if i == num_start:\n            raise ValueError(f\"Invalid format: expected number at position {i}\")\n        \n        if i >= len(duration_str):\n            raise ValueError(\"Invalid format: missing unit specifier\")\n        \n        number = int(duration_str[num_start:i])\n        unit = duration_str[i]\n        \n        if unit in seen_units:\n            raise ValueError(f\"Duplicate unit '{unit}' found\")\n        \n        if unit == 'h':\n            hours = number\n            seen_units.add('h')\n        elif unit == 'm':\n            minutes = number\n            seen_units.add('m')\n        elif unit == 's':\n            seconds = number\n            seen_units.add('s')\n        else:\n            raise ValueError(f\"Invalid unit '{unit}'. Valid units are 'h', 'm', 's'\")\n        \n        i += 1\n    \n    return hours * 3600 + minutes * 60 + seconds\n```",
+  "latency_ms": 7276,
+  "prompt_tokens": 115,
+  "completion_tokens": 544,
+  "finish_reason": "end_turn",
+  "temperature": 0,
+  "recorded_at": "2026-03-08T05:36:39.717112+00:00"
+}

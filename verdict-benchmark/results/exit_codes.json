@@ -1,0 +1,13 @@
+{
+  "verdict": {
+    "cli": 1,
+    "pytest": 2,
+    "subprocess": 2,
+    "expected": {
+      "cli": 1,
+      "pytest": 1,
+      "subprocess": 1
+    },
+    "all_nonzero": true
+  }
+}

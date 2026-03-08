@@ -1,0 +1,202 @@
+# Verdict Benchmark: Regression Detection Suite
+#
+# Tests structural, semantic, and format assertions against LLM output.
+# Designed to detect real drift between dated model versions.
+
+version: "1.0"
+name: "verdict_benchmark_regression"
+
+config:
+  temperature: 0
+  seed: 42
+  max_retries: 2
+
+cases:
+  - name: "structured_output_json"
+    prompt: |
+      You are a data extraction assistant. Extract the following information from the text below and return it as a JSON object with exactly these keys: "title", "author", "year", "topics", "summary".
+
+      The "topics" field must be a list of strings. The "summary" field must be a single sentence of no more than 30 words. The "year" field must be an integer.
+
+      Text:
+      "In their 2023 paper 'Attention Is All You Need Revisited', Dr. Sarah Chen and Prof. James Liu from MIT explored how transformer architectures have evolved since the original 2017 paper. Their work covers self-attention mechanisms, positional encodings, and efficient inference techniques, concluding that sparse attention patterns offer the most promising path toward scaling beyond current context window limits."
+
+      Return only the JSON object. No explanation, no markdown formatting.
+    assertions:
+      - type: is_valid_json
+      - type: contains_keys
+        params:
+          keys: ["title", "author", "year", "topics", "summary"]
+      - type: matches_schema
+        params:
+          schema:
+            type: object
+            required: ["title", "author", "year", "topics", "summary"]
+            properties:
+              title:
+                type: string
+              author:
+                type: string
+              year:
+                type: integer
+              topics:
+                type: array
+                items:
+                  type: string
+              summary:
+                type: string
+            additionalProperties: false
+      - type: length_between
+        params:
+          min_chars: 100
+          max_chars: 800
+
+  - name: "semantic_intent_explanation"
+    prompt: |
+      Explain the concept of database normalization to a junior software developer who has only worked with NoSQL databases. Cover what normalization is, why it matters, and the first three normal forms (1NF, 2NF, 3NF). Use a concrete example involving a library book tracking system. Keep the explanation under 300 words.
+    assertions:
+      - type: semantic_intent_matches
+        params:
+          reference_intent: "An educational explanation of relational database normalization covering first, second, and third normal forms with a library book tracking example"
+          threshold: 0.60
+      - type: does_not_discuss
+        params:
+          topic: "cryptocurrency trading strategies"
+          threshold: 0.3
+      - type: length_between
+        params:
+          min_chars: 200
+          max_chars: 3000
+
+  - name: "format_compliance_changelog"
+    prompt: |
+      Generate a changelog entry for a software release. Use this exact format:
+
+      ## [version] - YYYY-MM-DD
+
+      ### Added
+      - item
+
+      ### Changed
+      - item
+
+      ### Fixed
+      - item
+
+      The version is 2.4.0, the date is 2025-01-15. Include exactly 2 items under Added, 1 under Changed, and 3 under Fixed. Items should be about a Python web framework. Each item must start with a capital letter and end with a period. Do not include any text before or after the changelog entry.
+    assertions:
+      - type: matches_pattern
+        params:
+          pattern: "## \\[2\\.4\\.0\\] - 2025-01-15"
+      - type: matches_pattern
+        params:
+          pattern: "### Added"
+      - type: matches_pattern
+        params:
+          pattern: "### Changed"
+      - type: matches_pattern
+        params:
+          pattern: "### Fixed"
+      - type: does_not_contain
+        params:
+          text: "```"
+      - type: length_between
+        params:
+          min_chars: 150
+          max_chars: 1500
+
+  - name: "code_generation_function"
+    prompt: |
+      Write a Python function called `parse_duration` that takes a string like "2h30m15s" and returns the total number of seconds as an integer. The function must handle hours (h), minutes (m), and seconds (s) in any order. If a component is missing, treat it as zero. If the input format is invalid, raise a ValueError with a descriptive message. Include a docstring and type hints. Do not import any external libraries. Return only the function definition, no examples or tests.
+    assertions:
+      - type: matches_pattern
+        params:
+          pattern: "def parse_duration"
+      - type: matches_pattern
+        params:
+          pattern: "-> int"
+      - type: matches_pattern
+        params:
+          pattern: "ValueError"
+      - type: does_not_contain
+        params:
+          text: "import "
+      - type: length_between
+        params:
+          min_chars: 200
+          max_chars: 3000
+
+  - name: "numeric_reasoning_math"
+    prompt: |
+      A farmer has 3 fields. Field A produces 450 kg of wheat per hectare. Field B produces 380 kg per hectare. Field C produces 520 kg per hectare. Field A is 12.5 hectares, Field B is 8.3 hectares, and Field C is 15.7 hectares. The farmer sells wheat at $0.32 per kg but pays $180 per hectare in costs. Calculate the total revenue, total cost, and net profit. Show your work step by step. Give the final answer as a JSON object with keys "total_revenue", "total_cost", "net_profit", all as numbers rounded to 2 decimal places.
+    assertions:
+      - type: matches_pattern
+        params:
+          pattern: "total_revenue"
+      - type: matches_pattern
+        params:
+          pattern: "total_cost"
+      - type: matches_pattern
+        params:
+          pattern: "net_profit"
+      - type: length_between
+        params:
+          min_chars: 100
+          max_chars: 5000
+
+  - name: "instruction_following_bullets"
+    prompt: |
+      You are a technical writer. Write exactly 5 bullet points summarizing the key differences between REST and GraphQL APIs. Each bullet point must:
+      1. Start with a bold keyword (using markdown **bold** syntax)
+      2. Be exactly one sentence
+      3. Be no longer than 25 words
+      4. Not use the word "however" or "additionally"
+
+      Number the bullet points 1 through 5. Do not include any introduction or conclusion text.
+    assertions:
+      - type: matches_pattern
+        params:
+          pattern: "\\*\\*\\w+"
+      - type: does_not_contain
+        params:
+          text: "however"
+      - type: does_not_contain
+        params:
+          text: "additionally"
+      - type: length_between
+        params:
+          min_chars: 100
+          max_chars: 1500
+
+  - name: "chain_of_thought_critical_path"
+    prompt: |
+      I have a list of 8 tasks with dependencies. Each task has a duration in days. Determine the critical path and the minimum total project duration.
+
+      Tasks:
+      - A: 3 days, no dependencies
+      - B: 5 days, no dependencies
+      - C: 2 days, depends on A
+      - D: 4 days, depends on A
+      - E: 3 days, depends on B and C
+      - F: 2 days, depends on D
+      - G: 4 days, depends on E and F
+      - H: 1 day, depends on G
+
+      Return your answer as a JSON object with three keys:
+      - "critical_path": a list of task letters in order (e.g. ["A", "C", "E", "G", "H"])
+      - "project_duration_days": an integer
+      - "reasoning": a string explaining why this is the critical path, in under 50 words
+    assertions:
+      - type: matches_pattern
+        params:
+          pattern: "critical_path"
+      - type: matches_pattern
+        params:
+          pattern: "project_duration_days"
+      - type: matches_pattern
+        params:
+          pattern: "reasoning"
+      - type: length_between
+        params:
+          min_chars: 50
+          max_chars: 5000

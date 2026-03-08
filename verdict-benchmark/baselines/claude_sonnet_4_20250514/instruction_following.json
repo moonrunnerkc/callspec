@@ -1,0 +1,14 @@
+{
+  "model_requested": "claude-sonnet-4-20250514",
+  "model_returned": "claude-sonnet-4-20250514",
+  "provider": "anthropic",
+  "prompt_file": "instruction_following.txt",
+  "prompt_text": "You are a technical writer. Write exactly 5 bullet points summarizing the key differences between REST and GraphQL APIs. Each bullet point must:\n1. Start with a bold keyword (using markdown **bold** syntax)\n2. Be exactly one sentence\n3. Be no longer than 25 words\n4. Not use the word \"however\" or \"additionally\"\n\nNumber the bullet points 1 through 5. Do not include any introduction or conclusion text.",
+  "response_content": "1. **Endpoints**: REST uses multiple endpoints for different resources, while GraphQL uses a single endpoint for all operations.\n\n2. **Data**: REST returns fixed data structures, but GraphQL allows clients to request only specific fields needed.\n\n3. **Caching**: REST benefits from built-in HTTP caching mechanisms, whereas GraphQL requires custom caching solutions for optimization.\n\n4. **Versioning**: REST typically uses URL versioning for API changes, while GraphQL maintains backward compatibility through schema evolution.\n\n5. **Overfetching**: REST often returns excess data in responses, but GraphQL eliminates overfetching by fetching precise data requirements.",
+  "latency_ms": 4096,
+  "prompt_tokens": 106,
+  "completion_tokens": 145,
+  "finish_reason": "end_turn",
+  "temperature": 0,
+  "recorded_at": "2026-03-08T05:36:48.076743+00:00"
+}

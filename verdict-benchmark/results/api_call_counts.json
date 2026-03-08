@@ -1,0 +1,291 @@
+{
+  "verdict": {
+    "tool": "verdict",
+    "provider_api_calls": 3,
+    "total_https_requests": 27,
+    "model_download_requests": 24,
+    "elapsed_ms": 23278,
+    "calls_by_host": {
+      "api.anthropic.com": 3,
+      "huggingface.co": 24
+    },
+    "call_detail": [
+      {
+        "seq": 1,
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "timestamp_ms": 55031808
+      },
+      {
+        "seq": 2,
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "timestamp_ms": 55034169
+      },
+      {
+        "seq": 3,
+        "method": "HEAD",
+        "url": "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/modules.json",
+        "timestamp_ms": 55048050
+      },
+      {
+        "seq": 4,
+        "method": "HEAD",
+        "url": "https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/modules.json",
+        "timestamp_ms": 55048424
+      },
+      {
+        "seq": 5,
+        "method": "HEAD",
+        "url": "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/config_sentence_transformers.json",
+        "timestamp_ms": 55048522
+      },
+      {
+        "seq": 6,
+        "method": "HEAD",
+        "url": "https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/config_sentence_transformers.json",
+        "timestamp_ms": 55048613
+      },
+      {
+        "seq": 7,
+        "method": "HEAD",
+        "url": "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/config_sentence_transformers.json",
+        "timestamp_ms": 55048661
+      },
+      {
+        "seq": 8,
+        "method": "HEAD",
+        "url": "https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/config_sentence_transformers.json",
+        "timestamp_ms": 55048738
+      },
+      {
+        "seq": 9,
+        "method": "HEAD",
+        "url": "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/README.md",
+        "timestamp_ms": 55048762
+      },
+      {
+        "seq": 10,
+        "method": "HEAD",
+        "url": "https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/README.md",
+        "timestamp_ms": 55048838
+      },
+      {
+        "seq": 11,
+        "method": "HEAD",
+        "url": "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/modules.json",
+        "timestamp_ms": 55048890
+      },
+      {
+        "seq": 12,
+        "method": "HEAD",
+        "url": "https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/modules.json",
+        "timestamp_ms": 55048957
+      },
+      {
+        "seq": 13,
+        "method": "HEAD",
+        "url": "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/sentence_bert_config.json",
+        "timestamp_ms": 55048996
+      },
+      {
+        "seq": 14,
+        "method": "HEAD",
+        "url": "https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/sentence_bert_config.json",
+        "timestamp_ms": 55049082
+      },
+      {
+        "seq": 15,
+        "method": "HEAD",
+        "url": "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/adapter_config.json",
+        "timestamp_ms": 55049196
+      },
+      {
+        "seq": 16,
+        "method": "HEAD",
+        "url": "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/config.json",
+        "timestamp_ms": 55049271
+      },
+      {
+        "seq": 17,
+        "method": "HEAD",
+        "url": "https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/config.json",
+        "timestamp_ms": 55049337
+      },
+      {
+        "seq": 18,
+        "method": "HEAD",
+        "url": "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/config.json",
+        "timestamp_ms": 55049447
+      },
+      {
+        "seq": 19,
+        "method": "HEAD",
+        "url": "https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/config.json",
+        "timestamp_ms": 55049524
+      },
+      {
+        "seq": 20,
+        "method": "HEAD",
+        "url": "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/tokenizer_config.json",
+        "timestamp_ms": 55049572
+      },
+      {
+        "seq": 21,
+        "method": "HEAD",
+        "url": "https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/tokenizer_config.json",
+        "timestamp_ms": 55049689
+      },
+      {
+        "seq": 22,
+        "method": "GET",
+        "url": "https://huggingface.co/api/models/sentence-transformers/all-MiniLM-L6-v2/tree/main/additional_chat_templates?recursive=false&expand=false",
+        "timestamp_ms": 55049765
+      },
+      {
+        "seq": 23,
+        "method": "GET",
+        "url": "https://huggingface.co/api/models/sentence-transformers/all-MiniLM-L6-v2/tree/main?recursive=true&expand=false",
+        "timestamp_ms": 55049860
+      },
+      {
+        "seq": 24,
+        "method": "HEAD",
+        "url": "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/1_Pooling/config.json",
+        "timestamp_ms": 55049979
+      },
+      {
+        "seq": 25,
+        "method": "HEAD",
+        "url": "https://huggingface.co/api/resolve-cache/models/sentence-transformers/all-MiniLM-L6-v2/c9745ed1d9f207416be6d2e6f8de32d1f16199bf/1_Pooling%2Fconfig.json",
+        "timestamp_ms": 55050073
+      },
+      {
+        "seq": 26,
+        "method": "GET",
+        "url": "https://huggingface.co/api/models/sentence-transformers/all-MiniLM-L6-v2",
+        "timestamp_ms": 55050106
+      },
+      {
+        "seq": 27,
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "timestamp_ms": 55050454
+      }
+    ],
+    "measurement_method": "urllib3_and_httpx_intercept",
+    "note": "Measured by intercepting actual HTTPS requests during suite execution. provider_api_calls counts only LLM inference calls. model_download_requests are one-time embedding model fetches (cached after first run)."
+  },
+  "deepeval": {
+    "tool": "deepeval",
+    "provider_api_calls": 12,
+    "total_https_requests": 16,
+    "model_download_requests": 0,
+    "elapsed_ms": 24887,
+    "calls_by_host": {
+      "api.ipify.org": 1,
+      "api.openai.com": 12,
+      "us.i.posthog.com": 3
+    },
+    "call_detail": [
+      {
+        "seq": 1,
+        "method": "GET",
+        "url": "https://api.ipify.org/",
+        "timestamp_ms": 55055259
+      },
+      {
+        "seq": 2,
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "timestamp_ms": 55055691
+      },
+      {
+        "seq": 3,
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "timestamp_ms": 55057177
+      },
+      {
+        "seq": 4,
+        "method": "POST",
+        "url": "https://us.i.posthog.com/batch/",
+        "timestamp_ms": 55057485
+      },
+      {
+        "seq": 5,
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "timestamp_ms": 55058238
+      },
+      {
+        "seq": 6,
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "timestamp_ms": 55060731
+      },
+      {
+        "seq": 7,
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "timestamp_ms": 55062310
+      },
+      {
+        "seq": 8,
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "timestamp_ms": 55067948
+      },
+      {
+        "seq": 9,
+        "method": "POST",
+        "url": "https://us.i.posthog.com/batch/",
+        "timestamp_ms": 55068328
+      },
+      {
+        "seq": 10,
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "timestamp_ms": 55070420
+      },
+      {
+        "seq": 11,
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "timestamp_ms": 55073937
+      },
+      {
+        "seq": 12,
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "timestamp_ms": 55075388
+      },
+      {
+        "seq": 13,
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "timestamp_ms": 55076372
+      },
+      {
+        "seq": 14,
+        "method": "POST",
+        "url": "https://us.i.posthog.com/batch/",
+        "timestamp_ms": 55076440
+      },
+      {
+        "seq": 15,
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "timestamp_ms": 55077257
+      },
+      {
+        "seq": 16,
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "timestamp_ms": 55078776
+      }
+    ],
+    "measurement_method": "urllib3_and_httpx_intercept",
+    "note": "Measured by intercepting actual HTTPS requests during suite execution. provider_api_calls counts only LLM inference calls. model_download_requests are one-time embedding model fetches (cached after first run)."
+  }
+}

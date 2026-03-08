@@ -1,0 +1,14 @@
+{
+  "model_requested": "claude-sonnet-4-20250514",
+  "model_returned": "claude-sonnet-4-20250514",
+  "provider": "anthropic",
+  "prompt_file": "semantic_intent.txt",
+  "prompt_text": "Explain the concept of database normalization to a junior software developer who has only worked with NoSQL databases. Cover what normalization is, why it matters, and the first three normal forms (1NF, 2NF, 3NF). Use a concrete example involving a library book tracking system. Keep the explanation under 300 words.",
+  "response_content": "## Database Normalization for NoSQL Developers\n\nComing from NoSQL, you're used to storing related data together in documents. **Normalization** is the opposite approach used in relational databases - it's about breaking data into separate, linked tables to eliminate redundancy and inconsistencies.\n\n### Why Normalize?\n- **Reduces data duplication** (saves storage)\n- **Prevents update anomalies** (change author info once, not everywhere)\n- **Maintains data integrity** (no conflicting information)\n\n### The Three Normal Forms\n\n**Starting point** - Unnormalized library data:\n```\n| BookID | Title | Author | AuthorEmail | Genre | BorrowedBy | BorrowerPhone |\n|--------|-------|--------|-------------|-------|------------|---------------|\n| 1 | 1984 | Orwell | orwell@email.com | Fiction | John, Mary | 555-1234, 555-5678 |\n```\n\n**1NF (First Normal Form)**: Each cell contains only atomic (single) values\n```\n| BookID | Title | Author | AuthorEmail | Genre | BorrowedBy | BorrowerPhone |\n|--------|-------|--------|-------------|-------|------------|---------------|\n| 1 | 1984 | Orwell | orwell@email.com | Fiction | John | 555-1234 |\n| 1 | 1984 | Orwell | orwell@email.com | Fiction | Mary | 555-5678 |\n```\n\n**2NF**: Must be in 1NF + all non-key attributes depend on the entire primary key\n```\nBooks: | BookID | Title | Author | AuthorEmail | Genre |\nLoans: | BookID | BorrowedBy | BorrowerPhone |\n```\n\n**3NF**: Must be in 2NF + no transitive dependencies (non-key attributes shouldn't depend on other non-key attributes)\n```\nBooks: | BookID | Title | AuthorID | Genre |\nAuthors: | AuthorID | Author | AuthorEmail |\nLoans: | BookID | BorrowerID |\nBorrowers: | BorrowerID | BorrowedBy | BorrowerPhone |\n```\n\nThink of normalization as the relational equivalent of microservices - each table has a single responsibility, and they work together through relationships.",
+  "latency_ms": 10043,
+  "prompt_tokens": 80,
+  "completion_tokens": 549,
+  "finish_reason": "end_turn",
+  "temperature": 0,
+  "recorded_at": "2026-03-08T05:36:27.483038+00:00"
+}

@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+dist/
+build/
+*.whl
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment and secrets
+.env
+.env.*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Testing
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+verdict-report.json
+
+# Snapshots (local overrides only; committed snapshots live in verdict_snapshots/)
+*.snapshot.local
+
+# Internal docs (not for public repo)
+.github/copilot-instructions.md
+.github/benchmark-plan.md
+
+# DeepEval artifacts
+.deepeval/
+**/.deepeval/
+
+# Stray pip artifacts
+/=*
+
+# OS
+.DS_Store
+Thumbs.db

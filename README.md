@@ -16,7 +16,7 @@ Created by [Bradley R. Kinnard](https://github.com/moonrunnerkc)
 &nbsp;&nbsp;
 ![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)
 &nbsp;&nbsp;
-![Tests](https://img.shields.io/badge/tests-450%20passing-brightgreen.svg)
+![Tests](https://img.shields.io/badge/tests-458%20total%20|%20450%20passing-brightgreen.svg)
 
 <br>
 

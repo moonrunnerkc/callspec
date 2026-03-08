@@ -10,11 +10,11 @@ Created by [Bradley R. Kinnard](https://github.com/moonrunnerkc)
 
 <br>
 
-![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)
+[![PyPI](https://img.shields.io/pypi/v/llm-assert)](https://pypi.org/project/llm-assert/)
 &nbsp;&nbsp;
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 &nbsp;&nbsp;
-![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)
+[![Python](https://img.shields.io/pypi/pyversions/llm-assert)](https://pypi.org/project/llm-assert/)
 &nbsp;&nbsp;
 ![Tests](https://img.shields.io/badge/tests-458%20total%20|%20450%20passing-brightgreen.svg)
 

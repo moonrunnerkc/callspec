@@ -47,6 +47,8 @@ dev = [
     "coverage>=7.0.0",
     "ruff>=0.1.0",
     "mypy>=1.0.0",
+    "types-jsonschema>=4.0.0",
+    "types-PyYAML>=6.0.0",
 ]
 all = [
     "callspec[openai]",
@@ -92,3 +94,40 @@ python_version = "3.9"
 strict = true
 warn_return_any = true
 warn_unused_configs = true
+
+# Optional provider dependencies are not installed in CI.
+# Each provider module guards its import with a try/except at runtime.
+[[tool.mypy.overrides]]
+module = [
+    "anthropic",
+    "anthropic.*",
+    "google",
+    "google.generativeai",
+    "google.generativeai.*",
+    "litellm",
+    "litellm.*",
+    "mistralai",
+    "mistralai.*",
+    "ollama",
+    "ollama.*",
+    "openai",
+    "openai.*",
+]
+ignore_missing_imports = true
+
+# pytest internals use match statements (Python 3.10+), which mypy
+# rejects when python_version is set to 3.9. Not our code to fix.
+[[tool.mypy.overrides]]
+module = [
+    "_pytest.*",
+    "pytest.*",
+]
+follow_imports = "skip"
+
+# pytest fixture and hook decorators lose type info when pytest
+# itself is skipped above. These are typed correctly by pytest.
+[[tool.mypy.overrides]]
+module = [
+    "callspec.pytest_plugin.*",
+]
+disable_error_code = ["untyped-decorator"]

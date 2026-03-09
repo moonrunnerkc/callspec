@@ -16,18 +16,16 @@ import pytest
 from callspec.capture.normalizer import normalize
 from callspec.core.trajectory import ToolCallTrajectory
 from callspec.core.types import ProviderResponse
-
 from tests.fixtures.tool_call_responses import (
-    OPENAI_CHAT_SINGLE_TOOL_CALL,
-    OPENAI_CHAT_PARALLEL_TOOL_CALLS,
-    OPENAI_CHAT_NO_TOOL_CALLS,
-    OPENAI_RESPONSES_API_SINGLE,
-    ANTHROPIC_SINGLE_TOOL_USE,
     ANTHROPIC_NO_TOOL_USE,
+    ANTHROPIC_SINGLE_TOOL_USE,
     GENERIC_TOOL_CALLS,
     GENERIC_TOOL_CALLS_ALTERNATE_KEYS,
+    OPENAI_CHAT_NO_TOOL_CALLS,
+    OPENAI_CHAT_PARALLEL_TOOL_CALLS,
+    OPENAI_CHAT_SINGLE_TOOL_CALL,
+    OPENAI_RESPONSES_API_SINGLE,
 )
-
 
 # ---------------------------------------------------------------------------
 # ProviderResponse source

@@ -8,11 +8,9 @@ from typing import Any
 
 
 class AssertionType(Enum):
-    """Categories of assertions, mapping to the four-layer taxonomy."""
+    """Categories of assertions supported by callspec."""
 
     STRUCTURAL = "structural"
-    SEMANTIC = "semantic"
-    BEHAVIORAL = "behavioral"
     REGRESSION = "regression"
 
 

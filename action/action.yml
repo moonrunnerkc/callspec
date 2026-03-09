@@ -125,7 +125,26 @@ runs:
 
         if [ $EXIT_CODE -ne 0 ]; then
           echo "callspec_passed=false" >> "$GITHUB_OUTPUT"
-          exit $EXIT_CODE
         else
           echo "callspec_passed=true" >> "$GITHUB_OUTPUT"
+        fi
+
+        # Extract case counts from the JSON report when available
+        REPORT_FILE="${{ inputs.report-path }}"
+        if [ -f "$REPORT_FILE" ] && [ "${{ inputs.report-format }}" = "json" ]; then
+          PASSED_CASES=$(python3 -c "import json; r=json.load(open('$REPORT_FILE')); print(r.get('suite',{}).get('passed_cases',0))" 2>/dev/null || echo "0")
+          FAILED_CASES=$(python3 -c "import json; r=json.load(open('$REPORT_FILE')); print(r.get('suite',{}).get('failed_cases',0))" 2>/dev/null || echo "0")
+          TOTAL_CASES=$(python3 -c "import json; r=json.load(open('$REPORT_FILE')); print(r.get('suite',{}).get('total_cases',0))" 2>/dev/null || echo "0")
+        else
+          PASSED_CASES="0"
+          FAILED_CASES="0"
+          TOTAL_CASES="0"
+        fi
+
+        echo "callspec_passed_cases=$PASSED_CASES" >> "$GITHUB_OUTPUT"
+        echo "callspec_failed_cases=$FAILED_CASES" >> "$GITHUB_OUTPUT"
+        echo "callspec_total_cases=$TOTAL_CASES" >> "$GITHUB_OUTPUT"
+
+        if [ $EXIT_CODE -ne 0 ]; then
+          exit $EXIT_CODE
         fi

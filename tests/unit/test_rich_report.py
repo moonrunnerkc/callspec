@@ -10,7 +10,6 @@ from __future__ import annotations
 import io
 
 from rich.console import Console
-from rich.theme import Theme
 
 from callspec.cli.console import CALLSPEC_THEME
 from callspec.core.report import _render_rich_case, render_rich_report
@@ -115,7 +114,6 @@ def _capture_rich_output(fn, *args, **kwargs) -> str:
     )
 
     import callspec.cli.console as console_mod
-    import callspec.core.report as report_mod
 
     original_console = console_mod.console
     console_mod.console = capture_console

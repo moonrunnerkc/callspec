@@ -1,8 +1,8 @@
 """Tests for Phase 4: trajectory snapshots, trajectory diff, trajectory regression assertions."""
 
 import json
+
 import pytest
-from pathlib import Path
 
 from callspec.assertions.trajectory_regression import (
     MatchesTrajectoryBaseline,
@@ -11,7 +11,7 @@ from callspec.assertions.trajectory_regression import (
 from callspec.core.config import CallspecConfig
 from callspec.core.trajectory import ToolCall, ToolCallTrajectory
 from callspec.core.trajectory_builder import TrajectoryBuilder
-from callspec.snapshots.diff import SnapshotDiff, TrajectoryDiffResult, ToolCallDiff
+from callspec.snapshots.diff import SnapshotDiff
 from callspec.snapshots.manager import SnapshotManager
 from callspec.snapshots.serializer import (
     SNAPSHOT_SCHEMA_VERSION,

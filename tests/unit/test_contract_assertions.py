@@ -1,6 +1,5 @@
 """Tests for contract assertions (per-tool argument validation)."""
 
-import pytest
 
 from callspec.assertions.contract import (
     ArgumentContainsKey,
@@ -12,7 +11,6 @@ from callspec.assertions.contract import (
 )
 from callspec.core.config import CallspecConfig
 from callspec.core.trajectory import ToolCall, ToolCallTrajectory
-
 
 CONFIG = CallspecConfig()
 
@@ -43,19 +41,22 @@ class TestArgumentMatchesSchema:
 
     def test_passes_valid_args(self):
         traj = _traj_with_calls(("search", {"query": "hello", "limit": 5}))
-        result = ArgumentMatchesSchema("search", self.SEARCH_SCHEMA).evaluate_trajectory(traj, CONFIG)
+        assertion = ArgumentMatchesSchema("search", self.SEARCH_SCHEMA)
+        result = assertion.evaluate_trajectory(traj, CONFIG)
         assert result.passed
         assert result.assertion_type == "contract"
 
     def test_fails_missing_required_key(self):
         traj = _traj_with_calls(("search", {"limit": 5}))
-        result = ArgumentMatchesSchema("search", self.SEARCH_SCHEMA).evaluate_trajectory(traj, CONFIG)
+        assertion = ArgumentMatchesSchema("search", self.SEARCH_SCHEMA)
+        result = assertion.evaluate_trajectory(traj, CONFIG)
         assert not result.passed
         assert "query" in result.message
 
     def test_fails_wrong_type(self):
         traj = _traj_with_calls(("search", {"query": 123}))
-        result = ArgumentMatchesSchema("search", self.SEARCH_SCHEMA).evaluate_trajectory(traj, CONFIG)
+        assertion = ArgumentMatchesSchema("search", self.SEARCH_SCHEMA)
+        result = assertion.evaluate_trajectory(traj, CONFIG)
         assert not result.passed
 
     def test_multiple_calls_all_must_pass(self):
@@ -63,7 +64,8 @@ class TestArgumentMatchesSchema:
             ("search", {"query": "a"}),
             ("search", {"query": "b"}),
         )
-        result = ArgumentMatchesSchema("search", self.SEARCH_SCHEMA).evaluate_trajectory(traj, CONFIG)
+        assertion = ArgumentMatchesSchema("search", self.SEARCH_SCHEMA)
+        result = assertion.evaluate_trajectory(traj, CONFIG)
         assert result.passed
 
     def test_multiple_calls_one_fails(self):
@@ -71,12 +73,14 @@ class TestArgumentMatchesSchema:
             ("search", {"query": "a"}),
             ("search", {"limit": 5}),  # missing required "query"
         )
-        result = ArgumentMatchesSchema("search", self.SEARCH_SCHEMA).evaluate_trajectory(traj, CONFIG)
+        assertion = ArgumentMatchesSchema("search", self.SEARCH_SCHEMA)
+        result = assertion.evaluate_trajectory(traj, CONFIG)
         assert not result.passed
 
     def test_tool_not_found(self):
         traj = _traj_with_calls(("book", {"id": 1}))
-        result = ArgumentMatchesSchema("search", self.SEARCH_SCHEMA).evaluate_trajectory(traj, CONFIG)
+        assertion = ArgumentMatchesSchema("search", self.SEARCH_SCHEMA)
+        result = assertion.evaluate_trajectory(traj, CONFIG)
         assert not result.passed
         assert "not found" in result.message.lower()
 
@@ -85,11 +89,13 @@ class TestArgumentMatchesSchema:
             ("search", {"query": "ok"}),
             ("book", {"bad_field": True}),
         )
-        result = ArgumentMatchesSchema("search", self.SEARCH_SCHEMA).evaluate_trajectory(traj, CONFIG)
+        assertion = ArgumentMatchesSchema("search", self.SEARCH_SCHEMA)
+        result = assertion.evaluate_trajectory(traj, CONFIG)
         assert result.passed
 
     def test_empty_trajectory(self):
-        result = ArgumentMatchesSchema("search", self.SEARCH_SCHEMA).evaluate_trajectory(EMPTY, CONFIG)
+        assertion = ArgumentMatchesSchema("search", self.SEARCH_SCHEMA)
+        result = assertion.evaluate_trajectory(EMPTY, CONFIG)
         assert not result.passed
 
 
@@ -98,12 +104,14 @@ class TestArgumentMatchesSchema:
 class TestArgumentContainsKey:
     def test_passes_key_present(self):
         traj = _traj_with_calls(("search", {"query": "hello"}))
-        result = ArgumentContainsKey("search", "query").evaluate_trajectory(traj, CONFIG)
+        assertion = ArgumentContainsKey("search", "query")
+        result = assertion.evaluate_trajectory(traj, CONFIG)
         assert result.passed
 
     def test_fails_key_absent(self):
         traj = _traj_with_calls(("search", {"limit": 5}))
-        result = ArgumentContainsKey("search", "query").evaluate_trajectory(traj, CONFIG)
+        assertion = ArgumentContainsKey("search", "query")
+        result = assertion.evaluate_trajectory(traj, CONFIG)
         assert not result.passed
 
     def test_multiple_calls_all_must_have_key(self):
@@ -111,12 +119,14 @@ class TestArgumentContainsKey:
             ("search", {"query": "a"}),
             ("search", {"limit": 5}),  # no "query"
         )
-        result = ArgumentContainsKey("search", "query").evaluate_trajectory(traj, CONFIG)
+        assertion = ArgumentContainsKey("search", "query")
+        result = assertion.evaluate_trajectory(traj, CONFIG)
         assert not result.passed
 
     def test_tool_not_found(self):
         traj = _traj_with_calls(("book", {"id": 1}))
-        result = ArgumentContainsKey("search", "query").evaluate_trajectory(traj, CONFIG)
+        assertion = ArgumentContainsKey("search", "query")
+        result = assertion.evaluate_trajectory(traj, CONFIG)
         assert not result.passed
 
 
@@ -125,18 +135,21 @@ class TestArgumentContainsKey:
 class TestArgumentValueIn:
     def test_passes_value_in_set(self):
         traj = _traj_with_calls(("search", {"engine": "google"}))
-        result = ArgumentValueIn("search", "engine", ["google", "bing"]).evaluate_trajectory(traj, CONFIG)
+        assertion = ArgumentValueIn("search", "engine", ["google", "bing"])
+        result = assertion.evaluate_trajectory(traj, CONFIG)
         assert result.passed
 
     def test_fails_value_not_in_set(self):
         traj = _traj_with_calls(("search", {"engine": "yahoo"}))
-        result = ArgumentValueIn("search", "engine", ["google", "bing"]).evaluate_trajectory(traj, CONFIG)
+        assertion = ArgumentValueIn("search", "engine", ["google", "bing"])
+        result = assertion.evaluate_trajectory(traj, CONFIG)
         assert not result.passed
         assert "yahoo" in result.message
 
     def test_fails_key_absent(self):
         traj = _traj_with_calls(("search", {"query": "test"}))
-        result = ArgumentValueIn("search", "engine", ["google"]).evaluate_trajectory(traj, CONFIG)
+        assertion = ArgumentValueIn("search", "engine", ["google"])
+        result = assertion.evaluate_trajectory(traj, CONFIG)
         assert not result.passed
 
     def test_multiple_calls(self):
@@ -144,12 +157,14 @@ class TestArgumentValueIn:
             ("search", {"engine": "google"}),
             ("search", {"engine": "bing"}),
         )
-        result = ArgumentValueIn("search", "engine", ["google", "bing"]).evaluate_trajectory(traj, CONFIG)
+        assertion = ArgumentValueIn("search", "engine", ["google", "bing"])
+        result = assertion.evaluate_trajectory(traj, CONFIG)
         assert result.passed
 
     def test_tool_not_found(self):
         traj = _traj_with_calls(("book", {}))
-        result = ArgumentValueIn("search", "engine", ["google"]).evaluate_trajectory(traj, CONFIG)
+        assertion = ArgumentValueIn("search", "engine", ["google"])
+        result = assertion.evaluate_trajectory(traj, CONFIG)
         assert not result.passed
 
 
@@ -158,28 +173,33 @@ class TestArgumentValueIn:
 class TestArgumentMatchesPattern:
     def test_passes_pattern_match(self):
         traj = _traj_with_calls(("search", {"query": "python 3.12 features"}))
-        result = ArgumentMatchesPattern("search", "query", r"python \d").evaluate_trajectory(traj, CONFIG)
+        assertion = ArgumentMatchesPattern("search", "query", r"python \d")
+        result = assertion.evaluate_trajectory(traj, CONFIG)
         assert result.passed
 
     def test_fails_no_match(self):
         traj = _traj_with_calls(("search", {"query": "hello world"}))
-        result = ArgumentMatchesPattern("search", "query", r"^python").evaluate_trajectory(traj, CONFIG)
+        assertion = ArgumentMatchesPattern("search", "query", r"^python")
+        result = assertion.evaluate_trajectory(traj, CONFIG)
         assert not result.passed
 
     def test_fails_non_string_value(self):
         traj = _traj_with_calls(("search", {"query": 42}))
-        result = ArgumentMatchesPattern("search", "query", r"\d+").evaluate_trajectory(traj, CONFIG)
+        assertion = ArgumentMatchesPattern("search", "query", r"\d+")
+        result = assertion.evaluate_trajectory(traj, CONFIG)
         assert not result.passed
         assert "not a string" in result.message.lower()
 
     def test_fails_key_absent(self):
         traj = _traj_with_calls(("search", {"limit": 5}))
-        result = ArgumentMatchesPattern("search", "query", r".*").evaluate_trajectory(traj, CONFIG)
+        assertion = ArgumentMatchesPattern("search", "query", r".*")
+        result = assertion.evaluate_trajectory(traj, CONFIG)
         assert not result.passed
 
     def test_tool_not_found(self):
         traj = _traj_with_calls(("book", {}))
-        result = ArgumentMatchesPattern("search", "query", r".*").evaluate_trajectory(traj, CONFIG)
+        assertion = ArgumentMatchesPattern("search", "query", r".*")
+        result = assertion.evaluate_trajectory(traj, CONFIG)
         assert not result.passed
 
 

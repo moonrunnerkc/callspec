@@ -7,29 +7,25 @@ arguments, legacy formats) are all covered.
 
 from __future__ import annotations
 
-import pytest
-
-from callspec.capture.adapters.openai import extract_from_dict as openai_extract
 from callspec.capture.adapters.anthropic import extract_from_dict as anthropic_extract
-from callspec.capture.adapters.langchain import extract_from_message as langchain_extract
-from callspec.capture.adapters.pydantic_ai import extract_from_response as pydantic_ai_extract
 from callspec.capture.adapters.generic import extract_from_list as generic_extract
-
+from callspec.capture.adapters.langchain import extract_from_message as langchain_extract
+from callspec.capture.adapters.openai import extract_from_dict as openai_extract
+from callspec.capture.adapters.pydantic_ai import extract_from_response as pydantic_ai_extract
 from tests.fixtures.tool_call_responses import (
-    OPENAI_CHAT_SINGLE_TOOL_CALL,
-    OPENAI_CHAT_PARALLEL_TOOL_CALLS,
-    OPENAI_CHAT_LEGACY_FUNCTION_CALL,
-    OPENAI_CHAT_NO_TOOL_CALLS,
-    OPENAI_RESPONSES_API_SINGLE,
-    OPENAI_RESPONSES_API_MULTIPLE,
-    OPENAI_CHAT_MALFORMED_ARGS,
-    ANTHROPIC_SINGLE_TOOL_USE,
     ANTHROPIC_MULTIPLE_TOOL_USE,
     ANTHROPIC_NO_TOOL_USE,
+    ANTHROPIC_SINGLE_TOOL_USE,
     GENERIC_TOOL_CALLS,
     GENERIC_TOOL_CALLS_ALTERNATE_KEYS,
+    OPENAI_CHAT_LEGACY_FUNCTION_CALL,
+    OPENAI_CHAT_MALFORMED_ARGS,
+    OPENAI_CHAT_NO_TOOL_CALLS,
+    OPENAI_CHAT_PARALLEL_TOOL_CALLS,
+    OPENAI_CHAT_SINGLE_TOOL_CALL,
+    OPENAI_RESPONSES_API_MULTIPLE,
+    OPENAI_RESPONSES_API_SINGLE,
 )
-
 
 # ---------------------------------------------------------------------------
 # OpenAI Chat Completions adapter

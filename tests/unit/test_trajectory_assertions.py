@@ -1,6 +1,5 @@
 """Tests for trajectory assertions (sequence-level tool call validation)."""
 
-import pytest
 
 from callspec.assertions.trajectory import (
     CallCount,
@@ -13,7 +12,6 @@ from callspec.assertions.trajectory import (
 )
 from callspec.core.config import CallspecConfig
 from callspec.core.trajectory import ToolCall, ToolCallTrajectory
-
 
 # -- Helpers --
 

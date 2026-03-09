@@ -17,7 +17,6 @@ import logging
 import time
 
 from callspec.assertions.base import BaseAssertion
-from callspec.assertions.trajectory_base import TrajectoryAssertion
 from callspec.core.config import CallspecConfig
 from callspec.core.suite import AssertionCase, AssertionSuite
 from callspec.core.trajectory import ToolCall, ToolCallTrajectory
@@ -72,11 +71,17 @@ class AssertionRunner:
         response content. Respects fail_fast: if True, stops at first failure.
         """
         start_time = time.monotonic()
-        logger.debug("Running %d assertion(s) against prompt (%d chars)", len(assertions), len(prompt))
+        logger.debug(
+            "Running %d assertion(s) against prompt (%d chars)",
+            len(assertions), len(prompt),
+        )
 
         provider_response = self._call_provider_with_retries(prompt, messages)
         content = provider_response.content
-        logger.debug("Provider returned %d chars from model %s", len(content), provider_response.model)
+        logger.debug(
+            "Provider returned %d chars from model %s",
+            len(content), provider_response.model,
+        )
 
         individual_results: list[IndividualAssertionResult] = []
         all_passed = True
@@ -98,10 +103,13 @@ class AssertionRunner:
                     logger.debug("Fail-fast enabled, stopping assertion chain")
                     break
             else:
-                logger.debug("Assertion %s.%s passed", assertion.assertion_type, assertion.assertion_name)
+                logger.debug(
+                    "Assertion %s.%s passed",
+                    assertion.assertion_type, assertion.assertion_name,
+                )
 
         elapsed_ms = int((time.monotonic() - start_time) * 1000)
-        logger.debug("Assertions complete in %dms, all_passed=%s", elapsed_ms, all_passed)
+        logger.debug("Assertions complete in %dms, passed=%s", elapsed_ms, all_passed)
 
         return AssertionResult(
             passed=all_passed,
@@ -183,7 +191,10 @@ class AssertionRunner:
                     if self._config.fail_fast:
                         break
                 else:
-                    logger.debug("Assertion %s.%s passed", assertion.assertion_type, assertion.assertion_name)
+                    logger.debug(
+                        "Assertion %s.%s passed",
+                        assertion.assertion_type, assertion.assertion_name,
+                    )
 
         # Trajectory assertions evaluate against extracted tool calls
         if case.has_trajectory_assertions and (all_passed or not self._config.fail_fast):
@@ -193,19 +204,28 @@ class AssertionRunner:
                 len(case.trajectory_assertions), len(trajectory),
             )
             for traj_assertion in case.trajectory_assertions:
-                logger.debug("Evaluating %s.%s", traj_assertion.assertion_type, traj_assertion.assertion_name)
+                logger.debug(
+                    "Evaluating %s.%s",
+                    traj_assertion.assertion_type, traj_assertion.assertion_name,
+                )
                 individual = traj_assertion.evaluate_trajectory(trajectory, self._config)
                 individual_results.append(individual)
                 if not individual.passed:
                     all_passed = False
                     logger.debug(
                         "Assertion %s.%s FAILED: %s",
-                        traj_assertion.assertion_type, traj_assertion.assertion_name, individual.message,
+                        traj_assertion.assertion_type,
+                        traj_assertion.assertion_name,
+                        individual.message,
                     )
                     if self._config.fail_fast:
                         break
                 else:
-                    logger.debug("Assertion %s.%s passed", traj_assertion.assertion_type, traj_assertion.assertion_name)
+                    logger.debug(
+                        "Assertion %s.%s passed",
+                        traj_assertion.assertion_type,
+                        traj_assertion.assertion_name,
+                    )
 
         elapsed_ms = int((time.monotonic() - start_time) * 1000)
 

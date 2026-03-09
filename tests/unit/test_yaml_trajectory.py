@@ -173,7 +173,8 @@ class TestContractYAMLParsing:
                       matches_pattern: "^[A-Z]{3}$"
         """)
         suite = load_yaml_suite(path)
-        assert suite.cases[0].trajectory_assertions[0].__class__.__name__ == "ArgumentMatchesPattern"
+        first = suite.cases[0].trajectory_assertions[0]
+        assert first.__class__.__name__ == "ArgumentMatchesPattern"
 
     def test_value_in_contract(self, tmp_path):
         path = _write_suite(tmp_path, """
@@ -331,9 +332,9 @@ class TestSuiteRunnerTrajectory:
         """MockProvider returns the prompt as content with no tool calls.
         Trajectory assertions against empty tool calls should fail/pass
         according to assertion logic."""
+        from callspec.assertions.trajectory import DoesNotCall
         from callspec.core.runner import AssertionRunner
         from callspec.core.suite import AssertionCase, AssertionSuite
-        from callspec.assertions.trajectory import DoesNotCall
         from callspec.providers.mock import MockProvider
 
         provider = MockProvider(
@@ -358,9 +359,9 @@ class TestSuiteRunnerTrajectory:
         assert result.passed_cases == 1
 
     def test_trajectory_case_fails_on_violation(self, tmp_path):
+        from callspec.assertions.trajectory import CallsTool
         from callspec.core.runner import AssertionRunner
         from callspec.core.suite import AssertionCase, AssertionSuite
-        from callspec.assertions.trajectory import CallsTool
         from callspec.providers.mock import MockProvider
 
         provider = MockProvider(
@@ -383,10 +384,10 @@ class TestSuiteRunnerTrajectory:
         assert result.failed_cases == 1
 
     def test_mixed_content_and_trajectory_in_suite(self):
-        from callspec.core.runner import AssertionRunner
-        from callspec.core.suite import AssertionCase, AssertionSuite
         from callspec.assertions.structural import IsValidJson
         from callspec.assertions.trajectory import CallsTool
+        from callspec.core.runner import AssertionRunner
+        from callspec.core.suite import AssertionCase, AssertionSuite
         from callspec.providers.mock import MockProvider
 
         provider = MockProvider(

@@ -120,7 +120,12 @@ class AnthropicProvider(BaseProvider):
 
         return None, [{"role": "user", "content": prompt}]
 
-    def _build_params(self, system_text: str | None, user_messages: list[dict[str, str]], **kwargs: Any) -> dict[str, Any]:
+    def _build_params(
+        self,
+        system_text: str | None,
+        user_messages: list[dict[str, str]],
+        **kwargs: Any,
+    ) -> dict[str, Any]:
         """Build the request parameters for Anthropic's messages API."""
         # Anthropic does not support a seed parameter for deterministic output.
         # The runner passes seed= on every call; strip it here to avoid a

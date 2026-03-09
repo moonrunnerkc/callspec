@@ -205,8 +205,12 @@ class LiteLLMProvider(BaseProvider):
             func = getattr(tc, "function", None)
             if func is None:
                 func = tc.get("function", {}) if isinstance(tc, dict) else {}
-            func_name = getattr(func, "name", "") if not isinstance(func, dict) else func.get("name", "")
-            arguments = getattr(func, "arguments", "{}") if not isinstance(func, dict) else func.get("arguments", "{}")
+            if isinstance(func, dict):
+                func_name = func.get("name", "")
+                arguments = func.get("arguments", "{}")
+            else:
+                func_name = getattr(func, "name", "")
+                arguments = getattr(func, "arguments", "{}")
             if isinstance(arguments, str):
                 try:
                     arguments = json.loads(arguments)

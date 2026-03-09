@@ -20,6 +20,13 @@ from typing import Any, Callable, TypeVar
 import yaml
 
 from callspec.assertions.base import BaseAssertion
+from callspec.assertions.contract import (
+    ArgumentContainsKey,
+    ArgumentMatchesPattern,
+    ArgumentMatchesSchema,
+    ArgumentNotEmpty,
+    ArgumentValueIn,
+)
 from callspec.assertions.structural import (
     ContainsKeys,
     DoesNotContain,
@@ -30,6 +37,16 @@ from callspec.assertions.structural import (
     MatchesSchema,
     StartsWith,
 )
+from callspec.assertions.trajectory import (
+    CallCount,
+    CallsExactly,
+    CallsSubset,
+    CallsTool,
+    CallsToolsInOrder,
+    DoesNotCall,
+    NoRepeatedCalls,
+)
+from callspec.assertions.trajectory_base import TrajectoryAssertion
 from callspec.core.config import CallspecConfig
 from callspec.core.suite import AssertionCase, AssertionSuite
 from callspec.core.types import Severity
@@ -120,24 +137,6 @@ def _build_ends_with(params: dict[str, Any]) -> BaseAssertion:
 
 # -- Trajectory assertion builders --
 # These produce TrajectoryAssertion instances from the YAML `trajectory` section.
-
-from callspec.assertions.trajectory_base import TrajectoryAssertion
-from callspec.assertions.trajectory import (
-    CallCount,
-    CallsExactly,
-    CallsSubset,
-    CallsTool,
-    CallsToolsInOrder,
-    DoesNotCall,
-    NoRepeatedCalls,
-)
-from callspec.assertions.contract import (
-    ArgumentContainsKey,
-    ArgumentMatchesPattern,
-    ArgumentMatchesSchema,
-    ArgumentNotEmpty,
-    ArgumentValueIn,
-)
 
 # Maps trajectory YAML keys to builders returning TrajectoryAssertion
 _TRAJECTORY_BUILDERS: dict[str, Any] = {}

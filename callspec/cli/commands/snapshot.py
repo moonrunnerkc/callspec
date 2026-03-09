@@ -11,9 +11,9 @@ import logging
 import sys
 from pathlib import Path
 
-logger = logging.getLogger(__name__)
-
 import click
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_SNAPSHOT_DIR = "callspec_snapshots"
 
@@ -88,9 +88,10 @@ def snapshot_create(key: str, prompt: str, provider: str | None, snapshot_dir: s
         sys.exit(1)
 
     tool_info = f", {len(entry.tool_calls)} tool calls" if entry.tool_calls else ""
+    detail = f"({entry.content_length} chars{tool_info}, model={entry.model})"
     console.print(
         f"{PASS_MARKER} Snapshot [callspec.key]'{key}'[/callspec.key] created "
-        f"[callspec.muted]({entry.content_length} chars{tool_info}, model={entry.model})[/callspec.muted]"
+        f"[callspec.muted]{detail}[/callspec.muted]"
     )
 
 
@@ -138,9 +139,10 @@ def snapshot_update(key: str, prompt: str, provider: str | None, snapshot_dir: s
         tool_calls=response.tool_calls if response.tool_calls else None,
     )
     tool_info = f", {len(entry.tool_calls)} tool calls" if entry.tool_calls else ""
+    detail = f"({entry.content_length} chars{tool_info}, model={entry.model})"
     console.print(
         f"{PASS_MARKER} Snapshot [callspec.key]'{key}'[/callspec.key] updated "
-        f"[callspec.muted]({entry.content_length} chars{tool_info}, model={entry.model})[/callspec.muted]"
+        f"[callspec.muted]{detail}[/callspec.muted]"
     )
 
 

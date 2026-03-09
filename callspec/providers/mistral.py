@@ -13,11 +13,10 @@ Requires: pip install callspec[mistral]
 
 from __future__ import annotations
 
+import json
 import logging
 import time
 from typing import Any
-
-import json
 
 from callspec.core.types import ProviderResponse
 from callspec.providers.base import BaseProvider

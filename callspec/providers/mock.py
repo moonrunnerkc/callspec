@@ -46,7 +46,9 @@ class MockProvider(BaseProvider):
         # Static list is wrapped into a constant function for convenience.
         if tool_calls is not None and tool_calls_fn is None:
             static_calls = list(tool_calls)
-            self._tool_calls_fn: Callable[..., list[dict[str, Any]]] | None = lambda p, m=None: static_calls
+            self._tool_calls_fn: Callable[
+                ..., list[dict[str, Any]]
+            ] | None = lambda p, m=None: static_calls
         else:
             self._tool_calls_fn = tool_calls_fn
 

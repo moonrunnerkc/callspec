@@ -9,76 +9,67 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-#### Phase 1: Core Assertions and Mock Provider
+#### Core Assertions and Mock Provider
 - Core assertion framework with `BaseAssertion` abstract class
 - `MockProvider` for testing without API calls
 - `AssertionRunner` and fluent `AssertionBuilder` API
 - `AssertionResult` and `IndividualAssertionResult` structured result types
-- `callspecConfig` dataclass for global settings, thresholds, retry policy
+- `CallspecConfig` dataclass for global settings, thresholds, retry policy
 - `NormalizedResponse` common structure all providers return
 - `ReportFormatter` with JSON, plaintext, and JUnit XML output
 - Structural assertions: `is_valid_json`, `matches_schema`, `contains_keys`, `length_between`, `matches_pattern`, `does_not_contain`, `starts_with`, `ends_with`
-- Top-level `callspec` class with `assert_that()` entry point
+- Top-level `Callspec` class with `assert_that()` and `assert_trajectory()` entry points
 - `callspec.errors` module with all exception types
 - Unit test suite for all structural assertion types
 
-#### Phase 2: Embedding Scorer and Semantic Assertions
-- `EmbeddingScorer` using sentence-transformers/all-MiniLM-L6-v2 (22MB, CPU-native)
-- Cosine similarity computation for semantic scoring
-- `ConfidenceEstimator` with Wilson score confidence intervals
-- Flesch-Kincaid grade level computation in `scoring.structural`
-- Semantic assertions: `SemanticIntentMatches` (threshold 0.75), `DoesNotDiscuss` (threshold 0.6), `IsFactuallyConsistentWith` (threshold 0.80), `UsesLanguageAtGradeLevel`
-- Optional `callspec[semantic]` extra for sentence-transformers and scipy dependencies
-- Unit tests for all semantic assertions and confidence interval computation
-
-#### Phase 3: Snapshot System and Regression Assertions
+#### Snapshot System and Regression Assertions
 - `SnapshotManager` for creating, loading, updating, and deleting baselines
 - `SnapshotSerializer` with JSON serialization and schema versioning
 - `SnapshotDiff` for human-readable diffs between snapshots
-- Regression assertions: `MatchesBaseline` (semantic threshold 0.85), `SemanticDriftIsBelow` (max drift 0.15), `FormatMatchesBaseline`
+- Trajectory regression assertions: `matches_baseline`, `sequence_matches_baseline`
+- Trajectory diff across three dimensions: sequence, argument keys, SHA256 hash
 - Snapshot files stored as versioned JSON in project repository
 - Unit tests for full snapshot lifecycle and regression assertions
 
-#### Phase 4: Provider Adapters
-- `OpenAIProvider` with deterministic seed support (`callspec[openai]`)
-- `AnthropicProvider` with temperature=0 near-deterministic behavior (`callspec[anthropic]`)
-- `GoogleProvider` for Gemini models (`callspec[google]`)
+#### Trajectory Assertions
+- `ToolCallTrajectory` and `TrajectoryBuilder` for tool-call contract testing
+- Trajectory assertions: `calls_tool`, `calls_tools_in_order`, `does_not_call`, `call_count`, `first_tool_is`, `last_tool_is`, `no_duplicate_calls`
+- Argument assertions: `argument_equals`, `argument_contains_key`, `argument_not_empty`, `argument_matches_schema`, `argument_satisfies`
+- Composite assertions: `NegationWrapper`, `AndAssertion`, `OrAssertion`
+
+#### Provider Adapters
+- `OpenAIProvider` with tool-call extraction (`callspec[openai]`)
+- `AnthropicProvider` with tool-use block normalization (`callspec[anthropic]`)
+- `GoogleProvider` for Gemini function-calling models (`callspec[google]`)
 - `MistralProvider` (`callspec[mistral]`)
-- `OllamaProvider` for local models with seed support (`callspec[ollama]`)
+- `OllamaProvider` for local models (`callspec[ollama]`)
 - `LiteLLMProvider` as catch-all router for any provider (`callspec[litellm]`)
 - Lazy imports in `callspec.providers` to avoid loading unused SDK dependencies
 - Actual model identifier logging from provider response (not requested alias)
 - Integration tests for each provider (skipped when API keys absent)
 
-#### Phase 5: Behavioral Assertions and Input Sampling
-- Behavioral assertions: `PassesRate` (min_rate 0.95, n_samples 20), `RefusalRateIsAbove`, `IsConsistentAcrossSamples` (threshold 0.85, n_samples 10)
-- `BaseSampler` abstract class and `InputItem` type
-- `FixedSetSampler` for explicit input lists
-- `TemplateSampler` for slot-based input generation
-- `SemanticVariantSampler` for LLM-generated phrasing variants with disk cache
-- `SeedManager` for deterministic, reproducible sampling
-- Refusal pattern library with real patterns from OpenAI, Anthropic, and Google
-- Composite assertions: `NegationWrapper`, `AndAssertion`, `OrAssertion`
-- Unit tests for behavioral assertions and sampling strategies
-
-#### Phase 6: Pytest Plugin and CLI
+#### Pytest Plugin and CLI
 - Pytest plugin registered via `pytest11` entry point
-- Fixtures: `callspec_runner`, `callspec_provider`, `callspec_config`
-- Custom `@pytest.mark.callspec_behavioral` mark for expensive multi-sample tests
-- CLI flags: `--callspec-report`, `--callspec-report-path`, `--callspec-strict`, `--callspec-skip-behavioral`, `--callspec-snapshot`
+- Fixtures: `callspec_runner`, `callspec_provider`, `callspec_config`, `trajectory_runner`
+- Custom `@pytest.mark.tool_contract` mark for contract tests
+- CLI flags: `--callspec-report`, `--callspec-report-path`, `--callspec-strict`, `--callspec-skip-contracts`
 - Pytest assertion helpers producing structured failure output
 - Report hook adding callspec metadata to test reports
 - Click-based CLI: `callspec run`, `callspec check`, `callspec snapshot`, `callspec report`, `callspec providers`
 - YAML suite parser with JSON Schema validation of suite files
 - Integration tests for pytest plugin and CLI commands
 
-#### Phase 7: GitHub Actions Integration and Documentation
+#### GitHub Actions Integration
 - GitHub Actions annotation formatter (`callspec.integrations.github_actions`)
 - PR annotations using `::error`, `::warning`, `::notice` workflow commands
 - Borderline pass detection (score within 5% of threshold) emits warnings
 - Step summary output via `$GITHUB_STEP_SUMMARY`
-- Structured outputs (passed, passed-cases, failed-cases, total-cases) via `$GITHUB_OUTPUT`
 - Composite GitHub Action (`action/action.yml`) for one-step CI integration
-- CI workflows: test matrix (Python 3.9-3.13), automated PyPI release, nightly provider health
-- Issue templates: bug report, feature request, assertion type request
-- Complete documentation site: getting started, assertion types reference, provider guide, pytest guide, YAML suite format, scoring guide, sampling guide, CI guide, regression guide, FAQ, contributing guide, architecture overview
+- CI workflows: test matrix (Python 3.9-3.13), automated lint and type checks
+
+#### Documentation
+- Getting started guide
+- Trajectory assertions reference
+- Contract assertions reference
+- Snapshots and drift detection guide
+- pytest and CI integration guide

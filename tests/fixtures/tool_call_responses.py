@@ -25,7 +25,10 @@ OPENAI_CHAT_SINGLE_TOOL_CALL: dict = {
                         "type": "function",
                         "function": {
                             "name": "search_flights",
-                            "arguments": '{"origin": "NYC", "destination": "London", "date": "2026-03-15"}',
+                            "arguments": (
+                                '{"origin": "NYC", "destination": "London",'
+                                ' "date": "2026-03-15"}'
+                            ),
                         },
                     }
                 ],

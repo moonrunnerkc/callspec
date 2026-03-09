@@ -12,7 +12,6 @@ import pytest
 
 from callspec.core.trajectory import ToolCall, ToolCallTrajectory
 
-
 # ---------------------------------------------------------------------------
 # ToolCall construction and serialization
 # ---------------------------------------------------------------------------

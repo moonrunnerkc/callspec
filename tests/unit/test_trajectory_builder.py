@@ -1,11 +1,9 @@
 """Tests for TrajectoryBuilder fluent API and Callspec.assert_trajectory integration."""
 
-import pytest
 
 from callspec import Callspec, ToolCall, ToolCallTrajectory, TrajectoryBuilder
 from callspec.core.config import CallspecConfig
 from callspec.providers.mock import MockProvider
-
 
 # -- Helpers --
 

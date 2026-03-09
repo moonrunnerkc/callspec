@@ -3,13 +3,19 @@
 These functions bridge LLMAssert's AssertionResult into pytest's assertion
 introspection. When a LLMAssert assertion fails, the developer sees:
 which assertion type failed, the score vs threshold, the model and
-provider, and the input prompt. Not just "assert False".
+provider, the input prompt, and trajectory details when present.
+Not just "assert False".
 
 Usage in a test:
     from llm_assert.pytest_plugin.assertions import assert_llm_assert_pass
 
     def test_json_output(llm_assert_runner):
         result = llm_assert_runner.assert_that("Return JSON").is_valid_json().run()
+        assert_llm_assert_pass(result)
+
+    def test_tool_contract(trajectory_runner):
+        builder = trajectory_runner("Book a flight")
+        result = builder.calls_tool("search_flights").run()
         assert_llm_assert_pass(result)
 """
 
@@ -66,6 +72,15 @@ def _format_failure_report(result: AssertionResult) -> str:
             f"  provider: {result.provider_response.provider}, "
             f"model: {result.provider_response.model}"
         )
+
+        # Trajectory context when tool calls are present
+        if result.provider_response.tool_calls:
+            tool_names = [
+                tc.get("name", tc.get("tool_name", "?"))
+                for tc in result.provider_response.tool_calls
+            ]
+            lines.append(f"  tool calls: {' -> '.join(tool_names)}")
+
     lines.append(f"  execution time: {result.execution_time_ms}ms")
 
     if result.prompt_tokens is not None:

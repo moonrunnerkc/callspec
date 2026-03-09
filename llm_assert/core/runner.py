@@ -4,6 +4,11 @@ The runner handles: calling the provider, threading the response through
 each assertion in order, respecting fail-fast configuration, collecting
 results, and timing the entire operation. Retry logic for provider errors
 lives here, not in individual assertions.
+
+Supports both content assertions (on response text) and trajectory
+assertions (on tool call sequences). When a case has trajectory
+assertions, the runner extracts tool calls from the provider response
+and evaluates trajectory assertions against a ToolCallTrajectory.
 """
 
 from __future__ import annotations
@@ -11,8 +16,10 @@ from __future__ import annotations
 import time
 
 from llm_assert.assertions.base import BaseAssertion
+from llm_assert.assertions.trajectory_base import TrajectoryAssertion
 from llm_assert.core.config import LLMAssertConfig
 from llm_assert.core.suite import AssertionSuite
+from llm_assert.core.trajectory import ToolCall, ToolCallTrajectory
 from llm_assert.core.types import (
     AssertionResult,
     IndividualAssertionResult,
@@ -85,20 +92,19 @@ class AssertionRunner:
         )
 
     def run_suite(self, suite: AssertionSuite) -> SuiteResult:
-        """Run a full assertion suite: multiple cases, each with their own assertions."""
+        """Run a full assertion suite: multiple cases, each with their own assertions.
+
+        Cases can contain content assertions, trajectory assertions, or both.
+        The runner calls the provider once per case and evaluates all applicable
+        assertion types against the response.
+        """
         start_time = time.monotonic()
         case_results: dict[str, AssertionResult] = {}
         passed_count = 0
         failed_count = 0
 
-        # Use suite-level config if provided, falling back to runner config
-
         for case in suite.cases:
-            case_result = self.run_assertions(
-                prompt=case.prompt,
-                assertions=case.assertions,
-                messages=case.messages,
-            )
+            case_result = self._run_case(case.prompt, case.messages, case)
             case_results[case.name] = case_result
 
             if case_result.passed:
@@ -117,6 +123,71 @@ class AssertionRunner:
             failed_cases=failed_count,
             warned_cases=0,
             execution_time_ms=elapsed_ms,
+        )
+
+    def _run_case(
+        self,
+        prompt: str,
+        messages: list[dict[str, str]] | None,
+        case,
+    ) -> AssertionResult:
+        """Run a single case: call provider, evaluate content + trajectory assertions."""
+        start_time = time.monotonic()
+        provider_response = self._call_provider_with_retries(prompt, messages)
+
+        individual_results: list[IndividualAssertionResult] = []
+        all_passed = True
+
+        # Content assertions evaluate against response text
+        if case.has_content_assertions:
+            content = provider_response.content
+            for assertion in case.assertions:
+                individual = assertion.evaluate(content, self._config)
+                individual_results.append(individual)
+                if not individual.passed:
+                    all_passed = False
+                    if self._config.fail_fast:
+                        break
+
+        # Trajectory assertions evaluate against extracted tool calls
+        if case.has_trajectory_assertions and (all_passed or not self._config.fail_fast):
+            trajectory = self._response_to_trajectory(provider_response)
+            for assertion in case.trajectory_assertions:
+                individual = assertion.evaluate_trajectory(trajectory, self._config)
+                individual_results.append(individual)
+                if not individual.passed:
+                    all_passed = False
+                    if self._config.fail_fast:
+                        break
+
+        elapsed_ms = int((time.monotonic() - start_time) * 1000)
+
+        return AssertionResult(
+            passed=all_passed,
+            assertions=individual_results,
+            provider_response=provider_response,
+            execution_time_ms=elapsed_ms,
+            model=provider_response.model,
+            prompt_tokens=provider_response.prompt_tokens,
+            completion_tokens=provider_response.completion_tokens,
+        )
+
+    @staticmethod
+    def _response_to_trajectory(response: ProviderResponse) -> ToolCallTrajectory:
+        """Extract a ToolCallTrajectory from a provider response."""
+        calls = [
+            ToolCall(
+                tool_name=tc.get("name", tc.get("tool_name", "unknown")),
+                arguments=tc.get("arguments", {}),
+                call_index=i,
+            )
+            for i, tc in enumerate(response.tool_calls)
+        ]
+        return ToolCallTrajectory(
+            calls=calls,
+            model=response.model,
+            provider=response.provider,
+            raw_response=response.raw,
         )
 
     def _call_provider_with_retries(

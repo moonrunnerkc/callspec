@@ -4,6 +4,10 @@ Both the Python API and the YAML format compile to the same internal
 representation (AssertionSuite). This module handles the YAML-to-suite
 conversion, including validation against the expected schema structure.
 
+Supports two case formats:
+1. Content assertions: classic prompt + structural assertions on response text
+2. Trajectory contracts: prompt + trajectory assertions + argument contracts
+
 The YAML format is validated on parse, and errors include the line number
 and a plain-English description of what is wrong.
 """
@@ -112,6 +116,197 @@ def _build_ends_with(params: dict[str, Any]) -> BaseAssertion:
     return EndsWith(suffix)
 
 
+# -- Trajectory assertion builders --
+# These produce TrajectoryAssertion instances from the YAML `trajectory` section.
+
+from llm_assert.assertions.trajectory_base import TrajectoryAssertion
+from llm_assert.assertions.trajectory import (
+    CallCount,
+    CallsExactly,
+    CallsSubset,
+    CallsTool,
+    CallsToolsInOrder,
+    DoesNotCall,
+    NoRepeatedCalls,
+)
+from llm_assert.assertions.contract import (
+    ArgumentContainsKey,
+    ArgumentMatchesPattern,
+    ArgumentMatchesSchema,
+    ArgumentNotEmpty,
+    ArgumentValueIn,
+)
+
+# Maps trajectory YAML keys to builders returning TrajectoryAssertion
+_TRAJECTORY_BUILDERS: dict[str, Any] = {}
+
+
+def _register_trajectory(name: str):
+    """Decorator to register a YAML trajectory assertion builder."""
+    def decorator(fn):
+        _TRAJECTORY_BUILDERS[name] = fn
+        return fn
+    return decorator
+
+
+@_register_trajectory("calls_tool")
+def _build_calls_tool(params: Any) -> TrajectoryAssertion:
+    if isinstance(params, str):
+        return CallsTool(params)
+    raise ValueError("calls_tool expects a tool name string")
+
+
+@_register_trajectory("calls_tools_in_order")
+def _build_calls_tools_in_order(params: Any) -> TrajectoryAssertion:
+    if isinstance(params, list):
+        return CallsToolsInOrder(params)
+    raise ValueError("calls_tools_in_order expects a list of tool names")
+
+
+@_register_trajectory("calls_exactly")
+def _build_calls_exactly(params: Any) -> TrajectoryAssertion:
+    if isinstance(params, list):
+        return CallsExactly(params)
+    raise ValueError("calls_exactly expects a list of tool names")
+
+
+@_register_trajectory("calls_subset")
+def _build_calls_subset(params: Any) -> TrajectoryAssertion:
+    if isinstance(params, list):
+        return CallsSubset(params)
+    raise ValueError("calls_subset expects a list of tool names")
+
+
+@_register_trajectory("does_not_call")
+def _build_does_not_call_traj(params: Any) -> TrajectoryAssertion:
+    if isinstance(params, str):
+        return DoesNotCall(params)
+    raise ValueError("does_not_call expects a tool name string")
+
+
+@_register_trajectory("no_repeated_calls")
+def _build_no_repeated(params: Any) -> TrajectoryAssertion:
+    if isinstance(params, str):
+        return NoRepeatedCalls(params)
+    raise ValueError("no_repeated_calls expects a tool name string")
+
+
+@_register_trajectory("call_count")
+def _build_call_count(params: Any) -> TrajectoryAssertion:
+    if not isinstance(params, dict):
+        raise ValueError("call_count expects a dict with tool_name, min_count, max_count")
+    tool_name = params.get("tool_name")
+    if not tool_name:
+        raise ValueError("call_count requires 'tool_name'")
+    return CallCount(
+        tool_name=tool_name,
+        min_count=params.get("min_count", 0),
+        max_count=params.get("max_count"),
+    )
+
+
+def _build_trajectory_assertions(
+    trajectory_defs: list[dict[str, Any]], filepath: str
+) -> list[TrajectoryAssertion]:
+    """Parse the `trajectory` section of a YAML case into TrajectoryAssertion list."""
+    assertions: list[TrajectoryAssertion] = []
+
+    for entry in trajectory_defs:
+        if not isinstance(entry, dict) or len(entry) != 1:
+            raise SuiteParseError(
+                filepath,
+                f"Each trajectory entry must be a single-key dict, got: {entry}. "
+                f"Available types: {sorted(_TRAJECTORY_BUILDERS.keys())}",
+            )
+        key, value = next(iter(entry.items()))
+        builder = _TRAJECTORY_BUILDERS.get(key)
+        if builder is None:
+            raise SuiteParseError(
+                filepath,
+                f"Unknown trajectory assertion '{key}'. "
+                f"Available: {sorted(_TRAJECTORY_BUILDERS.keys())}",
+            )
+        try:
+            assertions.append(builder(value))
+        except (ValueError, TypeError) as build_error:
+            raise SuiteParseError(
+                filepath,
+                f"Invalid parameters for trajectory assertion '{key}': {build_error}",
+            ) from build_error
+
+    return assertions
+
+
+def _build_contract_assertions(
+    contracts_def: dict[str, list[dict[str, Any]]], filepath: str
+) -> list[TrajectoryAssertion]:
+    """Parse the `contracts` section of a YAML case into TrajectoryAssertion list.
+
+    contracts_def is a dict mapping tool_name to a list of constraint dicts:
+      contracts:
+        search_flights:
+          - key: "origin"
+            not_empty: true
+          - key: "destination"
+            matches_pattern: "^[A-Z]{3}$"
+        book_flight:
+          - schema: { ... }
+    """
+    assertions: list[TrajectoryAssertion] = []
+
+    for tool_name, constraints in contracts_def.items():
+        if not isinstance(constraints, list):
+            raise SuiteParseError(
+                filepath,
+                f"Contracts for '{tool_name}' must be a list of constraint dicts.",
+            )
+        for constraint in constraints:
+            assertions.extend(
+                _build_single_contract(tool_name, constraint, filepath)
+            )
+
+    return assertions
+
+
+def _build_single_contract(
+    tool_name: str, constraint: dict[str, Any], filepath: str
+) -> list[TrajectoryAssertion]:
+    """Build one or more contract assertions from a single constraint dict."""
+    results: list[TrajectoryAssertion] = []
+    key = constraint.get("key")
+
+    if "schema" in constraint:
+        results.append(ArgumentMatchesSchema(tool_name, constraint["schema"]))
+
+    if key:
+        if constraint.get("not_empty"):
+            results.append(ArgumentNotEmpty(tool_name, key))
+
+        if "matches_pattern" in constraint:
+            results.append(
+                ArgumentMatchesPattern(tool_name, key, constraint["matches_pattern"])
+            )
+
+        if "value_in" in constraint:
+            results.append(
+                ArgumentValueIn(tool_name, key, constraint["value_in"])
+            )
+
+        if "contains_key" in constraint:
+            # For nested key checking: the key at this level is the arg name,
+            # contains_key verifies it exists at all
+            results.append(ArgumentContainsKey(tool_name, key))
+
+    if not results:
+        raise SuiteParseError(
+            filepath,
+            f"Contract for '{tool_name}' has no recognizable constraints: {constraint}. "
+            f"Use: not_empty, matches_pattern, value_in, schema, contains_key.",
+        )
+
+    return results
+
+
 def _build_assertion(assertion_def: dict[str, Any], filepath: str) -> BaseAssertion:
     """Convert a single YAML assertion definition to a BaseAssertion instance."""
     assertion_type = assertion_def.get("type")
@@ -148,7 +343,13 @@ def _parse_config(raw_config: dict[str, Any]) -> LLMAssertConfig:
 
 
 def _parse_case(case_def: dict[str, Any], filepath: str, index: int) -> AssertionCase:
-    """Parse a single case definition from the YAML cases list."""
+    """Parse a single case definition from the YAML cases list.
+
+    Supports three assertion source sections:
+    - assertions: classic content assertions on response text
+    - trajectory: tool-call sequence assertions
+    - contracts: per-tool argument constraints
+    """
     name = case_def.get("name")
     if not name:
         raise SuiteParseError(
@@ -167,17 +368,34 @@ def _parse_case(case_def: dict[str, Any], filepath: str, index: int) -> Assertio
             f"At least one input source is required.",
         )
 
+    # Content assertions (classic text-based)
     raw_assertions = case_def.get("assertions", [])
-    if not raw_assertions:
-        raise SuiteParseError(
-            filepath,
-            f"Case '{name}' has no assertions. "
-            f"Add at least one assertion to make the case meaningful.",
-        )
-
     parsed_assertions = [
         _build_assertion(a, filepath) for a in raw_assertions
     ]
+
+    # Trajectory assertions (tool call sequence)
+    raw_trajectory = case_def.get("trajectory", [])
+    trajectory_assertions: list[TrajectoryAssertion] = []
+    if raw_trajectory:
+        trajectory_assertions.extend(
+            _build_trajectory_assertions(raw_trajectory, filepath)
+        )
+
+    # Contract assertions (per-tool argument constraints)
+    raw_contracts = case_def.get("contracts", {})
+    if raw_contracts:
+        trajectory_assertions.extend(
+            _build_contract_assertions(raw_contracts, filepath)
+        )
+
+    # At least one assertion type is required
+    if not parsed_assertions and not trajectory_assertions:
+        raise SuiteParseError(
+            filepath,
+            f"Case '{name}' has no assertions, trajectory checks, or contracts. "
+            f"Add at least one to make the case meaningful.",
+        )
 
     severity_str = case_def.get("severity", "error").lower()
     severity = Severity.WARNING if severity_str == "warning" else Severity.ERROR
@@ -186,6 +404,7 @@ def _parse_case(case_def: dict[str, Any], filepath: str, index: int) -> Assertio
         name=name,
         prompt=prompt,
         assertions=parsed_assertions,
+        trajectory_assertions=trajectory_assertions,
         messages=messages,
         severity=severity,
     )

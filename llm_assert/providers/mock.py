@@ -36,11 +36,19 @@ class MockProvider(BaseProvider):
         model_name: str = "mock",
         latency_ms: int = 0,
         tool_calls_fn: Callable[..., list[dict[str, Any]]] | None = None,
+        tool_calls: list[dict[str, Any]] | None = None,
     ) -> None:
         self._response_fn = response_fn
         self._model_name = model_name
         self._latency_ms = latency_ms
-        self._tool_calls_fn = tool_calls_fn
+
+        # Accept either a callable or a static list for tool calls.
+        # Static list is wrapped into a constant function for convenience.
+        if tool_calls is not None and tool_calls_fn is None:
+            static_calls = list(tool_calls)
+            self._tool_calls_fn = lambda p, m=None: static_calls
+        else:
+            self._tool_calls_fn = tool_calls_fn
 
     @property
     def provider_name(self) -> str:

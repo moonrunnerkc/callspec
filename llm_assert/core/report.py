@@ -132,7 +132,7 @@ class ReportFormatter:
 
 def _serialize_assertion_result(result: AssertionResult) -> dict[str, Any]:
     """Convert an AssertionResult to a JSON-serializable dict."""
-    return {
+    serialized: dict[str, Any] = {
         "passed": result.passed,
         "execution_time_ms": result.execution_time_ms,
         "model": result.model,
@@ -151,6 +151,12 @@ def _serialize_assertion_result(result: AssertionResult) -> dict[str, Any]:
             for a in result.assertions
         ],
     }
+
+    # Include trajectory data when tool_calls are present on the provider response
+    if result.provider_response and result.provider_response.tool_calls:
+        serialized["tool_calls"] = result.provider_response.tool_calls
+
+    return serialized
 
 
 def _format_case_plaintext(case_name: str, result: AssertionResult) -> list[str]:

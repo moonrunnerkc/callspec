@@ -13,6 +13,7 @@ and evaluates trajectory assertions against a ToolCallTrajectory.
 
 from __future__ import annotations
 
+import logging
 import time
 
 from callspec.assertions.base import BaseAssertion
@@ -28,6 +29,8 @@ from callspec.core.types import (
 )
 from callspec.errors import ProviderError
 from callspec.providers.base import BaseProvider
+
+logger = logging.getLogger(__name__)
 
 
 class AssertionRunner:
@@ -63,23 +66,36 @@ class AssertionRunner:
         response content. Respects fail_fast: if True, stops at first failure.
         """
         start_time = time.monotonic()
+        logger.debug("Running %d assertion(s) against prompt (%d chars)", len(assertions), len(prompt))
 
         provider_response = self._call_provider_with_retries(prompt, messages)
         content = provider_response.content
+        logger.debug("Provider returned %d chars from model %s", len(content), provider_response.model)
 
         individual_results: list[IndividualAssertionResult] = []
         all_passed = True
 
         for assertion in assertions:
+            logger.debug("Evaluating %s.%s", assertion.assertion_type, assertion.assertion_name)
             individual = assertion.evaluate(content, self._config)
             individual_results.append(individual)
 
             if not individual.passed:
                 all_passed = False
+                logger.debug(
+                    "Assertion %s.%s FAILED: %s",
+                    assertion.assertion_type,
+                    assertion.assertion_name,
+                    individual.message,
+                )
                 if self._config.fail_fast:
+                    logger.debug("Fail-fast enabled, stopping assertion chain")
                     break
+            else:
+                logger.debug("Assertion %s.%s passed", assertion.assertion_type, assertion.assertion_name)
 
         elapsed_ms = int((time.monotonic() - start_time) * 1000)
+        logger.debug("Assertions complete in %dms, all_passed=%s", elapsed_ms, all_passed)
 
         return AssertionResult(
             passed=all_passed,
@@ -99,21 +115,29 @@ class AssertionRunner:
         assertion types against the response.
         """
         start_time = time.monotonic()
+        logger.debug("Running suite with %d case(s)", len(suite.cases))
         case_results: dict[str, AssertionResult] = {}
         passed_count = 0
         failed_count = 0
 
         for case in suite.cases:
+            logger.debug("Starting case '%s'", case.name)
             case_result = self._run_case(case.prompt, case.messages, case)
             case_results[case.name] = case_result
 
             if case_result.passed:
                 passed_count += 1
+                logger.debug("Case '%s' passed", case.name)
             else:
                 failed_count += 1
+                logger.debug("Case '%s' FAILED", case.name)
 
         elapsed_ms = int((time.monotonic() - start_time) * 1000)
         all_passed = failed_count == 0
+        logger.debug(
+            "Suite complete in %dms: %d passed, %d failed",
+            elapsed_ms, passed_count, failed_count,
+        )
 
         return SuiteResult(
             passed=all_passed,
@@ -142,23 +166,41 @@ class AssertionRunner:
         if case.has_content_assertions:
             content = provider_response.content
             for assertion in case.assertions:
+                logger.debug("Evaluating %s.%s", assertion.assertion_type, assertion.assertion_name)
                 individual = assertion.evaluate(content, self._config)
                 individual_results.append(individual)
                 if not individual.passed:
                     all_passed = False
+                    logger.debug(
+                        "Assertion %s.%s FAILED: %s",
+                        assertion.assertion_type, assertion.assertion_name, individual.message,
+                    )
                     if self._config.fail_fast:
                         break
+                else:
+                    logger.debug("Assertion %s.%s passed", assertion.assertion_type, assertion.assertion_name)
 
         # Trajectory assertions evaluate against extracted tool calls
         if case.has_trajectory_assertions and (all_passed or not self._config.fail_fast):
             trajectory = self._response_to_trajectory(provider_response)
+            logger.debug(
+                "Evaluating %d trajectory assertion(s) against %d tool call(s)",
+                len(case.trajectory_assertions), len(trajectory),
+            )
             for assertion in case.trajectory_assertions:
+                logger.debug("Evaluating %s.%s", assertion.assertion_type, assertion.assertion_name)
                 individual = assertion.evaluate_trajectory(trajectory, self._config)
                 individual_results.append(individual)
                 if not individual.passed:
                     all_passed = False
+                    logger.debug(
+                        "Assertion %s.%s FAILED: %s",
+                        assertion.assertion_type, assertion.assertion_name, individual.message,
+                    )
                     if self._config.fail_fast:
                         break
+                else:
+                    logger.debug("Assertion %s.%s passed", assertion.assertion_type, assertion.assertion_name)
 
         elapsed_ms = int((time.monotonic() - start_time) * 1000)
 
@@ -204,6 +246,10 @@ class AssertionRunner:
 
         for attempt in range(1, self._config.max_retries + 1):
             try:
+                logger.debug(
+                    "Provider call attempt %d/%d to %s",
+                    attempt, self._config.max_retries, self._provider.provider_name,
+                )
                 return self._provider.call(
                     prompt=prompt,
                     messages=messages,
@@ -216,7 +262,16 @@ class AssertionRunner:
                     backoff_seconds = (
                         self._config.retry_backoff_base_seconds * (2 ** (attempt - 1))
                     )
+                    logger.warning(
+                        "Provider call attempt %d failed (%s: %s), retrying in %.1fs",
+                        attempt, type(provider_error).__name__, provider_error, backoff_seconds,
+                    )
                     time.sleep(backoff_seconds)
+                else:
+                    logger.error(
+                        "Provider call failed after %d attempt(s): %s",
+                        attempt, provider_error,
+                    )
 
         raise ProviderError(
             provider=self._provider.provider_name,

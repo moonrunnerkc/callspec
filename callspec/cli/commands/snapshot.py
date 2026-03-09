@@ -7,8 +7,11 @@ under callspec_snapshots/baselines.json.
 
 from __future__ import annotations
 
+import logging
 import sys
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 import click
 
@@ -311,7 +314,11 @@ def snapshot_list(snapshot_dir: str) -> None:
                 f"{entry.content_length} chars",
                 tool_count,
             )
-        except Exception:
+        except Exception as load_err:
+            logger.warning(
+                "Failed to load snapshot '%s': %s: %s",
+                snapshot_key, type(load_err).__name__, load_err,
+            )
             table.add_row(snapshot_key, "[callspec.fail]load error[/callspec.fail]", "", "")
 
     console.print(table)

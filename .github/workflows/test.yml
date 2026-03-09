@@ -32,6 +32,10 @@ jobs:
       - name: Run linter
         run: ruff check callspec/ tests/
 
+      - name: Run type checker
+        if: matrix.python-version == '3.12'
+        run: mypy callspec/
+
       - name: Run tests
         run: pytest --tb=short -q
 

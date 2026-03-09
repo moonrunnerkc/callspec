@@ -223,27 +223,7 @@ def snapshot_diff(key: str, snapshot_dir: str, prompt: str | None, provider: str
         console.print("[llm_assert.key]Current preview:[/llm_assert.key]")
         console.print(f"  [llm_assert.muted]{response.content[:200]}[/llm_assert.muted]")
 
-    # Semantic comparison via embedding scorer if available
-    try:
-        from llm_assert.scoring.embeddings import EmbeddingScorer
 
-        scorer = EmbeddingScorer()
-        similarity = scorer.score(baseline_entry.content, response.content)
-        drift = 1.0 - similarity
-
-        console.print()
-        console.print(
-            f"  Semantic similarity: {format_score(similarity, 0.85)}"
-        )
-        drift_style = "llm_assert.score.good" if drift < 0.15 else "llm_assert.score.bad"
-        console.print(
-            f"  Semantic drift:      [{drift_style}]{drift:.4f}[/{drift_style}]"
-        )
-    except ImportError:
-        console.print(
-            "\n[llm_assert.muted]Semantic comparison unavailable "
-            "(install llm-assert[semantic])[/llm_assert.muted]"
-        )
 
 
 @snapshot.command("delete")

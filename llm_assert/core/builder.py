@@ -1,8 +1,8 @@
 """AssertionBuilder: fluent API for chaining assertions.
 
 This is the developer-facing API. A call to llm_assert.assert_that(prompt)
-returns an AssertionBuilder. The developer chains structural, semantic,
-behavioral, and composite assertions, then calls .run() to execute.
+returns an AssertionBuilder. The developer chains structural, regression,
+and composite assertions, then calls .run() to execute.
 
 The provider call is deferred until .run(): building the chain is free,
 which allows assertion chains to be constructed in setup code and
@@ -11,27 +11,14 @@ executed conditionally.
 
 from __future__ import annotations
 
-import re
 from collections.abc import Sequence
 from typing import Any
 
 from llm_assert.assertions.base import BaseAssertion
-from llm_assert.assertions.behavioral import (
-    IsConsistentAcrossSamples,
-    PassesRate,
-    RefusalRateIsAbove,
-)
 from llm_assert.assertions.composite import NegationWrapper, OrAssertion
 from llm_assert.assertions.regression import (
     FormatMatchesBaseline,
     MatchesBaseline,
-    SemanticDriftIsBelow,
-)
-from llm_assert.assertions.semantic import (
-    DoesNotDiscuss,
-    IsFactuallyConsistentWith,
-    SemanticIntentMatches,
-    UsesLanguageAtGradeLevel,
 )
 from llm_assert.assertions.structural import (
     ContainsKeys,
@@ -45,8 +32,6 @@ from llm_assert.assertions.structural import (
 )
 from llm_assert.core.runner import AssertionRunner
 from llm_assert.core.types import AssertionResult
-from llm_assert.sampling.sampler import BaseSampler
-from llm_assert.sampling.seed import SeedManager
 from llm_assert.snapshots.manager import SnapshotManager
 
 
@@ -113,89 +98,20 @@ class AssertionBuilder:
         self._assertions.append(EndsWith(suffix))
         return self
 
-    # -- Semantic assertions --
-
-    def semantic_intent_matches(
-        self,
-        reference_intent: str,
-        threshold: float | None = None,
-    ) -> AssertionBuilder:
-        """Assert the response semantically aligns with the reference intent.
-
-        Default threshold 0.75 calibrated against SBERT STS-B benchmarks.
-        Requires llm-assert[semantic] extra.
-        """
-        self._assertions.append(SemanticIntentMatches(reference_intent, threshold))
-        return self
-
-    def does_not_discuss(
-        self,
-        topic: str,
-        threshold: float | None = None,
-    ) -> AssertionBuilder:
-        """Assert the response does not discuss a prohibited topic.
-
-        Uses a lower threshold (default 0.6) to catch loose topical proximity.
-        """
-        self._assertions.append(DoesNotDiscuss(topic, threshold))
-        return self
-
-    def is_factually_consistent_with(
-        self,
-        reference_text: str,
-        threshold: float | None = None,
-    ) -> AssertionBuilder:
-        """Assert the response is semantically consistent with reference text.
-
-        Consistency check, not factual accuracy. If the reference is wrong,
-        a response repeating the wrong information will pass.
-        """
-        self._assertions.append(IsFactuallyConsistentWith(reference_text, threshold))
-        return self
-
-    def uses_language_at_grade_level(
-        self,
-        grade: int,
-        tolerance: int = 2,
-    ) -> AssertionBuilder:
-        """Assert the response readability falls within a target grade range.
-
-        Uses Flesch-Kincaid grade level formula. Zero API cost.
-        """
-        self._assertions.append(UsesLanguageAtGradeLevel(grade, tolerance))
-        return self
-
     # -- Regression assertions --
 
     def matches_baseline(
         self,
         snapshot_key: str,
         snapshot_manager: SnapshotManager,
-        semantic_threshold: float | None = None,
     ) -> AssertionBuilder:
-        """Assert the response matches a recorded baseline structurally and semantically.
+        """Assert the response matches a recorded baseline structurally.
 
-        Both checks must pass independently. Requires llm-assert[semantic] for
-        the semantic comparison. Loads baseline from the provided SnapshotManager.
+        Compares JSON structure (top-level keys) and content. Loads
+        baseline from the provided SnapshotManager.
         """
         self._assertions.append(
-            MatchesBaseline(snapshot_key, snapshot_manager, semantic_threshold)
-        )
-        return self
-
-    def semantic_drift_is_below(
-        self,
-        snapshot_key: str,
-        snapshot_manager: SnapshotManager,
-        max_drift: float | None = None,
-    ) -> AssertionBuilder:
-        """Assert that semantic distance from baseline stays below max_drift.
-
-        Drift is (1 - cosine_similarity). Tolerates structural changes.
-        Default max_drift from config.regression_drift_ceiling (0.15).
-        """
-        self._assertions.append(
-            SemanticDriftIsBelow(snapshot_key, snapshot_manager, max_drift)
+            MatchesBaseline(snapshot_key, snapshot_manager)
         )
         return self
 
@@ -211,90 +127,6 @@ class AssertionBuilder:
         """
         self._assertions.append(
             FormatMatchesBaseline(snapshot_key, snapshot_manager)
-        )
-        return self
-
-    # -- Behavioral assertions --
-
-    def passes_rate(
-        self,
-        assertion: BaseAssertion,
-        min_rate: float | None = None,
-        n_samples: int | None = None,
-        sampler: BaseSampler | None = None,
-    ) -> AssertionBuilder:
-        """Assert that an inner assertion passes at min_rate across N samples.
-
-        Wraps any BaseAssertion into a behavioral check. The provider is
-        called n_samples times (varied by sampler, or repeated prompt if
-        no sampler). Uses Wilson confidence intervals for statistical rigor.
-
-        Defaults from config: min_rate=0.95, n_samples=20.
-        """
-        seed = SeedManager(self._runner.config.seed)
-        self._assertions.append(
-            PassesRate(
-                inner_assertion=assertion,
-                provider=self._runner.provider,
-                min_rate=min_rate,
-                n_samples=n_samples,
-                sampler=sampler,
-                seed_manager=seed,
-            )
-        )
-        return self
-
-    def refusal_rate_is_above(
-        self,
-        threshold: float | None = None,
-        n_samples: int | None = None,
-        sampler: BaseSampler | None = None,
-        custom_patterns: Sequence[re.Pattern | str] | None = None,
-    ) -> AssertionBuilder:
-        """Assert the model reliably refuses this class of input.
-
-        Runs n_samples calls, classifies each response using the built-in
-        refusal pattern library (OpenAI, Anthropic, Google phrasings) plus
-        any custom_patterns provided. Passes if refusal rate meets threshold.
-
-        Requires an InputSampler for meaningful results: testing refusal on
-        a single repeated prompt measures consistency, not behavioral coverage.
-        """
-        seed = SeedManager(self._runner.config.seed)
-        self._assertions.append(
-            RefusalRateIsAbove(
-                provider=self._runner.provider,
-                threshold=threshold,
-                n_samples=n_samples,
-                sampler=sampler,
-                custom_patterns=custom_patterns,
-                seed_manager=seed,
-            )
-        )
-        return self
-
-    def is_consistent_across_samples(
-        self,
-        threshold: float | None = None,
-        n_samples: int | None = None,
-    ) -> AssertionBuilder:
-        """Assert responses to the same prompt are semantically consistent.
-
-        Runs the provider n_samples times with the same input, computes
-        pairwise cosine similarity, and passes if average similarity
-        exceeds threshold. Catches high-variance outputs from temperature
-        instability or prompt fragility.
-
-        Default threshold from config: 0.85. Default n_samples: 10.
-        """
-        seed = SeedManager(self._runner.config.seed)
-        self._assertions.append(
-            IsConsistentAcrossSamples(
-                provider=self._runner.provider,
-                threshold=threshold,
-                n_samples=n_samples,
-                seed_manager=seed,
-            )
         )
         return self
 

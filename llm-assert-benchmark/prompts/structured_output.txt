@@ -1,8 +1,0 @@
-You are a data extraction assistant. Extract the following information from the text below and return it as a JSON object with exactly these keys: "title", "author", "year", "topics", "summary".
-
-The "topics" field must be a list of strings. The "summary" field must be a single sentence of no more than 30 words. The "year" field must be an integer.
-
-Text:
-"In their 2023 paper 'Attention Is All You Need Revisited', Dr. Sarah Chen and Prof. James Liu from MIT explored how transformer architectures have evolved since the original 2017 paper. Their work covers self-attention mechanisms, positional encodings, and efficient inference techniques, concluding that sparse attention patterns offer the most promising path toward scaling beyond current context window limits."
-
-Return only the JSON object. No explanation, no markdown formatting.

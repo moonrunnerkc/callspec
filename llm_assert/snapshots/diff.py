@@ -4,13 +4,12 @@ Used by regression assertions to report exactly what changed between
 the baseline and the current response, and by the CLI `llm-assert snapshot diff`
 command to show developers what shifted before they commit updated baselines.
 
-The diff covers three dimensions independently:
+The diff covers two dimensions independently:
 1. Structural: JSON key changes (added, removed, reordered)
 2. Content: character-level text differences
-3. Semantic: cosine similarity drift (requires llm-assert[semantic])
 
 Each dimension produces its own section of the diff output, so a developer
-can see whether the change is structural, semantic, or both.
+can see whether the change is structural or content-level.
 """
 
 from __future__ import annotations
@@ -92,10 +91,8 @@ class SnapshotDiff:
         baseline_model: str = "",
         current_model: str = "",
         baseline_json_keys: list[str] | None = None,
-        compute_semantic: bool = False,
-        embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2",
     ) -> DiffResult:
-        """Compare baseline and current content across all dimensions.
+        """Compare baseline and current content across structural dimensions.
 
         Args:
             snapshot_key: Identifier for the snapshot entry.
@@ -104,8 +101,6 @@ class SnapshotDiff:
             baseline_model: Model that produced the baseline.
             current_model: Model that produced the current response.
             baseline_json_keys: Pre-extracted top-level JSON keys from baseline.
-            compute_semantic: Whether to compute semantic similarity (requires embeddings).
-            embedding_model: Which sentence-transformers model to use.
 
         Returns:
             DiffResult with all comparison dimensions populated.
@@ -126,10 +121,6 @@ class SnapshotDiff:
             and baseline_model != ""
             and current_model != ""
         )
-
-        # Semantic similarity (optional, requires sentence-transformers)
-        if compute_semantic:
-            _compute_semantic_diff(diff_result, baseline_content, current_content, embedding_model)
 
         return diff_result
 
@@ -194,29 +185,6 @@ def _compute_structural_diff(
     diff_result.structural_match = (
         len(diff_result.keys_added) == 0 and len(diff_result.keys_removed) == 0
     )
-
-
-def _compute_semantic_diff(
-    diff_result: DiffResult,
-    baseline_content: str,
-    current_content: str,
-    embedding_model: str,
-) -> None:
-    """Compute cosine similarity between baseline and current content.
-
-    Gracefully handles missing sentence-transformers by logging a
-    warning and leaving semantic fields as None.
-    """
-    try:
-        from llm_assert.scoring.embeddings import score_similarity
-        similarity = score_similarity(baseline_content, current_content, embedding_model)
-        diff_result.semantic_similarity = similarity
-        diff_result.semantic_drift = 1.0 - similarity
-    except ImportError:
-        logger.warning(
-            "Cannot compute semantic diff: sentence-transformers not installed. "
-            "Install with: pip install llm-assert[semantic]"
-        )
 
 
 def _extract_json_keys(text: str) -> list[str] | None:

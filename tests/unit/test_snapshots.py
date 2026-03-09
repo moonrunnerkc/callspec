@@ -358,23 +358,6 @@ class TestSnapshotDiff:
         )
         assert diff.structural_match is True
 
-    def test_semantic_diff_computed_when_requested(self) -> None:
-        """Semantic comparison requires compute_semantic=True."""
-        baseline = "The effects of climate change on coastal areas are significant."
-        current = "Climate change significantly impacts coastal regions."
-        diff = SnapshotDiff.compare(
-            "key12", baseline, current, compute_semantic=True,
-        )
-        assert diff.semantic_similarity is not None
-        assert diff.semantic_similarity > 0.5
-        assert diff.semantic_drift is not None
-        assert diff.semantic_drift < 0.5
-
-    def test_semantic_diff_not_computed_by_default(self) -> None:
-        diff = SnapshotDiff.compare("key13", "baseline", "current")
-        assert diff.semantic_similarity is None
-        assert diff.semantic_drift is None
-
     def test_summary_no_changes(self) -> None:
         diff = SnapshotDiff.compare("key14", "same", "same")
         summary = diff.summary()

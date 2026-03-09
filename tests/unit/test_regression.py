@@ -1,12 +1,9 @@
 """Unit tests for regression assertions against synthetic baselines.
 
 Each test creates a baseline via SnapshotManager, then evaluates the
-regression assertion against current content. The tests cover all three
-regression assertion types across their pass/fail boundaries.
-
-Semantic regression tests require sentence-transformers and trigger
-embedding computation. Structural-only tests (FormatMatchesBaseline)
-do not require embeddings and run without the semantic extra.
+regression assertion against current content. Tests cover MatchesBaseline
+(structural comparison) and FormatMatchesBaseline (format-only comparison)
+across their pass/fail boundaries.
 """
 
 from __future__ import annotations
@@ -17,7 +14,6 @@ from pathlib import Path
 from llm_assert.assertions.regression import (
     FormatMatchesBaseline,
     MatchesBaseline,
-    SemanticDriftIsBelow,
 )
 from llm_assert.core.config import LLMAssertConfig
 from llm_assert.snapshots.manager import SnapshotManager
@@ -60,20 +56,6 @@ class TestMatchesBaseline:
         assert assertion_result.assertion_type == "regression"
         assert assertion_result.assertion_name == "matches_baseline"
         assert assertion_result.details["structural_match"] is True
-        assert assertion_result.details["semantic_passed"] is True
-
-    def test_semantic_drift_fails(self, tmp_path: Path) -> None:
-        """Same structure, completely different meaning: semantic check fails."""
-        baseline = json.dumps({"summary": "The weather today is sunny and warm."})
-        current = json.dumps({"summary": "Quantum computing uses qubits for parallel processing."})
-        manager = _create_baseline(tmp_path, "semantic_drift", baseline)
-
-        assertion = MatchesBaseline("semantic_drift", manager)
-        assertion_result = assertion.evaluate(current, CONFIG)
-
-        assert assertion_result.passed is False
-        assert assertion_result.details["structural_match"] is True
-        assert assertion_result.details["semantic_passed"] is False
 
     def test_structural_change_fails(self, tmp_path: Path) -> None:
         """Different JSON keys: structural check fails even if content is similar."""
@@ -89,17 +71,6 @@ class TestMatchesBaseline:
         assert assertion_result.passed is False
         assert assertion_result.details["structural_match"] is False
 
-    def test_custom_semantic_threshold(self, tmp_path: Path) -> None:
-        """A very low threshold makes borderline semantic similarity pass."""
-        baseline = "The effects of climate change on coastal areas are significant."
-        current = "Weather patterns are shifting in coastal regions worldwide."
-        manager = _create_baseline(tmp_path, "low_thresh", baseline)
-
-        # Low threshold: should pass
-        assertion = MatchesBaseline("low_thresh", manager, semantic_threshold=0.2)
-        assertion_result = assertion.evaluate(current, CONFIG)
-        assert assertion_result.passed is True
-
     def test_failure_message_includes_diagnostics(self, tmp_path: Path) -> None:
         baseline = json.dumps({"report": "Annual sales exceeded targets."})
         current = json.dumps({"report": "The mitochondria is the powerhouse of the cell."})
@@ -109,86 +80,22 @@ class TestMatchesBaseline:
         assertion_result = assertion.evaluate(current, CONFIG)
 
         assert "diag" in assertion_result.message
-        lower_msg = assertion_result.message.lower()
-        assert "semantic similarity" in lower_msg or "below" in lower_msg
+        # Same JSON keys, so structural match passes
+        assert assertion_result.passed is True
 
     def test_both_plain_text_structural_match(self, tmp_path: Path) -> None:
         """Two plain-text (non-JSON) responses: structural dimension treated as match."""
         baseline = "Climate change causes rising sea levels and coastal erosion in many regions."
-        # Close paraphrase to ensure semantic similarity is high
         current = (
             "Rising sea levels and coastal erosion are caused "
             "by climate change in many areas."
         )
         manager = _create_baseline(tmp_path, "plaintext", baseline)
 
-        assertion = MatchesBaseline("plaintext", manager, semantic_threshold=0.5)
+        assertion = MatchesBaseline("plaintext", manager)
         assertion_result = assertion.evaluate(current, CONFIG)
 
         assert assertion_result.details["structural_match"] is True
-
-
-# ---------------------------------------------------------------------------
-# SemanticDriftIsBelow
-# ---------------------------------------------------------------------------
-
-class TestSemanticDriftIsBelow:
-
-    def test_identical_content_zero_drift(self, tmp_path: Path) -> None:
-        content = "The project deadline is next Friday."
-        manager = _create_baseline(tmp_path, "zero_drift", content)
-
-        assertion = SemanticDriftIsBelow("zero_drift", manager)
-        assertion_result = assertion.evaluate(content, CONFIG)
-
-        assert assertion_result.passed is True
-        # Drift should be at or very near 0.0 for identical text
-        assert assertion_result.score is not None
-        assert assertion_result.score < 0.01
-
-    def test_high_drift_fails(self, tmp_path: Path) -> None:
-        baseline = "The cat sleeps on the warm windowsill."
-        current = "Advanced cryptographic protocols ensure data integrity in distributed systems."
-        manager = _create_baseline(tmp_path, "high_drift", baseline)
-
-        assertion = SemanticDriftIsBelow("high_drift", manager, max_drift=0.15)
-        assertion_result = assertion.evaluate(current, CONFIG)
-
-        assert assertion_result.passed is False
-        assert assertion_result.score is not None
-        assert assertion_result.score > 0.15
-
-    def test_moderate_drift_within_tolerance(self, tmp_path: Path) -> None:
-        """Close paraphrase: drift should be small enough to pass default ceiling."""
-        baseline = "Regular exercise reduces the risk of heart disease significantly."
-        current = "Physical activity lowers cardiovascular disease risk substantially."
-        manager = _create_baseline(tmp_path, "moderate", baseline)
-
-        assertion = SemanticDriftIsBelow("moderate", manager, max_drift=0.30)
-        assertion_result = assertion.evaluate(current, CONFIG)
-
-        assert assertion_result.passed is True
-
-    def test_custom_max_drift(self, tmp_path: Path) -> None:
-        content = "Test content for drift measurement."
-        manager = _create_baseline(tmp_path, "custom_drift", content)
-
-        # Identical content with very tight ceiling: should pass since drift ~0
-        assertion = SemanticDriftIsBelow("custom_drift", manager, max_drift=0.001)
-        assertion_result = assertion.evaluate(content, CONFIG)
-        assert assertion_result.passed is True
-
-    def test_result_metadata(self, tmp_path: Path) -> None:
-        content = "Metadata test content."
-        manager = _create_baseline(tmp_path, "meta", content, model="gpt-4o")
-
-        assertion = SemanticDriftIsBelow("meta", manager)
-        assertion_result = assertion.evaluate(content, CONFIG)
-
-        assert assertion_result.assertion_type == "regression"
-        assert assertion_result.assertion_name == "semantic_drift_is_below"
-        assert assertion_result.details["snapshot_key"] == "meta"
-        assert assertion_result.details["baseline_model"] == "gpt-4o"
 
 
 # ---------------------------------------------------------------------------

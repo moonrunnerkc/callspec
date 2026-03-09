@@ -112,48 +112,6 @@ def _build_ends_with(params: dict[str, Any]) -> BaseAssertion:
     return EndsWith(suffix)
 
 
-# -- Semantic assertion builders (lazy import to avoid requiring llm-assert[semantic]) --
-
-@_register_assertion("semantic_intent_matches")
-def _build_semantic_intent_matches(params: dict[str, Any]) -> BaseAssertion:
-    from llm_assert.assertions.semantic import SemanticIntentMatches
-    reference = params.get("reference_intent", params.get("reference", ""))
-    threshold = params.get("threshold")
-    if not reference:
-        raise ValueError("semantic_intent_matches requires a 'reference_intent' parameter")
-    return SemanticIntentMatches(reference, threshold)
-
-
-@_register_assertion("does_not_discuss")
-def _build_does_not_discuss(params: dict[str, Any]) -> BaseAssertion:
-    from llm_assert.assertions.semantic import DoesNotDiscuss
-    topic = params.get("topic", "")
-    threshold = params.get("threshold")
-    if not topic:
-        raise ValueError("does_not_discuss requires a 'topic' parameter")
-    return DoesNotDiscuss(topic, threshold)
-
-
-@_register_assertion("is_factually_consistent_with")
-def _build_is_factually_consistent_with(params: dict[str, Any]) -> BaseAssertion:
-    from llm_assert.assertions.semantic import IsFactuallyConsistentWith
-    reference = params.get("reference_text", params.get("reference", ""))
-    threshold = params.get("threshold")
-    if not reference:
-        raise ValueError("is_factually_consistent_with requires a 'reference_text' parameter")
-    return IsFactuallyConsistentWith(reference, threshold)
-
-
-@_register_assertion("uses_language_at_grade_level")
-def _build_uses_language_at_grade_level(params: dict[str, Any]) -> BaseAssertion:
-    from llm_assert.assertions.semantic import UsesLanguageAtGradeLevel
-    grade = params.get("grade")
-    tolerance = params.get("tolerance", 2)
-    if grade is None:
-        raise ValueError("uses_language_at_grade_level requires a 'grade' parameter")
-    return UsesLanguageAtGradeLevel(grade, tolerance)
-
-
 def _build_assertion(assertion_def: dict[str, Any], filepath: str) -> BaseAssertion:
     """Convert a single YAML assertion definition to a BaseAssertion instance."""
     assertion_type = assertion_def.get("type")

@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from llm_assert.assertions.composite import AndAssertion, NegationWrapper, OrAssertion
-from llm_assert.assertions.structural import IsValidJson, LengthBetween, StartsWith
-from llm_assert.core.config import LLMAssertConfig
+from callspec.assertions.composite import AndAssertion, NegationWrapper, OrAssertion
+from callspec.assertions.structural import IsValidJson, LengthBetween, StartsWith
+from callspec.core.config import CallspecConfig
 
-CONFIG = LLMAssertConfig()
+CONFIG = CallspecConfig()
 
 
 class TestNegationWrapper:

@@ -39,7 +39,7 @@ def _run_pytest(
         capture_output=True,
         text=True,
         cwd=str(PROJECT_ROOT),
-        env={**__import__("os").environ, "LLM_ASSERT_PROVIDER": "mock"},
+        env={**__import__("os").environ, "CALLSPEC_PROVIDER": "mock"},
         timeout=60,
     )
 
@@ -57,7 +57,7 @@ class TestTrajectoryRunnerFixture:
 
     def test_trajectory_runner_returns_builder(self, tmp_path: Path) -> None:
         test_code = textwrap.dedent("""
-            from llm_assert.core.trajectory_builder import TrajectoryBuilder
+            from callspec.core.trajectory_builder import TrajectoryBuilder
             def test_returns_builder(trajectory_runner):
                 builder = trajectory_runner("test prompt")
                 assert isinstance(builder, TrajectoryBuilder)
@@ -102,7 +102,7 @@ class TestToolContractMarker:
             def test_regular():
                 pass
         """)
-        result = _run_pytest(test_code, tmp_path, ["--llm-assert-skip-contracts"])
+        result = _run_pytest(test_code, tmp_path, ["--callspec-skip-contracts"])
         assert result.returncode == 0
         assert "1 passed" in result.stdout
         assert "1 skipped" in result.stdout
@@ -122,7 +122,7 @@ class TestToolContractMarker:
             def test_normal():
                 pass
         """)
-        result = _run_pytest(test_code, tmp_path, ["--llm-assert-skip-contracts"])
+        result = _run_pytest(test_code, tmp_path, ["--callspec-skip-contracts"])
         assert result.returncode == 0
         assert "1 passed" in result.stdout
         assert "2 skipped" in result.stdout
@@ -136,7 +136,7 @@ class TestToolContractMarker:
             def test_contract():
                 pass
 
-            @pytest.mark.llm_assert_behavioral
+            @pytest.mark.callspec_behavioral
             def test_behavioral():
                 pass
 
@@ -144,13 +144,13 @@ class TestToolContractMarker:
                 pass
         """)
         # Skip only contracts
-        result = _run_pytest(test_code, tmp_path, ["--llm-assert-skip-contracts"])
+        result = _run_pytest(test_code, tmp_path, ["--callspec-skip-contracts"])
         assert result.returncode == 0
         assert "2 passed" in result.stdout
         assert "1 skipped" in result.stdout
 
         # Skip only behavioral
-        result = _run_pytest(test_code, tmp_path, ["--llm-assert-skip-behavioral"])
+        result = _run_pytest(test_code, tmp_path, ["--callspec-skip-behavioral"])
         assert result.returncode == 0
         assert "2 passed" in result.stdout
         assert "1 skipped" in result.stdout
@@ -160,9 +160,9 @@ class TestTrajectoryAssertionOutput:
     def test_trajectory_failure_shows_tool_calls(self, tmp_path: Path) -> None:
         """When a trajectory assertion fails, the output should include context."""
         test_code = textwrap.dedent("""
-            from llm_assert.pytest_plugin.assertions import assert_llm_assert_pass
-            from llm_assert.core.trajectory import ToolCall, ToolCallTrajectory
-            from llm_assert.core.trajectory_builder import TrajectoryBuilder
+            from callspec.pytest_plugin.assertions import assert_callspec_pass
+            from callspec.core.trajectory import ToolCall, ToolCallTrajectory
+            from callspec.core.trajectory_builder import TrajectoryBuilder
 
             def test_fail():
                 trajectory = ToolCallTrajectory(
@@ -173,7 +173,7 @@ class TestTrajectoryAssertionOutput:
                     provider="openai",
                 )
                 result = TrajectoryBuilder(trajectory).calls_tool("book").run()
-                assert_llm_assert_pass(result)
+                assert_callspec_pass(result)
         """)
         result = _run_pytest(test_code, tmp_path)
         assert result.returncode != 0

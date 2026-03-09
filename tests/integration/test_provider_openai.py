@@ -17,8 +17,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from llm_assert.core.types import ProviderResponse
-from llm_assert.providers.openai import OpenAIProvider
+from callspec.core.types import ProviderResponse
+from callspec.providers.openai import OpenAIProvider
 from tests.fixtures.recorded_responses import OPENAI_CHAT_RESPONSE
 
 # ---- Mock objects that mirror the OpenAI SDK response shape ----
@@ -83,7 +83,7 @@ class TestOpenAIProviderOffline:
     def test_import_error_gives_actionable_message(self) -> None:
         provider = OpenAIProvider(model="gpt-4o")
         with patch.dict("sys.modules", {"openai": None}):
-            with pytest.raises(ImportError, match="pip install llm-assert\\[openai\\]"):
+            with pytest.raises(ImportError, match="pip install callspec\\[openai\\]"):
                 provider._get_client()
 
     def test_response_normalization(self) -> None:

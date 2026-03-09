@@ -11,14 +11,14 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from llm_assert.assertions.regression import (
+from callspec.assertions.regression import (
     FormatMatchesBaseline,
     MatchesBaseline,
 )
-from llm_assert.core.config import LLMAssertConfig
-from llm_assert.snapshots.manager import SnapshotManager
+from callspec.core.config import CallspecConfig
+from callspec.snapshots.manager import SnapshotManager
 
-CONFIG = LLMAssertConfig()
+CONFIG = CallspecConfig()
 
 
 def _create_baseline(

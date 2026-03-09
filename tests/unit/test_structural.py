@@ -1,7 +1,7 @@
 """Unit tests for all structural assertion types.
 
 Each assertion is tested with clear pass/fail cases and edge conditions.
-Tests use LLMAssertConfig defaults unless testing config-dependent behavior.
+Tests use CallspecConfig defaults unless testing config-dependent behavior.
 """
 
 from __future__ import annotations
@@ -10,7 +10,7 @@ import json
 
 import pytest
 
-from llm_assert.assertions.structural import (
+from callspec.assertions.structural import (
     ContainsKeys,
     DoesNotContain,
     EndsWith,
@@ -20,9 +20,9 @@ from llm_assert.assertions.structural import (
     MatchesSchema,
     StartsWith,
 )
-from llm_assert.core.config import LLMAssertConfig
+from callspec.core.config import CallspecConfig
 
-CONFIG = LLMAssertConfig()
+CONFIG = CallspecConfig()
 
 
 # -- IsValidJson --

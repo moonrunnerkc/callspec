@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from llm_assert.core.types import ProviderResponse
-from llm_assert.providers.mock import MockProvider
+from callspec.core.types import ProviderResponse
+from callspec.providers.mock import MockProvider
 
 
 class TestMockProvider:

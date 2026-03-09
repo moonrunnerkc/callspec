@@ -13,9 +13,9 @@ from typing import Any
 
 import pytest
 
-from llm_assert.capture.normalizer import normalize
-from llm_assert.core.trajectory import ToolCallTrajectory
-from llm_assert.core.types import ProviderResponse
+from callspec.capture.normalizer import normalize
+from callspec.core.trajectory import ToolCallTrajectory
+from callspec.core.types import ProviderResponse
 
 from tests.fixtures.tool_call_responses import (
     OPENAI_CHAT_SINGLE_TOOL_CALL,

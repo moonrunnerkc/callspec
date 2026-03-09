@@ -9,11 +9,11 @@ from __future__ import annotations
 
 import pytest
 
-from llm_assert.capture.adapters.openai import extract_from_dict as openai_extract
-from llm_assert.capture.adapters.anthropic import extract_from_dict as anthropic_extract
-from llm_assert.capture.adapters.langchain import extract_from_message as langchain_extract
-from llm_assert.capture.adapters.pydantic_ai import extract_from_response as pydantic_ai_extract
-from llm_assert.capture.adapters.generic import extract_from_list as generic_extract
+from callspec.capture.adapters.openai import extract_from_dict as openai_extract
+from callspec.capture.adapters.anthropic import extract_from_dict as anthropic_extract
+from callspec.capture.adapters.langchain import extract_from_message as langchain_extract
+from callspec.capture.adapters.pydantic_ai import extract_from_response as pydantic_ai_extract
+from callspec.capture.adapters.generic import extract_from_list as generic_extract
 
 from tests.fixtures.tool_call_responses import (
     OPENAI_CHAT_SINGLE_TOOL_CALL,

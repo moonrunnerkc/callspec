@@ -12,8 +12,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from llm_assert.core.types import ProviderResponse
-from llm_assert.providers.ollama import OllamaProvider
+from callspec.core.types import ProviderResponse
+from callspec.providers.ollama import OllamaProvider
 from tests.fixtures.recorded_responses import OLLAMA_CHAT_RESPONSE
 
 
@@ -26,7 +26,7 @@ class TestOllamaProviderOffline:
     def test_import_error_gives_actionable_message(self) -> None:
         provider = OllamaProvider()
         with patch.dict("sys.modules", {"ollama": None}):
-            with pytest.raises(ImportError, match="pip install llm-assert\\[ollama\\]"):
+            with pytest.raises(ImportError, match="pip install callspec\\[ollama\\]"):
                 provider._get_client()
 
     def test_response_normalization(self) -> None:
@@ -140,8 +140,8 @@ class TestOllamaProviderOffline:
 # ---- Live tests (require local Ollama server) ----
 
 @pytest.mark.skipif(
-    not os.environ.get("LLM_ASSERT_OLLAMA_LIVE"),
-    reason="LLM_ASSERT_OLLAMA_LIVE not set, skipping live Ollama tests",
+    not os.environ.get("CALLSPEC_OLLAMA_LIVE"),
+    reason="CALLSPEC_OLLAMA_LIVE not set, skipping live Ollama tests",
 )
 class TestOllamaProviderLive:
 

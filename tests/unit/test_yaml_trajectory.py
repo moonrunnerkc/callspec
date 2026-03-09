@@ -11,8 +11,8 @@ import textwrap
 
 import pytest
 
-from llm_assert.core.yaml_suite import load_yaml_suite
-from llm_assert.errors import SuiteParseError
+from callspec.core.yaml_suite import load_yaml_suite
+from callspec.errors import SuiteParseError
 
 
 def _write_suite(tmp_path, yaml_content: str):
@@ -331,10 +331,10 @@ class TestSuiteRunnerTrajectory:
         """MockProvider returns the prompt as content with no tool calls.
         Trajectory assertions against empty tool calls should fail/pass
         according to assertion logic."""
-        from llm_assert.core.runner import AssertionRunner
-        from llm_assert.core.suite import AssertionCase, AssertionSuite
-        from llm_assert.assertions.trajectory import DoesNotCall
-        from llm_assert.providers.mock import MockProvider
+        from callspec.core.runner import AssertionRunner
+        from callspec.core.suite import AssertionCase, AssertionSuite
+        from callspec.assertions.trajectory import DoesNotCall
+        from callspec.providers.mock import MockProvider
 
         provider = MockProvider(
             response_fn=lambda p, m=None: "ok",
@@ -358,10 +358,10 @@ class TestSuiteRunnerTrajectory:
         assert result.passed_cases == 1
 
     def test_trajectory_case_fails_on_violation(self, tmp_path):
-        from llm_assert.core.runner import AssertionRunner
-        from llm_assert.core.suite import AssertionCase, AssertionSuite
-        from llm_assert.assertions.trajectory import CallsTool
-        from llm_assert.providers.mock import MockProvider
+        from callspec.core.runner import AssertionRunner
+        from callspec.core.suite import AssertionCase, AssertionSuite
+        from callspec.assertions.trajectory import CallsTool
+        from callspec.providers.mock import MockProvider
 
         provider = MockProvider(
             response_fn=lambda p, m=None: "ok",
@@ -383,11 +383,11 @@ class TestSuiteRunnerTrajectory:
         assert result.failed_cases == 1
 
     def test_mixed_content_and_trajectory_in_suite(self):
-        from llm_assert.core.runner import AssertionRunner
-        from llm_assert.core.suite import AssertionCase, AssertionSuite
-        from llm_assert.assertions.structural import IsValidJson
-        from llm_assert.assertions.trajectory import CallsTool
-        from llm_assert.providers.mock import MockProvider
+        from callspec.core.runner import AssertionRunner
+        from callspec.core.suite import AssertionCase, AssertionSuite
+        from callspec.assertions.structural import IsValidJson
+        from callspec.assertions.trajectory import CallsTool
+        from callspec.providers.mock import MockProvider
 
         provider = MockProvider(
             response_fn=lambda p, m=None: '{"status": "ok"}',

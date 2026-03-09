@@ -1,193 +1,123 @@
 # Getting Started
 
-Install LLMAssert, write your first test, and see your first failure in under 5 minutes.
+Install callspec and run your first tool-call contract test in under five minutes.
 
 ## Install
 
 ```bash
-pip install llm-assert
+pip install callspec
 ```
 
-For semantic assertions (embedding-based similarity), add the semantic extra:
+Add a provider extra if you want to call a real LLM:
 
 ```bash
-pip install "llm-assert[semantic]"
+pip install "callspec[openai]"
+pip install "callspec[anthropic]"
 ```
 
-For a specific provider:
+No account required. No API keys needed for the assertion library itself.
 
-```bash
-pip install "llm-assert[openai]"
-pip install "llm-assert[anthropic]"
-pip install "llm-assert[ollama]"
-```
+## First Test
 
-Or install everything:
-
-```bash
-pip install "llm-assert[all]"
-```
-
-## Verify your setup
-
-```bash
-llm-assert check
-```
-
-This confirms LLMAssert is installed and any configured providers are reachable. If you have an `OPENAI_API_KEY` environment variable set, it will verify OpenAI connectivity.
-
-## Your first test
-
-Create a file called `test_my_llm.py`:
+Create a file called `test_agent.py`:
 
 ```python
-from llm_assert import LLMAssert
-from llm_assert.providers.mock import MockProvider
+from callspec import Callspec, ToolCallTrajectory
+from callspec.providers.mock import MockProvider
 
-# MockProvider returns a deterministic response without API calls
 provider = MockProvider(
-    lambda prompt, messages: '{"title": "Quarterly Review", "summary": "Revenue increased 12%"}'
+    response_fn=lambda p, m: "Done",
+    tool_calls=[
+        {"name": "search", "arguments": {"query": "flights SFO to JFK"}},
+        {"name": "book", "arguments": {"flight_id": "UA123", "seat": "12A"}},
+    ],
 )
-v = LLMAssert(provider)
 
+v = Callspec(provider)
+response = provider.call("Book a flight from SFO to JFK")
+trajectory = ToolCallTrajectory.from_provider_response(response)
 
-def test_json_output():
-    result = (
-        v.assert_that("Summarize the Q3 earnings report as JSON")
-        .is_valid_json()
-        .contains_keys(["title", "summary"])
-        .length_between(20, 500)
-        .run()
-    )
-    assert result.passed
+result = (
+    v.assert_trajectory(trajectory)
+    .calls_tools_in_order(["search", "book"])
+    .does_not_call("cancel")
+    .argument_not_empty("search", "query")
+    .run()
+)
+assert result.passed
 ```
 
 Run it:
 
 ```bash
-pytest test_my_llm.py -v
+python test_agent.py
 ```
 
-Output:
-
-```
-test_my_llm.py::test_json_output PASSED
-```
-
-## Your first failure
-
-Modify the test to expect a key the response does not contain:
-
-```python
-def test_missing_key():
-    result = (
-        v.assert_that("Summarize the Q3 earnings report as JSON")
-        .is_valid_json()
-        .contains_keys(["title", "summary", "recommendations"])
-        .run()
-    )
-    assert result.passed, result.assertions[-1].message
-```
-
-Run it:
+Or with pytest:
 
 ```bash
-pytest test_my_llm.py::test_missing_key -v
+pytest test_agent.py
 ```
 
-The failure message tells you exactly what happened:
+## What Just Happened
+
+1. `MockProvider` simulated an LLM that returns two tool calls.
+2. `ToolCallTrajectory.from_provider_response()` extracted those calls into a normalized trajectory.
+3. Three assertions ran against the trajectory: tool ordering, a negative check, and an argument presence check.
+4. All three passed. `result.passed` is `True`.
+
+## First Failure
+
+Change `calls_tools_in_order(["search", "book"])` to `calls_tools_in_order(["book", "search"])` and run again. The failure message tells you exactly what went wrong:
 
 ```
-AssertionError: ContainsKeys failed: missing keys {'recommendations'}
-from response with keys {'title', 'summary'}. Add the missing keys to
-the prompt instructions or remove them from the assertion.
+CallsToolsInOrder failed: expected order ['book', 'search'], actual order ['search', 'book'].
+Tool 'book' expected at position 0, first seen at position 1.
 ```
 
-Every LLMAssert failure includes: which assertion failed, the actual value, the expected value, which provider and model were used, and what to try next.
+Every failure message includes the assertion name, expected value, actual value, and which tool call triggered it.
 
-## Using a real provider
+## Using a Real Provider
 
-Replace `MockProvider` with a real provider:
+Swap MockProvider for any real provider. The assertions stay the same:
 
 ```python
-from llm_assert import LLMAssert
-from llm_assert.providers.openai import OpenAIProvider
+import os
+from callspec import Callspec, ToolCallTrajectory
+from callspec.providers.openai import OpenAIProvider
 
-provider = OpenAIProvider(model="gpt-4o")
-v = LLMAssert(provider)
+provider = OpenAIProvider(
+    model="gpt-4o",
+    api_key=os.environ["OPENAI_API_KEY"],
+)
 
+response = provider.call(
+    "Book me a flight from SFO to JFK",
+    tools=[{
+        "type": "function",
+        "function": {
+            "name": "search_flights",
+            "parameters": {"type": "object", "properties": {"origin": {"type": "string"}, "dest": {"type": "string"}}},
+        },
+    }],
+)
+trajectory = ToolCallTrajectory.from_provider_response(response)
 
-def test_real_output():
-    result = (
-        v.assert_that("Return a JSON object with keys: title, summary")
-        .is_valid_json()
-        .contains_keys(["title", "summary"])
-        .run()
-    )
-    assert result.passed
+result = (
+    Callspec(provider)
+    .assert_trajectory(trajectory)
+    .calls_tool("search_flights")
+    .argument_not_empty("search_flights", "origin")
+    .run()
+)
+assert result.passed
 ```
 
-Set your API key:
+Supported providers: OpenAI, Anthropic, Google, Mistral, Ollama, LiteLLM, MockProvider.
 
-```bash
-export OPENAI_API_KEY="sk-..."
-pytest test_my_llm.py -v
-```
+## Next
 
-## Adding semantic assertions
-
-Semantic assertions check meaning, not just structure. They require the `semantic` extra:
-
-```bash
-pip install "llm-assert[semantic]"
-```
-
-```python
-def test_intent():
-    result = (
-        v.assert_that("Explain quantum computing to a 10 year old")
-        .semantic_intent_matches("a simple explanation of quantum computing")
-        .uses_language_at_grade_level(5, tolerance=3)
-        .run()
-    )
-    assert result.passed
-```
-
-The first semantic assertion call downloads the embedding model (22MB, one-time). Subsequent calls use the cached model.
-
-## Using pytest fixtures
-
-LLMAssert provides built-in pytest fixtures. Configure your provider once in `conftest.py`:
-
-```python
-# conftest.py
-import pytest
-from llm_assert.providers.mock import MockProvider
-
-@pytest.fixture(scope="session")
-def llm_assert_provider():
-    return MockProvider(
-        lambda prompt, messages: '{"title": "Test", "summary": "A summary"}'
-    )
-```
-
-Then use `llm_assert_runner` in any test:
-
-```python
-def test_output(llm_assert_runner):
-    result = (
-        llm_assert_runner
-        .assert_that("Summarize the document")
-        .is_valid_json()
-        .run()
-    )
-    assert result.passed
-```
-
-## Next steps
-
-- [Assertion Types](assertion_types.md) -- full reference for every assertion
-- [Provider Guide](provider_guide.md) -- configure OpenAI, Anthropic, Ollama, and others
-- [pytest Guide](pytest_guide.md) -- fixtures, CLI flags, report output
-- [YAML Suites](yaml_suite_format.md) -- define assertions as configuration
-- [CI Guide](ci_guide.md) -- run LLMAssert in GitHub Actions
+- [Trajectory Assertions](trajectory_assertions.md) for the full assertion reference.
+- [Contract Assertions](contract_assertions.md) for argument validation.
+- [Snapshots and Drift](snapshots_and_drift.md) for regression testing across model versions.
+- [pytest and CI](pytest_and_ci.md) for CI pipeline integration.

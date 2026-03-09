@@ -13,8 +13,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from llm_assert.core.types import ProviderResponse
-from llm_assert.providers.google import GoogleProvider
+from callspec.core.types import ProviderResponse
+from callspec.providers.google import GoogleProvider
 
 # ---- Mock objects mirroring google-generativeai response shape ----
 
@@ -59,7 +59,7 @@ class TestGoogleProviderOffline:
     def test_import_error_gives_actionable_message(self) -> None:
         provider = GoogleProvider()
         with patch.dict("sys.modules", {"google": None, "google.generativeai": None}):
-            with pytest.raises(ImportError, match="pip install llm-assert\\[google\\]"):
+            with pytest.raises(ImportError, match="pip install callspec\\[google\\]"):
                 provider._configure_sdk()
 
     def test_response_normalization(self) -> None:

@@ -1,4 +1,4 @@
-name: 'LLMAssert Tool-Call Contract Testing'
+name: 'Callspec Tool-Call Contract Testing'
 description: 'Run tool-call contract assertions against your LLM agent in CI. Annotates PRs with contract failure details.'
 author: 'Aftermath Technologies Ltd.'
 branding:
@@ -7,7 +7,7 @@ branding:
 
 inputs:
   command:
-    description: 'LLMAssert command to run. Default runs a YAML suite file.'
+    description: 'Callspec command to run. Default runs a YAML suite file.'
     required: false
     default: 'run'
   suite:
@@ -25,17 +25,17 @@ inputs:
   report-path:
     description: 'Output path for the report file.'
     required: false
-    default: 'llm-assert-report.json'
+    default: 'callspec-report.json'
   python-version:
     description: 'Python version to use. Defaults to 3.12.'
     required: false
     default: '3.12'
-  llm-assert-extras:
-    description: 'LLMAssert extras to install (e.g. "openai").'
+  callspec-extras:
+    description: 'Callspec extras to install (e.g. "openai").'
     required: false
     default: ''
   working-directory:
-    description: 'Working directory for running LLMAssert.'
+    description: 'Working directory for running Callspec.'
     required: false
     default: '.'
   strict:
@@ -46,16 +46,16 @@ inputs:
 outputs:
   passed:
     description: 'Whether all assertions passed (true/false).'
-    value: ${{ steps.llm-assert-run.outputs.llm_assert_passed }}
+    value: ${{ steps.callspec-run.outputs.callspec_passed }}
   passed-cases:
     description: 'Number of passing cases.'
-    value: ${{ steps.llm-assert-run.outputs.llm_assert_passed_cases }}
+    value: ${{ steps.callspec-run.outputs.callspec_passed_cases }}
   failed-cases:
     description: 'Number of failing cases.'
-    value: ${{ steps.llm-assert-run.outputs.llm_assert_failed_cases }}
+    value: ${{ steps.callspec-run.outputs.callspec_failed_cases }}
   total-cases:
     description: 'Total number of cases.'
-    value: ${{ steps.llm-assert-run.outputs.llm_assert_total_cases }}
+    value: ${{ steps.callspec-run.outputs.callspec_total_cases }}
   report-path:
     description: 'Path to the generated report file.'
     value: ${{ inputs.report-path }}
@@ -68,13 +68,13 @@ runs:
       with:
         python-version: ${{ inputs.python-version }}
 
-    - name: Install LLMAssert
+    - name: Install Callspec
       shell: bash
       run: |
-        if [ -n "${{ inputs.llm-assert-extras }}" ]; then
-          pip install "llm-assert[${{ inputs.llm-assert-extras }}]"
+        if [ -n "${{ inputs.callspec-extras }}" ]; then
+          pip install "callspec[${{ inputs.callspec-extras }}]"
         else
-          pip install llm-assert
+          pip install callspec
         fi
 
     - name: Install project dependencies
@@ -87,12 +87,12 @@ runs:
           pip install .
         fi
 
-    - name: Run LLMAssert
-      id: llm-assert-run
+    - name: Run Callspec
+      id: callspec-run
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       env:
-        LLM_ASSERT_PROVIDER: ${{ inputs.provider }}
+        CALLSPEC_PROVIDER: ${{ inputs.provider }}
       run: |
         set +e
 
@@ -107,7 +107,7 @@ runs:
         fi
 
         if [ "${{ inputs.command }}" = "run" ] && [ -n "${{ inputs.suite }}" ]; then
-          llm-assert run "${{ inputs.suite }}" \
+          callspec run "${{ inputs.suite }}" \
             --format "${{ inputs.report-format }}" \
             --output "${{ inputs.report-path }}" \
             $PROVIDER_FLAG \
@@ -115,17 +115,17 @@ runs:
             --github-annotations
           EXIT_CODE=$?
         elif [ "${{ inputs.command }}" = "pytest" ]; then
-          pytest --llm-assert-report "${{ inputs.report-format }}" \
-            --llm-assert-report-path "${{ inputs.report-path }}"
+          pytest --callspec-report "${{ inputs.report-format }}" \
+            --callspec-report-path "${{ inputs.report-path }}"
           EXIT_CODE=$?
         else
-          llm-assert ${{ inputs.command }}
+          callspec ${{ inputs.command }}
           EXIT_CODE=$?
         fi
 
         if [ $EXIT_CODE -ne 0 ]; then
-          echo "llm_assert_passed=false" >> "$GITHUB_OUTPUT"
+          echo "callspec_passed=false" >> "$GITHUB_OUTPUT"
           exit $EXIT_CODE
         else
-          echo "llm_assert_passed=true" >> "$GITHUB_OUTPUT"
+          echo "callspec_passed=true" >> "$GITHUB_OUTPUT"
         fi

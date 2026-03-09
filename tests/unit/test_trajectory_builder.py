@@ -1,10 +1,10 @@
-"""Tests for TrajectoryBuilder fluent API and LLMAssert.assert_trajectory integration."""
+"""Tests for TrajectoryBuilder fluent API and Callspec.assert_trajectory integration."""
 
 import pytest
 
-from llm_assert import LLMAssert, ToolCall, ToolCallTrajectory, TrajectoryBuilder
-from llm_assert.core.config import LLMAssertConfig
-from llm_assert.providers.mock import MockProvider
+from callspec import Callspec, ToolCall, ToolCallTrajectory, TrajectoryBuilder
+from callspec.core.config import CallspecConfig
+from callspec.providers.mock import MockProvider
 
 
 # -- Helpers --
@@ -87,7 +87,7 @@ class TestTrajectoryBuilderTrajectoryChains:
         assert all(a.passed for a in result.assertions)
 
     def test_one_failure_fails_result(self):
-        config = LLMAssertConfig(fail_fast=False)
+        config = CallspecConfig(fail_fast=False)
         result = (
             TrajectoryBuilder(SEARCH_BOOK, config=config)
             .calls_tool("search")
@@ -101,7 +101,7 @@ class TestTrajectoryBuilderTrajectoryChains:
         assert result.assertions[2].passed  # book
 
     def test_fail_fast_stops_at_first_failure(self):
-        config = LLMAssertConfig(fail_fast=True)
+        config = CallspecConfig(fail_fast=True)
         result = (
             TrajectoryBuilder(SEARCH_BOOK, config=config)
             .calls_tool("nonexistent")
@@ -252,19 +252,19 @@ class TestMixedChains:
         assert result.assertions[1].assertion_type == "contract"
 
 
-# ── LLMAssert.assert_trajectory integration ──
+# ── Callspec.assert_trajectory integration ──
 
-class TestLLMAssertIntegration:
+class TestCallspecIntegration:
     def test_assert_trajectory_returns_builder(self):
         provider = MockProvider(response_fn=lambda p, m: "ok")
-        v = LLMAssert(provider)
+        v = Callspec(provider)
         builder = v.assert_trajectory(SEARCH_BOOK)
         assert isinstance(builder, TrajectoryBuilder)
 
     def test_inherits_config(self):
-        config = LLMAssertConfig(fail_fast=True)
+        config = CallspecConfig(fail_fast=True)
         provider = MockProvider(response_fn=lambda p, m: "ok")
-        v = LLMAssert(provider, config=config)
+        v = Callspec(provider, config=config)
         builder = v.assert_trajectory(SEARCH_BOOK)
         # fail_fast should propagate: first failure stops evaluation
         result = (
@@ -278,7 +278,7 @@ class TestLLMAssertIntegration:
 
     def test_full_chain_via_llmassert(self):
         provider = MockProvider(response_fn=lambda p, m: "ok")
-        v = LLMAssert(provider)
+        v = Callspec(provider)
         result = (
             v.assert_trajectory(SEARCH_BOOK)
             .calls_tools_in_order(["search", "book"])

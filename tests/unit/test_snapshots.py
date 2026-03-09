@@ -12,10 +12,10 @@ from pathlib import Path
 
 import pytest
 
-from llm_assert.errors import SnapshotError
-from llm_assert.snapshots.diff import SnapshotDiff
-from llm_assert.snapshots.manager import SnapshotManager
-from llm_assert.snapshots.serializer import (
+from callspec.errors import SnapshotError
+from callspec.snapshots.diff import SnapshotDiff
+from callspec.snapshots.manager import SnapshotManager
+from callspec.snapshots.serializer import (
     SNAPSHOT_SCHEMA_VERSION,
     SnapshotEntry,
     SnapshotFile,

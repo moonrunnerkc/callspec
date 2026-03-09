@@ -11,10 +11,10 @@ from typing import Any
 
 import pytest
 
-from llm_assert.capture.interceptor import CaptureInterceptor
-from llm_assert.core.trajectory import ToolCallTrajectory
-from llm_assert.core.types import ProviderResponse
-from llm_assert.providers.mock import MockProvider
+from callspec.capture.interceptor import CaptureInterceptor
+from callspec.core.trajectory import ToolCallTrajectory
+from callspec.core.types import ProviderResponse
+from callspec.providers.mock import MockProvider
 
 
 def _echo_response(prompt: str, messages: Any = None) -> str:

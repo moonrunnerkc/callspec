@@ -2,7 +2,7 @@
 
 import pytest
 
-from llm_assert.assertions.trajectory import (
+from callspec.assertions.trajectory import (
     CallCount,
     CallsExactly,
     CallsSubset,
@@ -11,8 +11,8 @@ from llm_assert.assertions.trajectory import (
     DoesNotCall,
     NoRepeatedCalls,
 )
-from llm_assert.core.config import LLMAssertConfig
-from llm_assert.core.trajectory import ToolCall, ToolCallTrajectory
+from callspec.core.config import CallspecConfig
+from callspec.core.trajectory import ToolCall, ToolCallTrajectory
 
 
 # -- Helpers --
@@ -27,7 +27,7 @@ def _trajectory(*tool_names: str) -> ToolCallTrajectory:
 
 
 EMPTY = ToolCallTrajectory(calls=[], model="test", provider="mock")
-CONFIG = LLMAssertConfig()
+CONFIG = CallspecConfig()
 
 
 # ── CallsTool ──

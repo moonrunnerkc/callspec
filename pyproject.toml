@@ -3,16 +3,16 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "llm-assert"
+name = "callspec"
 version = "0.1.0"
-description = "Behavioral assertion testing for LLM applications. The pytest of LLM testing."
+description = "Contract testing for LLM tool calls."
 readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.9"
 authors = [
     { name = "Bradley R. Kinnard", email = "brad@aftermath.tech" },
 ]
-keywords = ["llm", "testing", "assertions", "pytest", "ai", "behavioral-testing"]
+keywords = ["llm", "testing", "tool-calls", "contracts", "pytest", "ai", "agents"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -49,34 +49,35 @@ dev = [
     "mypy>=1.0.0",
 ]
 all = [
-    "llm-assert[openai]",
-    "llm-assert[anthropic]",
-    "llm-assert[google]",
-    "llm-assert[mistral]",
-    "llm-assert[ollama]",
-    "llm-assert[litellm]",
-    "llm-assert[dev]",
+    "callspec[openai]",
+    "callspec[anthropic]",
+    "callspec[google]",
+    "callspec[mistral]",
+    "callspec[ollama]",
+    "callspec[litellm]",
+    "callspec[dev]",
 ]
 
 [project.scripts]
-llm-assert = "llm_assert.cli.main:cli"
+callspec = "callspec.cli.main:cli"
 
 [project.entry-points."pytest11"]
-llm-assert = "llm_assert.pytest_plugin.plugin"
+callspec = "callspec.pytest_plugin.plugin"
 
 [project.urls]
-Homepage = "https://github.com/moonrunnerkc/llm-assert"
-Documentation = "https://verdict.run/docs"
-Repository = "https://github.com/moonrunnerkc/llm-assert"
-Issues = "https://github.com/moonrunnerkc/llm-assert/issues"
+Homepage = "https://github.com/moonrunnerkc/callspec"
+Documentation = "https://github.com/moonrunnerkc/callspec"
+Repository = "https://github.com/moonrunnerkc/callspec"
+Issues = "https://github.com/moonrunnerkc/callspec/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["llm_assert"]
+packages = ["callspec"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = [
-    "llm_assert_behavioral: marks tests as behavioral (multi-sample, expensive)",
+    "callspec_behavioral: marks tests as behavioral (multi-sample, expensive)",
+    "tool_contract: marks tests as contract tests (skippable with --callspec-skip-contracts)",
 ]
 
 [tool.ruff]

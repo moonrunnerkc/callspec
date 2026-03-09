@@ -4,23 +4,23 @@ import json
 import pytest
 from pathlib import Path
 
-from llm_assert.assertions.trajectory_regression import (
+from callspec.assertions.trajectory_regression import (
     MatchesTrajectoryBaseline,
     TrajectorySequenceMatches,
 )
-from llm_assert.core.config import LLMAssertConfig
-from llm_assert.core.trajectory import ToolCall, ToolCallTrajectory
-from llm_assert.core.trajectory_builder import TrajectoryBuilder
-from llm_assert.snapshots.diff import SnapshotDiff, TrajectoryDiffResult, ToolCallDiff
-from llm_assert.snapshots.manager import SnapshotManager
-from llm_assert.snapshots.serializer import (
+from callspec.core.config import CallspecConfig
+from callspec.core.trajectory import ToolCall, ToolCallTrajectory
+from callspec.core.trajectory_builder import TrajectoryBuilder
+from callspec.snapshots.diff import SnapshotDiff, TrajectoryDiffResult, ToolCallDiff
+from callspec.snapshots.manager import SnapshotManager
+from callspec.snapshots.serializer import (
     SNAPSHOT_SCHEMA_VERSION,
     SnapshotEntry,
     SnapshotSerializer,
     compute_trajectory_hash,
 )
 
-CONFIG = LLMAssertConfig()
+CONFIG = CallspecConfig()
 
 
 # -- Helpers --

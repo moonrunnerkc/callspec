@@ -10,7 +10,7 @@ from datetime import datetime
 
 import pytest
 
-from llm_assert.core.trajectory import ToolCall, ToolCallTrajectory
+from callspec.core.trajectory import ToolCall, ToolCallTrajectory
 
 
 # ---------------------------------------------------------------------------

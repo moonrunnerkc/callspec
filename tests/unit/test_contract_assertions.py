@@ -2,7 +2,7 @@
 
 import pytest
 
-from llm_assert.assertions.contract import (
+from callspec.assertions.contract import (
     ArgumentContainsKey,
     ArgumentMatchesPattern,
     ArgumentMatchesSchema,
@@ -10,11 +10,11 @@ from llm_assert.assertions.contract import (
     ArgumentValueIn,
     CustomContract,
 )
-from llm_assert.core.config import LLMAssertConfig
-from llm_assert.core.trajectory import ToolCall, ToolCallTrajectory
+from callspec.core.config import CallspecConfig
+from callspec.core.trajectory import ToolCall, ToolCallTrajectory
 
 
-CONFIG = LLMAssertConfig()
+CONFIG = CallspecConfig()
 
 
 def _traj_with_calls(*calls_spec: tuple[str, dict]) -> ToolCallTrajectory:

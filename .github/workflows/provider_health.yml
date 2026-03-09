@@ -27,7 +27,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -e ".[${{ matrix.provider }},semantic,dev]"
+          pip install -e ".[${{ matrix.provider }},dev]"
 
       - name: Run provider integration tests
         env:

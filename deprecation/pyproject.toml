@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "llm-assert"
+version = "0.1.1"
+description = "DEPRECATED: llm-assert has been renamed to callspec. Install with: pip install callspec"
+readme = "README_PYPI.md"
+license = "Apache-2.0"
+requires-python = ">=3.9"
+authors = [
+    { name = "Bradley R. Kinnard", email = "brad@aftermath.tech" },
+]
+keywords = ["deprecated", "callspec", "llm", "testing"]
+classifiers = [
+    "Development Status :: 7 - Inactive",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "callspec>=0.1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/moonrunnerkc/callspec"
+Repository = "https://github.com/moonrunnerkc/callspec"
+
+[tool.hatch.build.targets.wheel]
+packages = ["llm_assert"]

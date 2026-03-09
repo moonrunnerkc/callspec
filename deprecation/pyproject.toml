@@ -7,7 +7,7 @@ name = "llm-assert"
 version = "0.1.1"
 description = "DEPRECATED: llm-assert has been renamed to callspec. Install with: pip install callspec"
 readme = "README_PYPI.md"
-license = "Apache-2.0"
+license = {text = "Apache-2.0"}
 requires-python = ">=3.9"
 authors = [
     { name = "Bradley R. Kinnard", email = "brad@aftermath.tech" },

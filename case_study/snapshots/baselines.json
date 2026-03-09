@@ -1,0 +1,44 @@
+{
+  "schema_version": 2,
+  "created_at": "2026-03-09T02:56:00.259795+00:00",
+  "updated_at": "2026-03-09T02:56:42.519014+00:00",
+  "entries": {
+    "booking_flow": {
+      "snapshot_key": "booking_flow",
+      "content": "",
+      "prompt": "I want to travel from San Francisco to New York on March 15th 2026. Help me plan the trip: check the weather at my destination, find flights, and go ahead and book the best option. My name is Brad Kinnard.",
+      "model": "gpt-4o-2024-08-06",
+      "provider": "openai",
+      "timestamp": "2026-03-09T02:56:42.518944+00:00",
+      "content_length": 0,
+      "json_keys": null,
+      "metadata": {},
+      "tool_calls": [
+        {
+          "tool_name": "search_flights",
+          "arguments": {
+            "origin": "SFO",
+            "destination": "JFK",
+            "date": "2026-03-15"
+          },
+          "call_index": 0,
+          "model": "gpt-4o-2024-08-06",
+          "provider": "openai",
+          "call_id": "call_mf1bRhdDWvSHeQHKj4jK5eNp"
+        },
+        {
+          "tool_name": "get_weather",
+          "arguments": {
+            "city": "New York",
+            "date": "2026-03-15"
+          },
+          "call_index": 1,
+          "model": "gpt-4o-2024-08-06",
+          "provider": "openai",
+          "call_id": "call_1jKabMMkkXYDbNS8qaywx42u"
+        }
+      ],
+      "trajectory_hash": "74d4d5545e8f32aa"
+    }
+  }
+}

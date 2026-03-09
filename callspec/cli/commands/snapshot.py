@@ -48,8 +48,9 @@ def snapshot_create(key: str, prompt: str, provider: str | None, snapshot_dir: s
     PROMPT is the input prompt to send to the provider.
     """
     from callspec.cli.console import PASS_MARKER, console
+    from callspec.cli.provider_resolver import resolve_provider
 
-    resolved_provider = _get_provider(provider)
+    resolved_provider = resolve_provider(provider, require=True)
     if resolved_provider is None:
         sys.exit(1)
 
@@ -104,8 +105,9 @@ def snapshot_update(key: str, prompt: str, provider: str | None, snapshot_dir: s
     Overwrites the previous baseline. The old version remains in git history.
     """
     from callspec.cli.console import PASS_MARKER, console
+    from callspec.cli.provider_resolver import resolve_provider
 
-    resolved_provider = _get_provider(provider)
+    resolved_provider = resolve_provider(provider, require=True)
     if resolved_provider is None:
         sys.exit(1)
 
@@ -161,7 +163,7 @@ def snapshot_diff(key: str, snapshot_dir: str, prompt: str | None, provider: str
     from rich.panel import Panel
     from rich.table import Table
 
-    from callspec.cli.console import console, format_score
+    from callspec.cli.console import console
     from callspec.errors import SnapshotError
     from callspec.snapshots.manager import SnapshotManager
 
@@ -182,7 +184,9 @@ def snapshot_diff(key: str, snapshot_dir: str, prompt: str | None, provider: str
         )
         sys.exit(1)
 
-    resolved_provider = _get_provider(provider)
+    from callspec.cli.provider_resolver import resolve_provider
+
+    resolved_provider = resolve_provider(provider, require=True)
     if resolved_provider is None:
         sys.exit(1)
 
@@ -324,61 +328,4 @@ def snapshot_list(snapshot_dir: str) -> None:
     console.print(table)
 
 
-def _get_provider(provider_name: str | None):
-    """Resolve provider from name or CALLSPEC_PROVIDER env var."""
-    import importlib
-    import os
 
-    from rich.markup import escape
-
-    from callspec.cli.console import console
-
-    name = provider_name or os.environ.get("CALLSPEC_PROVIDER")
-
-    if not name:
-        console.print(
-            "[callspec.fail]No provider specified.[/callspec.fail] "
-            "Use --provider flag or set CALLSPEC_PROVIDER env var.",
-        )
-        return None
-
-    name = name.lower().strip()
-
-    if name == "mock":
-        from callspec.providers.mock import MockProvider
-        return MockProvider(response_fn=lambda prompt, msgs=None: f"mock: {prompt}")
-
-    provider_map = {
-        "openai": ("callspec.providers.openai", "OpenAIProvider"),
-        "anthropic": ("callspec.providers.anthropic", "AnthropicProvider"),
-        "google": ("callspec.providers.google", "GoogleProvider"),
-        "mistral": ("callspec.providers.mistral", "MistralProvider"),
-        "ollama": ("callspec.providers.ollama", "OllamaProvider"),
-        "litellm": ("callspec.providers.litellm", "LiteLLMProvider"),
-    }
-
-    if name not in provider_map:
-        console.print(
-            f"[callspec.fail]Unknown provider '{name}'.[/callspec.fail] "
-            f"Available: {', '.join(sorted(provider_map.keys()))}, mock",
-        )
-        return None
-
-    module_path, class_name = provider_map[name]
-    try:
-        module = importlib.import_module(module_path)
-        provider_class = getattr(module, class_name)
-        return provider_class()
-    except ImportError:
-        console.print(
-            f"[callspec.fail]Provider '{name}' not installed.[/callspec.fail] "
-            f"Install with: pip install callspec[{name}]",
-        )
-        return None
-    except Exception as init_err:
-        console.print(
-            f"[callspec.fail]Failed to initialize "
-            f"'{escape(name)}':[/callspec.fail] "
-            f"{escape(str(init_err))}"
-        )
-        return None

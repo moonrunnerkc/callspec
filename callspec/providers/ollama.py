@@ -49,14 +49,14 @@ class OllamaProvider(BaseProvider):
         self._seed = seed
         self._num_predict = num_predict
         self._client_kwargs = client_kwargs
-        self._client = None
-        self._async_client = None
+        self._client: Any = None
+        self._async_client: Any = None
 
     @property
     def provider_name(self) -> str:
         return "ollama"
 
-    def _get_client(self):
+    def _get_client(self) -> Any:
         if self._client is not None:
             return self._client
 
@@ -75,7 +75,7 @@ class OllamaProvider(BaseProvider):
         self._client = Client(**kwargs)
         return self._client
 
-    def _get_async_client(self):
+    def _get_async_client(self) -> Any:
         if self._async_client is not None:
             return self._async_client
 
@@ -103,7 +103,7 @@ class OllamaProvider(BaseProvider):
             return list(messages)
         return [{"role": "user", "content": prompt}]
 
-    def _build_options(self, **kwargs) -> dict[str, Any]:
+    def _build_options(self, **kwargs: Any) -> dict[str, Any]:
         """Build Ollama options dict for temperature, seed, and num_predict."""
         options: dict[str, Any] = {
             "temperature": self._temperature,

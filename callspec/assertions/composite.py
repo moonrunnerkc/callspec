@@ -7,6 +7,8 @@ behavioral contracts expressed as single chains.
 
 from __future__ import annotations
 
+from typing import Any
+
 from callspec.assertions.base import BaseAssertion
 from callspec.core.config import CallspecConfig
 from callspec.core.types import IndividualAssertionResult
@@ -51,7 +53,7 @@ class AndAssertion(BaseAssertion):
 
     def evaluate(self, content: str, config: CallspecConfig) -> IndividualAssertionResult:
         failures: list[str] = []
-        all_details: list[dict] = []
+        all_details: list[dict[str, Any]] = []
 
         for assertion in self._assertions:
             individual = assertion.evaluate(content, config)
@@ -92,7 +94,7 @@ class OrAssertion(BaseAssertion):
         self._assertions = assertions
 
     def evaluate(self, content: str, config: CallspecConfig) -> IndividualAssertionResult:
-        all_details: list[dict] = []
+        all_details: list[dict[str, Any]] = []
         any_passed = False
 
         for assertion in self._assertions:

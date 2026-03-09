@@ -50,7 +50,7 @@ class BaseProvider(ABC):
         Default implementation runs the sync call in a thread executor.
         Providers with native async support (OpenAI, Anthropic) override this.
         """
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         return await loop.run_in_executor(
             None,
             lambda: self.call(prompt, messages, **kwargs),

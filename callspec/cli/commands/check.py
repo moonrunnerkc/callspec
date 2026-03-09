@@ -64,7 +64,7 @@ def check(provider: str | None) -> None:
 
     console.print(f"Checking {len(targets)} provider(s)...\n")
 
-    failures = []
+    failures: list[str] = []
     for name in targets:
         _check_single_provider(name, failures)
 

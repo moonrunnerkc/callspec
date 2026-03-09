@@ -36,7 +36,6 @@ class ReportFormatter:
                 "total_cases": suite_result.total_cases,
                 "passed_cases": suite_result.passed_cases,
                 "failed_cases": suite_result.failed_cases,
-                "warned_cases": suite_result.warned_cases,
                 "execution_time_ms": suite_result.execution_time_ms,
                 "cases": {},
             }

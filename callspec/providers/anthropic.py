@@ -48,14 +48,14 @@ class AnthropicProvider(BaseProvider):
         # Anthropic requires max_tokens on every request
         self._max_tokens = max_tokens
         self._client_kwargs = client_kwargs
-        self._client = None
-        self._async_client = None
+        self._client: Any = None
+        self._async_client: Any = None
 
     @property
     def provider_name(self) -> str:
         return "anthropic"
 
-    def _get_client(self):
+    def _get_client(self) -> Any:
         if self._client is not None:
             return self._client
 
@@ -74,7 +74,7 @@ class AnthropicProvider(BaseProvider):
         self._client = Anthropic(**kwargs)
         return self._client
 
-    def _get_async_client(self):
+    def _get_async_client(self) -> Any:
         if self._async_client is not None:
             return self._async_client
 
@@ -97,7 +97,7 @@ class AnthropicProvider(BaseProvider):
         self,
         prompt: str,
         messages: list[dict[str, str]] | None = None,
-    ) -> tuple:
+    ) -> tuple[str | None, list[dict[str, str]]]:
         """Split system message from conversation messages.
 
         Anthropic's API takes system as a separate top-level parameter,
@@ -120,7 +120,7 @@ class AnthropicProvider(BaseProvider):
 
         return None, [{"role": "user", "content": prompt}]
 
-    def _build_params(self, system_text, user_messages, **kwargs):
+    def _build_params(self, system_text: str | None, user_messages: list[dict[str, str]], **kwargs: Any) -> dict[str, Any]:
         """Build the request parameters for Anthropic's messages API."""
         # Anthropic does not support a seed parameter for deterministic output.
         # The runner passes seed= on every call; strip it here to avoid a

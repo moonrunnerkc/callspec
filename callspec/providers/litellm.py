@@ -55,13 +55,13 @@ class LiteLLMProvider(BaseProvider):
         self._seed = seed
         self._max_tokens = max_tokens
         self._litellm_kwargs = litellm_kwargs
-        self._litellm = None
+        self._litellm: Any = None
 
     @property
     def provider_name(self) -> str:
         return "litellm"
 
-    def _get_litellm(self):
+    def _get_litellm(self) -> Any:
         if self._litellm is not None:
             return self._litellm
 
@@ -85,7 +85,7 @@ class LiteLLMProvider(BaseProvider):
             return list(messages)
         return [{"role": "user", "content": prompt}]
 
-    def _build_params(self, **kwargs) -> dict[str, Any]:
+    def _build_params(self, **kwargs: Any) -> dict[str, Any]:
         params: dict[str, Any] = {
             "model": self._model,
             "temperature": self._temperature,

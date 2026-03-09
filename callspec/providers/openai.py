@@ -57,14 +57,14 @@ class OpenAIProvider(BaseProvider):
         self._seed = seed
         self._max_tokens = max_tokens
         self._client_kwargs = client_kwargs
-        self._client = None
-        self._async_client = None
+        self._client: Any = None
+        self._async_client: Any = None
 
     @property
     def provider_name(self) -> str:
         return "openai"
 
-    def _get_client(self):
+    def _get_client(self) -> Any:
         if self._client is not None:
             return self._client
 
@@ -84,7 +84,7 @@ class OpenAIProvider(BaseProvider):
         )
         return self._client
 
-    def _get_async_client(self):
+    def _get_async_client(self) -> Any:
         if self._async_client is not None:
             return self._async_client
 

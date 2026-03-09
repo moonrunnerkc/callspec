@@ -46,13 +46,13 @@ class MistralProvider(BaseProvider):
         self._temperature = temperature
         self._max_tokens = max_tokens
         self._client_kwargs = client_kwargs
-        self._client = None
+        self._client: Any = None
 
     @property
     def provider_name(self) -> str:
         return "mistral"
 
-    def _get_client(self):
+    def _get_client(self) -> Any:
         if self._client is not None:
             return self._client
 
@@ -80,7 +80,7 @@ class MistralProvider(BaseProvider):
             return list(messages)
         return [{"role": "user", "content": prompt}]
 
-    def _build_params(self, **kwargs) -> dict[str, Any]:
+    def _build_params(self, **kwargs: Any) -> dict[str, Any]:
         # Mistral does not support a seed parameter for deterministic output.
         kwargs.pop("seed", None)
 

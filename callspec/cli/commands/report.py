@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import sys
+from typing import Any
 
 import click
 
@@ -55,7 +56,7 @@ def report(report_file: str, output_format: str) -> None:
     _render_plaintext(raw)
 
 
-def _render_plaintext(raw: dict) -> None:
+def _render_plaintext(raw: dict[str, Any]) -> None:
     """Render a saved JSON report with Rich formatting."""
     from rich.markup import escape
     from rich.panel import Panel
@@ -151,7 +152,7 @@ def _render_plaintext(raw: dict) -> None:
     )
 
 
-def _render_junit_from_raw(raw: dict) -> None:
+def _render_junit_from_raw(raw: dict[str, Any]) -> None:
     """Convert a saved JSON report to JUnit XML and print it."""
     suite_data = raw.get("suite", raw)
     suite_name = _xml_escape(raw.get("suite_name", "callspec"))

@@ -12,7 +12,7 @@ Developers use them in test files without manual instantiation.
 from __future__ import annotations
 
 import os
-from typing import Any
+from typing import Any, Callable
 
 import pytest
 
@@ -124,7 +124,7 @@ def _response_to_trajectory(response: ProviderResponse) -> ToolCallTrajectory:
 def trajectory_runner(
     callspec_provider: BaseProvider,
     callspec_config: CallspecConfig,
-):
+) -> Callable[..., TrajectoryBuilder]:
     """Function-scoped factory that calls the provider and returns a TrajectoryBuilder.
 
     Usage in a test:

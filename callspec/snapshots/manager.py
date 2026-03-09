@@ -17,6 +17,7 @@ from __future__ import annotations
 import logging
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 from callspec.errors import SnapshotError
 from callspec.snapshots.serializer import (
@@ -104,8 +105,8 @@ class SnapshotManager:
         prompt: str,
         model: str = "unknown",
         provider: str = "unknown",
-        metadata: dict | None = None,
-        tool_calls: list[dict] | None = None,
+        metadata: dict[str, Any] | None = None,
+        tool_calls: list[dict[str, Any]] | None = None,
         overwrite: bool = False,
     ) -> SnapshotEntry:
         """Create a new snapshot entry and persist it.
@@ -153,8 +154,8 @@ class SnapshotManager:
         prompt: str,
         model: str = "unknown",
         provider: str = "unknown",
-        metadata: dict | None = None,
-        tool_calls: list[dict] | None = None,
+        metadata: dict[str, Any] | None = None,
+        tool_calls: list[dict[str, Any]] | None = None,
     ) -> SnapshotEntry:
         """Update an existing entry or create it if it does not exist."""
         return self.create_entry(

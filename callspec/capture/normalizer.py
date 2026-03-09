@@ -104,8 +104,8 @@ def _from_generic_list(tool_call_dicts: list[Any]) -> ToolCallTrajectory:
                 f"Each tool call must be a dict with 'name' and 'arguments' keys."
             )
         calls.append(ToolCall(
-            tool_name=tc.get("name", tc.get("tool_name", "")),
-            arguments=tc.get("arguments", tc.get("args", {})),
+            tool_name=tc.get("name", tc.get("tool_name")) or "",
+            arguments=tc.get("arguments", tc.get("args")) or {},
             call_index=index,
             call_id=tc.get("id"),
         ))

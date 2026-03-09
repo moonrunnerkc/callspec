@@ -60,14 +60,10 @@ def run(
         suite.config.strict_mode = True
 
     # Resolve provider
-    resolved_provider = _resolve_provider(provider, suite)
+    from callspec.cli.provider_resolver import resolve_provider
+
+    resolved_provider = resolve_provider(provider, require=True)
     if resolved_provider is None:
-        console.print(
-            "[callspec.fail]Error:[/callspec.fail] "
-            "No provider specified. Use --provider flag or set "
-            "'provider' in the suite file.",
-            highlight=False,
-        )
         sys.exit(2)
 
     from callspec.core.runner import AssertionRunner
@@ -116,59 +112,4 @@ def run(
         sys.exit(1)
 
 
-def _resolve_provider(provider_name: str | None, suite):
-    """Resolve a provider from the CLI flag, suite config, or environment."""
-    import os
 
-    from rich.markup import escape
-
-    from callspec.cli.console import console
-
-    name = provider_name or os.environ.get("CALLSPEC_PROVIDER")
-
-    if not name:
-        return None
-
-    name = name.lower().strip()
-
-    from callspec.providers.mock import MockProvider
-
-    if name == "mock":
-        return MockProvider(response_fn=lambda prompt, msgs=None: prompt)
-
-    provider_map = {
-        "openai": ("callspec.providers.openai", "OpenAIProvider"),
-        "anthropic": ("callspec.providers.anthropic", "AnthropicProvider"),
-        "google": ("callspec.providers.google", "GoogleProvider"),
-        "mistral": ("callspec.providers.mistral", "MistralProvider"),
-        "ollama": ("callspec.providers.ollama", "OllamaProvider"),
-        "litellm": ("callspec.providers.litellm", "LiteLLMProvider"),
-    }
-
-    if name not in provider_map:
-        console.print(
-            f"[callspec.fail]Unknown provider '{name}'.[/callspec.fail] "
-            f"Available: {', '.join(sorted(provider_map.keys()))}, mock",
-        )
-        return None
-
-    module_path, class_name = provider_map[name]
-    try:
-        import importlib
-        module = importlib.import_module(module_path)
-        provider_class = getattr(module, class_name)
-        return provider_class()
-    except ImportError:
-        console.print(
-            f"[callspec.fail]Provider '{name}' requires "
-            f"additional dependencies.[/callspec.fail] "
-            f"Install with: pip install callspec[{name}]",
-        )
-        return None
-    except Exception as init_error:
-        console.print(
-            f"[callspec.fail]Failed to initialize provider "
-            f"'{escape(name)}':[/callspec.fail] "
-            f"{escape(str(init_error))}",
-        )
-        return None

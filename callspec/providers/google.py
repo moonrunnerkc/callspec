@@ -45,14 +45,14 @@ class GoogleProvider(BaseProvider):
         self._temperature = temperature
         self._max_output_tokens = max_output_tokens
         self._generation_kwargs = generation_kwargs
-        self._model = None
-        self._genai = None
+        self._model: Any = None
+        self._genai: Any = None
 
     @property
     def provider_name(self) -> str:
         return "google"
 
-    def _configure_sdk(self):
+    def _configure_sdk(self) -> Any:
         """Configure the google-generativeai SDK and create the model."""
         if self._model is not None:
             return self._model
@@ -85,7 +85,7 @@ class GoogleProvider(BaseProvider):
         self,
         prompt: str,
         messages: list[dict[str, str]] | None = None,
-    ) -> list:
+    ) -> list[Any]:
         """Convert messages to Google's content format.
 
         Google uses a different role naming: 'model' instead of 'assistant',
@@ -136,7 +136,7 @@ class GoogleProvider(BaseProvider):
         content_text = response.text if response.text else ""
 
         # Build raw dict for inspection
-        raw = {
+        raw: dict[str, Any] = {
             "model": self._model_name,
             "candidates": [],
         }
@@ -199,7 +199,7 @@ class GoogleProvider(BaseProvider):
 
         content_text = response.text if response.text else ""
 
-        raw = {
+        raw: dict[str, Any] = {
             "model": self._model_name,
             "candidates": [],
         }

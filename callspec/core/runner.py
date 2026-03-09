@@ -19,7 +19,7 @@ import time
 from callspec.assertions.base import BaseAssertion
 from callspec.assertions.trajectory_base import TrajectoryAssertion
 from callspec.core.config import CallspecConfig
-from callspec.core.suite import AssertionSuite
+from callspec.core.suite import AssertionCase, AssertionSuite
 from callspec.core.trajectory import ToolCall, ToolCallTrajectory
 from callspec.core.types import (
     AssertionResult,
@@ -27,8 +27,14 @@ from callspec.core.types import (
     ProviderResponse,
     SuiteResult,
 )
-from callspec.errors import ProviderError
+from callspec.errors import CallspecError, ProviderError
 from callspec.providers.base import BaseProvider
+
+# Transient error types that warrant retry. Provider SDK errors typically
+# subclass OSError or these stdlib types. CallspecError and its subclasses
+# are never retried because they indicate a library-level bug, not a
+# network or rate-limit problem.
+_RETRYABLE_ERRORS = (OSError, ConnectionError, TimeoutError)
 
 logger = logging.getLogger(__name__)
 
@@ -145,7 +151,6 @@ class AssertionRunner:
             total_cases=len(suite.cases),
             passed_cases=passed_count,
             failed_cases=failed_count,
-            warned_cases=0,
             execution_time_ms=elapsed_ms,
         )
 
@@ -153,7 +158,7 @@ class AssertionRunner:
         self,
         prompt: str,
         messages: list[dict[str, str]] | None,
-        case,
+        case: AssertionCase,
     ) -> AssertionResult:
         """Run a single case: call provider, evaluate content + trajectory assertions."""
         start_time = time.monotonic()
@@ -187,20 +192,20 @@ class AssertionRunner:
                 "Evaluating %d trajectory assertion(s) against %d tool call(s)",
                 len(case.trajectory_assertions), len(trajectory),
             )
-            for assertion in case.trajectory_assertions:
-                logger.debug("Evaluating %s.%s", assertion.assertion_type, assertion.assertion_name)
-                individual = assertion.evaluate_trajectory(trajectory, self._config)
+            for traj_assertion in case.trajectory_assertions:
+                logger.debug("Evaluating %s.%s", traj_assertion.assertion_type, traj_assertion.assertion_name)
+                individual = traj_assertion.evaluate_trajectory(trajectory, self._config)
                 individual_results.append(individual)
                 if not individual.passed:
                     all_passed = False
                     logger.debug(
                         "Assertion %s.%s FAILED: %s",
-                        assertion.assertion_type, assertion.assertion_name, individual.message,
+                        traj_assertion.assertion_type, traj_assertion.assertion_name, individual.message,
                     )
                     if self._config.fail_fast:
                         break
                 else:
-                    logger.debug("Assertion %s.%s passed", assertion.assertion_type, assertion.assertion_name)
+                    logger.debug("Assertion %s.%s passed", traj_assertion.assertion_type, traj_assertion.assertion_name)
 
         elapsed_ms = int((time.monotonic() - start_time) * 1000)
 
@@ -256,7 +261,11 @@ class AssertionRunner:
                     temperature=self._config.temperature,
                     seed=self._config.seed,
                 )
-            except Exception as provider_error:
+            except CallspecError:
+                # Library-level errors are never retried. They indicate a bug
+                # in assertion logic or configuration, not a transient failure.
+                raise
+            except _RETRYABLE_ERRORS as provider_error:
                 last_error = provider_error
                 if attempt < self._config.max_retries:
                     backoff_seconds = (

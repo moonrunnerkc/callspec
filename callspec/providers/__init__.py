@@ -19,6 +19,8 @@ Require optional extras:
     LiteLLMProvider     - pip install callspec[litellm]
 """
 
+from typing import Any
+
 from callspec.providers.base import BaseProvider
 from callspec.providers.mock import MockProvider
 from callspec.providers.response import NormalizedResponse
@@ -36,7 +38,7 @@ __all__ = [
 ]
 
 
-def __getattr__(name: str):
+def __getattr__(name: str) -> Any:
     """Lazy-load provider classes to avoid importing SDK packages at module level."""
     _provider_map = {
         "OpenAIProvider": "callspec.providers.openai",

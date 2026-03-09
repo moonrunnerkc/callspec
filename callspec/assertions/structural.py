@@ -287,6 +287,7 @@ class DoesNotContain(BaseAssertion):
     def __init__(self, text_or_pattern: str, is_regex: bool = False) -> None:
         self._text_or_pattern = text_or_pattern
         self._is_regex = is_regex
+        self._compiled: re.Pattern[str] | None = None
         if is_regex:
             try:
                 self._compiled = re.compile(text_or_pattern, re.DOTALL)
@@ -294,8 +295,6 @@ class DoesNotContain(BaseAssertion):
                 raise ValueError(
                     f"Invalid regex pattern '{text_or_pattern}': {regex_error}"
                 ) from regex_error
-        else:
-            self._compiled = None
 
     def evaluate(self, content: str, config: CallspecConfig) -> IndividualAssertionResult:
         if self._is_regex and self._compiled is not None:

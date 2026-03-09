@@ -99,5 +99,4 @@ class SuiteResult:
     total_cases: int = 0
     passed_cases: int = 0
     failed_cases: int = 0
-    warned_cases: int = 0
     execution_time_ms: int = 0

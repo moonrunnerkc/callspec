@@ -15,7 +15,7 @@ and a plain-English description of what is wrong.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable, TypeVar
 
 import yaml
 
@@ -42,10 +42,12 @@ SUITE_SCHEMA_VERSION = "1.0"
 # Each function takes a params dict and returns a BaseAssertion instance.
 _ASSERTION_BUILDERS: dict[str, Any] = {}
 
+_F = TypeVar("_F", bound=Callable[..., Any])
 
-def _register_assertion(name: str):
+
+def _register_assertion(name: str) -> Callable[[_F], _F]:
     """Decorator to register a YAML assertion type builder."""
-    def decorator(fn):
+    def decorator(fn: _F) -> _F:
         _ASSERTION_BUILDERS[name] = fn
         return fn
     return decorator
@@ -141,9 +143,9 @@ from callspec.assertions.contract import (
 _TRAJECTORY_BUILDERS: dict[str, Any] = {}
 
 
-def _register_trajectory(name: str):
+def _register_trajectory(name: str) -> Callable[[_F], _F]:
     """Decorator to register a YAML trajectory assertion builder."""
-    def decorator(fn):
+    def decorator(fn: _F) -> _F:
         _TRAJECTORY_BUILDERS[name] = fn
         return fn
     return decorator
@@ -327,7 +329,8 @@ def _build_assertion(assertion_def: dict[str, Any], filepath: str) -> BaseAssert
 
     params = assertion_def.get("params", {})
     try:
-        return builder(params)
+        result: BaseAssertion = builder(params)
+        return result
     except (ValueError, TypeError) as build_error:
         raise SuiteParseError(
             filepath,

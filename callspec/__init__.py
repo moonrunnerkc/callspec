@@ -8,7 +8,6 @@ from callspec.core.types import (
     AssertionType,
     IndividualAssertionResult,
     ProviderResponse,
-    Severity,
     SuiteResult,
 )
 from callspec.verdict import Callspec
@@ -22,7 +21,6 @@ __all__ = [
     "AssertionType",
     "IndividualAssertionResult",
     "ProviderResponse",
-    "Severity",
     "SuiteResult",
     "ToolCall",
     "ToolCallTrajectory",

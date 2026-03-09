@@ -24,11 +24,12 @@ from callspec.snapshots.manager import SnapshotManager
 
 manager = SnapshotManager(snapshot_dir="snapshots")
 manager.create_entry(
-    key="booking_flow",
+    snapshot_key="booking_flow",
     content="Booked flight",
+    prompt="Book me a flight from SFO to JFK",
     tool_calls=[
-        {"name": "search", "arguments": {"query": "SFO to JFK"}},
-        {"name": "book", "arguments": {"flight_id": "UA123"}},
+        {"tool_name": "search", "arguments": {"query": "SFO to JFK"}},
+        {"tool_name": "book", "arguments": {"flight_id": "UA123"}},
     ],
     model="gpt-4o-2024-11-20",
     provider="openai",
@@ -81,14 +82,15 @@ The diff system compares two trajectories across three dimensions:
 ```python
 from callspec.snapshots.diff import SnapshotDiff
 
-diff_result = SnapshotDiff.compare_trajectories(baseline_calls, current_calls)
+diff_result = SnapshotDiff.compare_trajectories("booking_flow", baseline_calls, current_calls)
 
-print(f"Sequence changed: {diff_result.sequence_changed}")
-print(f"Arguments changed: {diff_result.arguments_changed}")
+print(f"Sequence match: {diff_result.sequence_match}")
 print(f"Hash match: {diff_result.hash_match}")
+print(f"Tools added: {diff_result.tools_added}")
+print(f"Tools removed: {diff_result.tools_removed}")
 
-for tool_diff in diff_result.call_diffs:
-    print(f"  {tool_diff.tool_name}: keys_added={tool_diff.keys_added}, keys_removed={tool_diff.keys_removed}")
+for call_diff in diff_result.call_diffs:
+    print(f"  [{call_diff.position}] {call_diff.baseline_tool}: args_added={call_diff.args_added}, args_removed={call_diff.args_removed}")
 ```
 
 ## Updating Snapshots
@@ -103,8 +105,9 @@ callspec snapshot update --key "booking_flow"
 
 ```python
 manager.update_entry(
-    key="booking_flow",
+    snapshot_key="booking_flow",
     content="Updated response",
+    prompt="Book me a flight from SFO to JFK",
     tool_calls=[...],
     model="gpt-4o-2025-01-15",
     provider="openai",

@@ -69,9 +69,12 @@ def _render_plaintext(raw: dict) -> None:
         format_score,
     )
 
-    suite_name = raw.get("suite_name", raw.get("suite", "Unknown Suite"))
-    passed = raw.get("passed", None)
-    total_ms = raw.get("execution_time_ms", 0)
+    # The JSON report may nest suite data under a "suite" key (produced by
+    # `callspec run --format json`) or at the root level (simpler format).
+    suite_data = raw.get("suite", raw)
+    suite_name = raw.get("suite_name", suite_data.get("suite_name", "Unknown Suite"))
+    passed = suite_data.get("passed", None)
+    total_ms = suite_data.get("execution_time_ms", 0)
 
     if passed:
         status_text = "[callspec.pass]PASSED[/callspec.pass]"
@@ -94,7 +97,16 @@ def _render_plaintext(raw: dict) -> None:
     ))
     console.print()
 
-    cases = raw.get("cases", raw.get("results", []))
+    # Cases can be a dict (keyed by name, from `callspec run`) or a list.
+    raw_cases = suite_data.get("cases", suite_data.get("results", {}))
+    if isinstance(raw_cases, dict):
+        cases = [
+            {"name": case_name, **case_data}
+            for case_name, case_data in raw_cases.items()
+        ]
+    else:
+        cases = raw_cases
+
     for case_data in cases:
         case_name = case_data.get("name", case_data.get("case", "unnamed"))
         case_passed = case_data.get("passed", None)
@@ -141,8 +153,18 @@ def _render_plaintext(raw: dict) -> None:
 
 def _render_junit_from_raw(raw: dict) -> None:
     """Convert a saved JSON report to JUnit XML and print it."""
+    suite_data = raw.get("suite", raw)
     suite_name = _xml_escape(raw.get("suite_name", "callspec"))
-    cases = raw.get("cases", raw.get("results", []))
+
+    raw_cases = suite_data.get("cases", suite_data.get("results", {}))
+    if isinstance(raw_cases, dict):
+        cases = [
+            {"name": case_name, **case_data}
+            for case_name, case_data in raw_cases.items()
+        ]
+    else:
+        cases = raw_cases
+
     total = len(cases)
     failures = sum(1 for c in cases if not c.get("passed"))
     total_ms = raw.get("execution_time_ms", 0)

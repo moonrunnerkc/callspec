@@ -89,7 +89,7 @@ pytest --callspec-skip-contracts     # skip all contract tests
 Define assertion suites as YAML and run them from the CLI:
 
 ```yaml
-version: "1"
+version: "1.0"
 name: "booking_contracts"
 cases:
   - name: "flight booking"
@@ -98,13 +98,14 @@ cases:
       - calls_tools_in_order: ["search_flights", "book_flight"]
       - does_not_call: "cancel_flight"
     contracts:
-      - tool: search_flights
-        assertions:
-          - argument_not_empty: "query"
-          - argument_contains_key: "origin"
-      - tool: book_flight
-        assertions:
-          - argument_contains_key: "flight_id"
+      search_flights:
+        - key: "query"
+          not_empty: true
+        - key: "origin"
+          contains_key: true
+      book_flight:
+        - key: "flight_id"
+          contains_key: true
 ```
 
 ```bash

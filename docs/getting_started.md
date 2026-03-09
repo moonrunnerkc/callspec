@@ -53,10 +53,16 @@ Run it:
 python test_agent.py
 ```
 
-Or with pytest:
+Or wrap it in a test function for pytest:
+
+```python
+def test_booking_trajectory():
+    # ... same code as above ...
+    assert result.passed
+```
 
 ```bash
-pytest test_agent.py
+pytest test_agent.py -v
 ```
 
 ## What Just Happened

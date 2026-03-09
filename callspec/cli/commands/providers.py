@@ -16,6 +16,17 @@ PROVIDER_MAP = {
     "litellm": ("callspec.providers.litellm", "LiteLLMProvider"),
 }
 
+# Maps provider names to the SDK package that must be importable
+# for the provider to actually function.
+PROVIDER_SDK_MAP = {
+    "openai": "openai",
+    "anthropic": "anthropic",
+    "google": "google.generativeai",
+    "mistral": "mistralai",
+    "ollama": "ollama",
+    "litellm": "litellm",
+}
+
 MINIMAL_PROMPT = "Respond with exactly: OK"
 
 
@@ -48,10 +59,17 @@ def providers(run_check: bool) -> None:
     for name in sorted(PROVIDER_MAP.keys()):
         module_path, class_name = PROVIDER_MAP[name]
 
+        # Check whether the underlying SDK package is importable, not just
+        # the callspec adapter module (which always exists in the package).
+        # Provider __init__ is lazy: SDK import happens on first call, not
+        # on construction. We check the SDK package directly.
+        sdk_module = PROVIDER_SDK_MAP.get(name, "")
         try:
+            importlib.import_module(sdk_module)
             module = importlib.import_module(module_path)
+            provider_class = getattr(module, class_name)
             installed = True
-        except ImportError:
+        except (ImportError, Exception):
             installed = False
 
         if not installed:
@@ -68,7 +86,6 @@ def providers(run_check: bool) -> None:
             continue
 
         # Connectivity check
-        provider_class = getattr(module, class_name)
         try:
             provider_instance = provider_class()
         except Exception as init_err:
@@ -118,7 +135,7 @@ def providers(run_check: bool) -> None:
         console.print(
             "\n[callspec.warn]No external providers installed."
             "[/callspec.warn] Install at least one:\n"
-            "  pip install callspec[openai]\n"
-            "  pip install callspec[anthropic]\n"
-            "  pip install callspec[ollama]"
+            "  pip install callspec\\[openai]\n"
+            "  pip install callspec\\[anthropic]\n"
+            "  pip install callspec\\[ollama]"
         )

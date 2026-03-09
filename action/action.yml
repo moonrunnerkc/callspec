@@ -1,5 +1,5 @@
-name: 'LLMAssert LLM Assertion Testing'
-description: 'Run LLMAssert behavioral assertions against your LLM application in CI. Annotates PRs with failure details.'
+name: 'LLMAssert Tool-Call Contract Testing'
+description: 'Run tool-call contract assertions against your LLM agent in CI. Annotates PRs with contract failure details.'
 author: 'Aftermath Technologies Ltd.'
 branding:
   icon: 'check-circle'
@@ -11,7 +11,11 @@ inputs:
     required: false
     default: 'run'
   suite:
-    description: 'Path to the YAML assertion suite file.'
+    description: 'Path to the YAML contract suite file.'
+    required: false
+    default: ''
+  provider:
+    description: 'LLM provider name (openai, anthropic, google, etc.). Overrides suite-level provider.'
     required: false
     default: ''
   report-format:
@@ -27,7 +31,7 @@ inputs:
     required: false
     default: '3.12'
   llm-assert-extras:
-    description: 'LLMAssert extras to install (e.g. "openai,semantic").'
+    description: 'LLMAssert extras to install (e.g. "openai").'
     required: false
     default: ''
   working-directory:
@@ -87,12 +91,27 @@ runs:
       id: llm-assert-run
       shell: bash
       working-directory: ${{ inputs.working-directory }}
+      env:
+        LLM_ASSERT_PROVIDER: ${{ inputs.provider }}
       run: |
         set +e
+
+        PROVIDER_FLAG=""
+        if [ -n "${{ inputs.provider }}" ]; then
+          PROVIDER_FLAG="--provider ${{ inputs.provider }}"
+        fi
+
+        STRICT_FLAG=""
+        if [ "${{ inputs.strict }}" = "true" ]; then
+          STRICT_FLAG="--strict"
+        fi
+
         if [ "${{ inputs.command }}" = "run" ] && [ -n "${{ inputs.suite }}" ]; then
           llm-assert run "${{ inputs.suite }}" \
-            --report-format "${{ inputs.report-format }}" \
-            --report-path "${{ inputs.report-path }}" \
+            --format "${{ inputs.report-format }}" \
+            --output "${{ inputs.report-path }}" \
+            $PROVIDER_FLAG \
+            $STRICT_FLAG \
             --github-annotations
           EXIT_CODE=$?
         elif [ "${{ inputs.command }}" = "pytest" ]; then

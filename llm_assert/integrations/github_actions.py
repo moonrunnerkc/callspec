@@ -5,6 +5,10 @@ appear as annotations directly on the PR diff view. This is the highest-
 leverage CI integration: a failing assertion annotates the exact test
 file with structured failure context.
 
+Supports both content assertion failures and tool-call contract failures.
+Contract failures show which tool call failed, which contract was violated,
+and the actual argument value vs. the expected constraint.
+
 Workflow command format:
     ::error file=tests/test_my_llm.py,line=42::SemanticAssertion failed: ...
 
@@ -73,9 +77,11 @@ def annotate_individual_result(
     Failed assertions produce ::error annotations. Borderline passes
     (score within 5% of threshold) produce ::warning annotations to
     flag fragile tests before they break.
+
+    Contract and trajectory failures include tool-call-specific context:
+    which tool, which argument, what was expected vs. actual.
     """
     if result.passed:
-        # Check for borderline pass: score within 5% of threshold
         if _is_borderline_pass(result):
             return format_annotation(
                 level=_SEVERITY_WARNING,
@@ -90,9 +96,12 @@ def annotate_individual_result(
             )
         return ""
 
+    # Build a detailed message for contract/trajectory failures
+    message = _format_contract_failure(result) or result.message
+
     return format_annotation(
         level=_SEVERITY_ERROR,
-        message=result.message,
+        message=message,
         file=file,
         line=line,
         title=f"LLMAssert: {result.assertion_name}",
@@ -262,3 +271,42 @@ def _is_borderline_pass(result: IndividualAssertionResult) -> bool:
 
     margin = abs(result.threshold * 0.05)
     return result.score <= (result.threshold + margin)
+
+
+def _format_contract_failure(result: IndividualAssertionResult) -> str | None:
+    """Build a contract-specific failure message with tool call context.
+
+    Returns None if the result doesn't contain contract/trajectory-specific
+    details, falling back to result.message in the caller.
+    """
+    details = result.details
+    if not details:
+        return None
+
+    parts = [result.message]
+
+    # Trajectory assertion details: show actual vs expected tool names
+    if "actual_tools" in details:
+        parts.append(f"Actual tools: {details['actual_tools']}")
+    if "expected_tools" in details:
+        parts.append(f"Expected tools: {details['expected_tools']}")
+
+    # Contract assertion details: show violations
+    violations = details.get("violations")
+    if violations and isinstance(violations, list):
+        for violation in violations[:3]:  # cap at 3 to keep annotations readable
+            if isinstance(violation, dict):
+                tool = violation.get("tool_name", "?")
+                key = violation.get("key", "?")
+                actual = violation.get("actual_value", "?")
+                parts.append(f"  {tool}.{key}: got {actual!r}")
+            elif isinstance(violation, str):
+                parts.append(f"  {violation}")
+
+    # Diff detail from regression assertions
+    if "tools_added" in details and details["tools_added"]:
+        parts.append(f"Tools added: {details['tools_added']}")
+    if "tools_removed" in details and details["tools_removed"]:
+        parts.append(f"Tools removed: {details['tools_removed']}")
+
+    return " | ".join(parts) if len(parts) > 1 else None

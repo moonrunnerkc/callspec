@@ -131,10 +131,11 @@ The action installs callspec, runs your contract suite, and annotates PRs with f
 - [Contract Assertions](docs/contract_assertions.md) -- argument validation
 - [Snapshots and Drift](docs/snapshots_and_drift.md) -- regression testing across model versions
 - [pytest and CI](docs/pytest_and_ci.md) -- fixtures, markers, CI pipeline integration
+- [Case Study: The Refund Agent](case_study/README.md) -- a model swap silently drops fraud checks, callspec catches it
 
 ## Status
 
-callspec is in **alpha** (v0.1.0). The trajectory assertion API and snapshot system are stable and tested (570+ tests, Python 3.9-3.13). The API surface may change before 1.0 based on real-world usage. File issues or feature requests on [GitHub](https://github.com/moonrunnerkc/callspec/issues).
+callspec is in **alpha** (v0.1.0). The trajectory assertion API and snapshot system are stable and tested (580+ tests, Python 3.9-3.13). The API surface may change before 1.0 based on real-world usage. File issues or feature requests on [GitHub](https://github.com/moonrunnerkc/callspec/issues).
 
 ## License
 

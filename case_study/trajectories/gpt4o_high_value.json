@@ -1,0 +1,44 @@
+{
+  "description": "Correct refund agent behavior (GPT-4o) on a high-value refund. Identical contract followed.",
+  "model": "gpt-4o-2024-11-20",
+  "provider": "openai",
+  "prompt": "Customer wants a refund for order ORD-2217, amount $340.00.",
+  "note": "Constructed from documented behavioral patterns observed across model versions.",
+  "calls": [
+    {
+      "tool_name": "verify_customer",
+      "arguments": {
+        "customer_id": "CUST-4501",
+        "verification_method": "email"
+      },
+      "call_index": 0
+    },
+    {
+      "tool_name": "check_order",
+      "arguments": {
+        "order_id": "ORD-2217",
+        "include_items": true
+      },
+      "call_index": 1
+    },
+    {
+      "tool_name": "fraud_check",
+      "arguments": {
+        "order_id": "ORD-2217",
+        "customer_id": "CUST-4501",
+        "refund_amount": 340.00
+      },
+      "call_index": 2
+    },
+    {
+      "tool_name": "issue_refund",
+      "arguments": {
+        "order_id": "ORD-2217",
+        "amount": 340.00,
+        "reason": "customer_request",
+        "method": "original_payment"
+      },
+      "call_index": 3
+    }
+  ]
+}

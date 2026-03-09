@@ -8,11 +8,17 @@ visible in assertion history.
 Supports deterministic output via temperature=0 and the seed parameter.
 OpenAI has supported deterministic seeds since November 2023.
 
+Handles both Chat Completions and Responses API formats for tool call
+extraction. Chat Completions returns tool calls in
+choices[0].message.tool_calls. The Responses API (March 2025+) returns
+them in response.output as items with type=="function_call".
+
 Requires: pip install llm-assert[openai]
 """
 
 from __future__ import annotations
 
+import json
 import logging
 import time
 from typing import Any
@@ -125,6 +131,76 @@ class OpenAIProvider(BaseProvider):
         params.update(kwargs)
         return params
 
+    @staticmethod
+    def _extract_tool_calls(response_dict: dict[str, Any]) -> list[dict[str, Any]]:
+        """Extract normalized tool calls from an OpenAI response dict.
+
+        Handles two API formats:
+        - Chat Completions: choices[0].message.tool_calls (objects with
+          function.name and function.arguments)
+        - Responses API (March 2025+): output items with type=="function_call"
+          containing name, arguments (JSON string), and call_id
+        """
+        extracted: list[dict[str, Any]] = []
+
+        # Chat Completions format
+        choices = response_dict.get("choices", [])
+        if choices:
+            message = choices[0].get("message", {})
+
+            # Current tool_calls format
+            raw_tool_calls = message.get("tool_calls") or []
+            for tc in raw_tool_calls:
+                func = tc.get("function", {})
+                args_str = func.get("arguments", "{}")
+                try:
+                    arguments = json.loads(args_str) if isinstance(args_str, str) else args_str
+                except (json.JSONDecodeError, TypeError):
+                    arguments = {"_raw": args_str}
+
+                extracted.append({
+                    "id": tc.get("id"),
+                    "name": func.get("name", ""),
+                    "arguments": arguments,
+                })
+
+            # Legacy function_call format (deprecated but still seen)
+            if not extracted:
+                function_call = message.get("function_call")
+                if function_call:
+                    args_str = function_call.get("arguments", "{}")
+                    try:
+                        arguments = (
+                            json.loads(args_str) if isinstance(args_str, str) else args_str
+                        )
+                    except (json.JSONDecodeError, TypeError):
+                        arguments = {"_raw": args_str}
+
+                    extracted.append({
+                        "name": function_call.get("name", ""),
+                        "arguments": arguments,
+                    })
+
+            return extracted
+
+        # Responses API format: output is a list of items
+        output_items = response_dict.get("output", [])
+        for item in output_items:
+            if item.get("type") == "function_call":
+                args_str = item.get("arguments", "{}")
+                try:
+                    arguments = json.loads(args_str) if isinstance(args_str, str) else args_str
+                except (json.JSONDecodeError, TypeError):
+                    arguments = {"_raw": args_str}
+
+                extracted.append({
+                    "id": item.get("call_id"),
+                    "name": item.get("name", ""),
+                    "arguments": arguments,
+                })
+
+        return extracted
+
     def call(
         self,
         prompt: str,
@@ -144,10 +220,11 @@ class OpenAIProvider(BaseProvider):
 
         choice = response.choices[0]
         usage = response.usage
+        raw_dict = response.model_dump()
 
         return ProviderResponse(
             content=choice.message.content or "",
-            raw=response.model_dump(),
+            raw=raw_dict,
             model=response.model,
             provider="openai",
             latency_ms=elapsed_ms,
@@ -155,6 +232,7 @@ class OpenAIProvider(BaseProvider):
             completion_tokens=usage.completion_tokens if usage else None,
             finish_reason=choice.finish_reason,
             request_id=response.id,
+            tool_calls=self._extract_tool_calls(raw_dict),
         )
 
     async def call_async(
@@ -177,10 +255,11 @@ class OpenAIProvider(BaseProvider):
 
         choice = response.choices[0]
         usage = response.usage
+        raw_dict = response.model_dump()
 
         return ProviderResponse(
             content=choice.message.content or "",
-            raw=response.model_dump(),
+            raw=raw_dict,
             model=response.model,
             provider="openai",
             latency_ms=elapsed_ms,
@@ -188,4 +267,5 @@ class OpenAIProvider(BaseProvider):
             completion_tokens=usage.completion_tokens if usage else None,
             finish_reason=choice.finish_reason,
             request_id=response.id,
+            tool_calls=self._extract_tool_calls(raw_dict),
         )

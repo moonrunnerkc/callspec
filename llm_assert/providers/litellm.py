@@ -19,6 +19,7 @@ Requires: pip install llm-assert[litellm]
 
 from __future__ import annotations
 
+import json
 import logging
 import time
 from typing import Any
@@ -151,6 +152,7 @@ class LiteLLMProvider(BaseProvider):
             completion_tokens=usage.completion_tokens if usage else None,
             finish_reason=choice.finish_reason if hasattr(choice, "finish_reason") else None,
             request_id=getattr(response, "id", None),
+            tool_calls=self._extract_tool_calls(choice),
         )
 
     async def call_async(
@@ -186,4 +188,34 @@ class LiteLLMProvider(BaseProvider):
             completion_tokens=usage.completion_tokens if usage else None,
             finish_reason=choice.finish_reason if hasattr(choice, "finish_reason") else None,
             request_id=getattr(response, "id", None),
+            tool_calls=self._extract_tool_calls(choice),
         )
+
+    @staticmethod
+    def _extract_tool_calls(choice: Any) -> list[dict[str, Any]]:
+        """Extract tool calls from a LiteLLM choice object.
+
+        LiteLLM normalizes all providers into an OpenAI-compatible format,
+        so tool_calls appear on choice.message.tool_calls with the standard
+        {id, type, function: {name, arguments}} structure.
+        """
+        raw_calls = getattr(getattr(choice, "message", None), "tool_calls", None) or []
+        extracted: list[dict[str, Any]] = []
+        for tc in raw_calls:
+            func = getattr(tc, "function", None)
+            if func is None:
+                func = tc.get("function", {}) if isinstance(tc, dict) else {}
+            func_name = getattr(func, "name", "") if not isinstance(func, dict) else func.get("name", "")
+            arguments = getattr(func, "arguments", "{}") if not isinstance(func, dict) else func.get("arguments", "{}")
+            if isinstance(arguments, str):
+                try:
+                    arguments = json.loads(arguments)
+                except (json.JSONDecodeError, TypeError):
+                    arguments = {"_raw": arguments}
+            tc_id = getattr(tc, "id", None) if not isinstance(tc, dict) else tc.get("id")
+            extracted.append({
+                "name": func_name,
+                "arguments": arguments if isinstance(arguments, dict) else {},
+                "id": tc_id,
+            })
+        return extracted

@@ -173,6 +173,7 @@ class GoogleProvider(BaseProvider):
             completion_tokens=completion_tokens,
             finish_reason=finish_reason,
             request_id=None,
+            tool_calls=self._extract_tool_calls(response),
         )
 
     async def call_async(
@@ -234,4 +235,40 @@ class GoogleProvider(BaseProvider):
             completion_tokens=completion_tokens,
             finish_reason=finish_reason,
             request_id=None,
+            tool_calls=self._extract_tool_calls(response),
         )
+
+    @staticmethod
+    def _extract_tool_calls(response: Any) -> list[dict[str, Any]]:
+        """Extract tool calls from a Google Generative AI response.
+
+        Gemini returns function calls as Part objects with a function_call
+        attribute containing name and args (a dict). The parts live inside
+        response.candidates[0].content.parts.
+        """
+        extracted: list[dict[str, Any]] = []
+        candidates = getattr(response, "candidates", None) or []
+        if not candidates:
+            return extracted
+
+        content = getattr(candidates[0], "content", None)
+        if content is None:
+            return extracted
+
+        parts = getattr(content, "parts", None) or []
+        for part in parts:
+            fn_call = getattr(part, "function_call", None)
+            if fn_call is None:
+                continue
+            name = getattr(fn_call, "name", "")
+            # Gemini's function_call.args is a proto MapComposite; convert to dict
+            args = getattr(fn_call, "args", {})
+            if hasattr(args, "items"):
+                args = dict(args)
+            elif not isinstance(args, dict):
+                args = {}
+            extracted.append({
+                "name": name,
+                "arguments": args,
+            })
+        return extracted

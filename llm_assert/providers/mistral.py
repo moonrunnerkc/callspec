@@ -17,6 +17,8 @@ import logging
 import time
 from typing import Any
 
+import json
+
 from llm_assert.core.types import ProviderResponse
 from llm_assert.providers.base import BaseProvider
 
@@ -123,6 +125,7 @@ class MistralProvider(BaseProvider):
             completion_tokens=usage.completion_tokens if usage else None,
             finish_reason=choice.finish_reason if hasattr(choice, "finish_reason") else None,
             request_id=response.id if hasattr(response, "id") else None,
+            tool_calls=self._extract_tool_calls(choice),
         )
 
     async def call_async(
@@ -156,4 +159,31 @@ class MistralProvider(BaseProvider):
             completion_tokens=usage.completion_tokens if usage else None,
             finish_reason=choice.finish_reason if hasattr(choice, "finish_reason") else None,
             request_id=response.id if hasattr(response, "id") else None,
+            tool_calls=self._extract_tool_calls(choice),
         )
+
+    @staticmethod
+    def _extract_tool_calls(choice: Any) -> list[dict[str, Any]]:
+        """Extract tool calls from a Mistral choice object.
+
+        Mistral uses an OpenAI-compatible tool_calls structure on the message.
+        Each tool call has id, type, and function (with name and arguments).
+        """
+        raw_calls = getattr(getattr(choice, "message", None), "tool_calls", None) or []
+        extracted: list[dict[str, Any]] = []
+        for tc in raw_calls:
+            func = getattr(tc, "function", None)
+            if func is None:
+                continue
+            arguments = getattr(func, "arguments", "{}")
+            if isinstance(arguments, str):
+                try:
+                    arguments = json.loads(arguments)
+                except (json.JSONDecodeError, TypeError):
+                    arguments = {"_raw": arguments}
+            extracted.append({
+                "name": getattr(func, "name", ""),
+                "arguments": arguments if isinstance(arguments, dict) else {},
+                "id": getattr(tc, "id", None),
+            })
+        return extracted

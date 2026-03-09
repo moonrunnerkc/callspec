@@ -6,10 +6,10 @@ the API so model drift is visible in assertion history.
 
 Important: Anthropic does not offer a seed parameter. At temperature=0,
 Claude outputs are highly consistent but not perfectly deterministic.
-The confidence interval mechanism in LLMAssert's scoring layer accounts
-for this residual variance. Tests relying on exact output matching
-against Anthropic should use semantic similarity with a threshold
-rather than string equality.
+
+Tool calls are extracted from content blocks where type=="tool_use".
+Each tool_use block contains an id, name, and input dict that maps
+directly to the normalized tool_calls format.
 
 Requires: pip install llm-assert[anthropic]
 """
@@ -156,9 +156,16 @@ class AnthropicProvider(BaseProvider):
 
         # Anthropic returns content as a list of content blocks
         content_text = ""
+        tool_calls_extracted: list[dict[str, Any]] = []
         for block in response.content:
             if block.type == "text":
                 content_text += block.text
+            elif block.type == "tool_use":
+                tool_calls_extracted.append({
+                    "id": block.id,
+                    "name": block.name,
+                    "arguments": block.input,
+                })
 
         return ProviderResponse(
             content=content_text,
@@ -170,6 +177,7 @@ class AnthropicProvider(BaseProvider):
             completion_tokens=response.usage.output_tokens if response.usage else None,
             finish_reason=response.stop_reason,
             request_id=response.id,
+            tool_calls=tool_calls_extracted,
         )
 
     async def call_async(
@@ -188,9 +196,16 @@ class AnthropicProvider(BaseProvider):
         elapsed_ms = int((time.monotonic() - start) * 1000)
 
         content_text = ""
+        tool_calls_extracted: list[dict[str, Any]] = []
         for block in response.content:
             if block.type == "text":
                 content_text += block.text
+            elif block.type == "tool_use":
+                tool_calls_extracted.append({
+                    "id": block.id,
+                    "name": block.name,
+                    "arguments": block.input,
+                })
 
         return ProviderResponse(
             content=content_text,
@@ -202,4 +217,5 @@ class AnthropicProvider(BaseProvider):
             completion_tokens=response.usage.output_tokens if response.usage else None,
             finish_reason=response.stop_reason,
             request_id=response.id,
+            tool_calls=tool_calls_extracted,
         )

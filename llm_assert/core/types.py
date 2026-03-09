@@ -42,6 +42,10 @@ class ProviderResponse:
     completion_tokens: int | None = None
     finish_reason: str | None = None
     request_id: str | None = None
+    # Raw tool call data extracted by the provider adapter. Each entry is a
+    # dict with at minimum {"name": str, "arguments": dict}. Provider-specific
+    # fields (id, call_id) are preserved for traceability.
+    tool_calls: list[dict[str, Any]] = field(default_factory=list)
 
 
 @dataclass

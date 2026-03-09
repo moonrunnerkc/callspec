@@ -15,6 +15,7 @@ Requires: pip install llm-assert[ollama]
 
 from __future__ import annotations
 
+import json
 import logging
 import time
 from typing import Any
@@ -155,6 +156,7 @@ class OllamaProvider(BaseProvider):
             completion_tokens=completion_tokens,
             finish_reason=raw_dict.get("done_reason", "stop" if raw_dict.get("done") else None),
             request_id=None,
+            tool_calls=self._extract_tool_calls(message_content),
         )
 
     async def call_async(
@@ -194,4 +196,31 @@ class OllamaProvider(BaseProvider):
             completion_tokens=completion_tokens,
             finish_reason=raw_dict.get("done_reason", "stop" if raw_dict.get("done") else None),
             request_id=None,
+            tool_calls=self._extract_tool_calls(message_content),
         )
+
+    @staticmethod
+    def _extract_tool_calls(message: Any) -> list[dict[str, Any]]:
+        """Extract tool calls from an Ollama message dict.
+
+        Ollama uses the same tool_calls structure as OpenAI when tools are
+        enabled: message.tool_calls is a list of {function: {name, arguments}}.
+        Arguments may be a dict (already parsed) or a JSON string.
+        """
+        if not isinstance(message, dict):
+            return []
+        raw_calls = message.get("tool_calls") or []
+        extracted: list[dict[str, Any]] = []
+        for tc in raw_calls:
+            func = tc.get("function", {}) if isinstance(tc, dict) else {}
+            arguments = func.get("arguments", {})
+            if isinstance(arguments, str):
+                try:
+                    arguments = json.loads(arguments)
+                except (json.JSONDecodeError, TypeError):
+                    arguments = {"_raw": arguments}
+            extracted.append({
+                "name": func.get("name", ""),
+                "arguments": arguments if isinstance(arguments, dict) else {},
+            })
+        return extracted

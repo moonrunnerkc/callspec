@@ -1,6 +1,8 @@
 """LLMAssert: Behavioral assertion testing for LLM applications."""
 
 from llm_assert.core.config import LLMAssertConfig
+from llm_assert.core.trajectory import ToolCall, ToolCallTrajectory
+from llm_assert.core.trajectory_builder import TrajectoryBuilder
 from llm_assert.core.types import (
     AssertionResult,
     AssertionType,
@@ -22,4 +24,7 @@ __all__ = [
     "ProviderResponse",
     "Severity",
     "SuiteResult",
+    "ToolCall",
+    "ToolCallTrajectory",
+    "TrajectoryBuilder",
 ]

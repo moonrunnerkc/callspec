@@ -52,14 +52,7 @@ assert response.tool_calls[0].function.arguments.get("origin")
 
 That works until you need ordering semantics across five tool calls, negative assertions ("never calls `delete_account`"), argument validation across providers that return different response shapes, or drift detection against a recorded baseline. Then you are writing and maintaining a test harness. callspec is that harness.
 
-**What you get over raw assertions:**
-
-- Fluent chainable API for tool ordering, presence, absence, and argument validation
-- Snapshot baselines that catch silent drift when you swap models or change prompts
-- Trajectory diffs showing exactly which tools were added, removed, or reordered
-- Provider adapters that normalize tool-call responses across OpenAI, Anthropic, Google, Mistral, Ollama, and LiteLLM
-- pytest plugin with fixtures, markers, and structured failure output
-- Deterministic pass/fail. No LLM-as-judge, no API calls for evaluation
+**What you get over raw assertions:** Fluent chainable assertions for tool ordering, presence, absence, and argument shapes. Snapshot baselines that catch silent drift when you swap models or edit prompts, with diffs showing exactly what changed. Provider adapters that normalize responses across OpenAI, Anthropic, Google, Mistral, Ollama, and LiteLLM. A pytest plugin with fixtures, markers, and structured failure output. No LLM-as-judge. No API calls for evaluation. Deterministic pass/fail.
 
 ## Snapshot drift detection
 
@@ -135,7 +128,18 @@ The action installs callspec, runs your contract suite, and annotates PRs with f
 
 ## Status
 
-callspec is in **alpha** (v0.1.0). The trajectory assertion API and snapshot system are stable and tested (580+ tests, Python 3.9-3.13). The API surface may change before 1.0 based on real-world usage. File issues or feature requests on [GitHub](https://github.com/moonrunnerkc/callspec/issues).
+callspec is alpha (v0.1.0), backed by 580+ tests across Python 3.9-3.13. The trajectory assertion API and snapshot system are stable. The API surface may change before 1.0 based on real-world usage.
+
+## Contributing
+
+File bugs and feature requests on [GitHub Issues](https://github.com/moonrunnerkc/callspec/issues). Pull requests welcome. Run the test suite before submitting:
+
+```bash
+pip install -e ".[dev]"
+pytest
+```
+
+See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for community guidelines.
 
 ## License
 

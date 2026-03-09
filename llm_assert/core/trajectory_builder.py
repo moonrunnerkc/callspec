@@ -29,6 +29,10 @@ from llm_assert.assertions.trajectory import (
     NoRepeatedCalls,
 )
 from llm_assert.assertions.trajectory_base import TrajectoryAssertion
+from llm_assert.assertions.trajectory_regression import (
+    MatchesTrajectoryBaseline,
+    TrajectorySequenceMatches,
+)
 from llm_assert.core.config import LLMAssertConfig
 from llm_assert.core.trajectory import ToolCall, ToolCallTrajectory
 from llm_assert.core.types import (
@@ -36,6 +40,7 @@ from llm_assert.core.types import (
     IndividualAssertionResult,
     ProviderResponse,
 )
+from llm_assert.snapshots.manager import SnapshotManager
 
 
 class TrajectoryBuilder:
@@ -146,6 +151,30 @@ class TrajectoryBuilder:
     ) -> TrajectoryBuilder:
         """Assert a user-supplied predicate passes for every call to the tool."""
         self._assertions.append(CustomContract(tool_name, predicate_fn, description))
+        return self
+
+    # -- Regression assertions --
+
+    def matches_baseline(
+        self,
+        snapshot_key: str,
+        snapshot_manager: SnapshotManager,
+    ) -> TrajectoryBuilder:
+        """Assert the trajectory matches a recorded baseline (sequence + argument keys)."""
+        self._assertions.append(
+            MatchesTrajectoryBaseline(snapshot_key, snapshot_manager)
+        )
+        return self
+
+    def sequence_matches_baseline(
+        self,
+        snapshot_key: str,
+        snapshot_manager: SnapshotManager,
+    ) -> TrajectoryBuilder:
+        """Assert the tool name sequence matches the baseline (arguments ignored)."""
+        self._assertions.append(
+            TrajectorySequenceMatches(snapshot_key, snapshot_manager)
+        )
         return self
 
     # -- Execution --

@@ -76,15 +76,17 @@ def snapshot_create(key: str, prompt: str, provider: str | None, snapshot_dir: s
             prompt=prompt,
             model=response.model,
             provider=response.provider,
+            tool_calls=response.tool_calls if response.tool_calls else None,
         )
     except SnapshotError as snap_err:
         from rich.markup import escape
         console.print(f"[llm_assert.fail]Error:[/llm_assert.fail] {escape(str(snap_err))}")
         sys.exit(1)
 
+    tool_info = f", {len(entry.tool_calls)} tool calls" if entry.tool_calls else ""
     console.print(
         f"{PASS_MARKER} Snapshot [llm_assert.key]'{key}'[/llm_assert.key] created "
-        f"[llm_assert.muted]({entry.content_length} chars, model={entry.model})[/llm_assert.muted]"
+        f"[llm_assert.muted]({entry.content_length} chars{tool_info}, model={entry.model})[/llm_assert.muted]"
     )
 
 
@@ -128,10 +130,12 @@ def snapshot_update(key: str, prompt: str, provider: str | None, snapshot_dir: s
         prompt=prompt,
         model=response.model,
         provider=response.provider,
+        tool_calls=response.tool_calls if response.tool_calls else None,
     )
+    tool_info = f", {len(entry.tool_calls)} tool calls" if entry.tool_calls else ""
     console.print(
         f"{PASS_MARKER} Snapshot [llm_assert.key]'{key}'[/llm_assert.key] updated "
-        f"[llm_assert.muted]({entry.content_length} chars, model={entry.model})[/llm_assert.muted]"
+        f"[llm_assert.muted]({entry.content_length} chars{tool_info}, model={entry.model})[/llm_assert.muted]"
     )
 
 
@@ -223,6 +227,26 @@ def snapshot_diff(key: str, snapshot_dir: str, prompt: str | None, provider: str
         console.print("[llm_assert.key]Current preview:[/llm_assert.key]")
         console.print(f"  [llm_assert.muted]{response.content[:200]}[/llm_assert.muted]")
 
+    # Trajectory diff when baseline has tool-call data
+    if baseline_entry.has_trajectory or response.tool_calls:
+        from llm_assert.snapshots.diff import SnapshotDiff
+
+        traj_diff = SnapshotDiff.compare_trajectories(
+            snapshot_key=key,
+            baseline_calls=baseline_entry.tool_calls,
+            current_calls=response.tool_calls,
+            baseline_model=baseline_entry.model,
+            current_model=response.model,
+            baseline_hash=baseline_entry.trajectory_hash,
+        )
+
+        console.print()
+        if traj_diff.has_changes:
+            console.print("[llm_assert.warn]Trajectory changes:[/llm_assert.warn]")
+            console.print(f"  [llm_assert.muted]{traj_diff.detailed_report()}[/llm_assert.muted]")
+        else:
+            console.print("[llm_assert.pass]Trajectory unchanged.[/llm_assert.pass]")
+
 
 
 
@@ -275,13 +299,20 @@ def snapshot_list(snapshot_dir: str) -> None:
     table.add_column("Key", style="llm_assert.key")
     table.add_column("Model", style="llm_assert.muted")
     table.add_column("Length", justify="right")
+    table.add_column("Tool Calls", justify="right")
 
     for snapshot_key in sorted(keys):
         try:
             entry = manager.get_entry(snapshot_key)
-            table.add_row(snapshot_key, entry.model, f"{entry.content_length} chars")
+            tool_count = str(len(entry.tool_calls)) if entry.tool_calls else "-"
+            table.add_row(
+                snapshot_key,
+                entry.model,
+                f"{entry.content_length} chars",
+                tool_count,
+            )
         except Exception:
-            table.add_row(snapshot_key, "[llm_assert.fail]load error[/llm_assert.fail]", "")
+            table.add_row(snapshot_key, "[llm_assert.fail]load error[/llm_assert.fail]", "", "")
 
     console.print(table)
 

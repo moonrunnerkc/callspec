@@ -105,12 +105,17 @@ class SnapshotManager:
         model: str = "unknown",
         provider: str = "unknown",
         metadata: dict | None = None,
+        tool_calls: list[dict] | None = None,
         overwrite: bool = False,
     ) -> SnapshotEntry:
         """Create a new snapshot entry and persist it.
 
         If overwrite=False and the key already exists, raises SnapshotError.
         This prevents accidental baseline overwrites in CI.
+
+        Args:
+            tool_calls: Optional list of tool call dicts from a trajectory.
+                Each dict should have 'tool_name' and 'arguments' keys.
         """
         snapshot_file = self.load_or_create()
 
@@ -128,14 +133,16 @@ class SnapshotManager:
             model=model,
             provider=provider,
             metadata=metadata or {},
+            tool_calls=tool_calls or [],
         )
 
         snapshot_file.entries[snapshot_key] = SnapshotSerializer.serialize_entry(entry)
         self.save(snapshot_file)
 
+        call_info = f", {len(entry.tool_calls)} tool calls" if entry.tool_calls else ""
         logger.info(
-            "Created snapshot entry: %s (model=%s, %d chars)",
-            snapshot_key, model, len(content),
+            "Created snapshot entry: %s (model=%s, %d chars%s)",
+            snapshot_key, model, len(content), call_info,
         )
         return entry
 
@@ -147,6 +154,7 @@ class SnapshotManager:
         model: str = "unknown",
         provider: str = "unknown",
         metadata: dict | None = None,
+        tool_calls: list[dict] | None = None,
     ) -> SnapshotEntry:
         """Update an existing entry or create it if it does not exist."""
         return self.create_entry(
@@ -156,6 +164,7 @@ class SnapshotManager:
             model=model,
             provider=provider,
             metadata=metadata,
+            tool_calls=tool_calls,
             overwrite=True,
         )
 
